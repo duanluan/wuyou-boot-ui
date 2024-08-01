@@ -25,7 +25,8 @@ export default defineConfig({
       resolvers: [
         // 自动注册图标组件
         IconsResolver({
-          enabledCollections: ['ep'],
+          // 启用的图标合集。默认启用 mdi（https://icon-sets.iconify.design/mdi/）合集
+          // enabledCollections: ['mdi'],
         }),
         // 自动导入 Element Plus 组件
         ElementPlusResolver(),
