@@ -56,10 +56,15 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
+import http from "./utils/http.ts";
 
 const isCollapse = ref(false)
 const handleOpen = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
+  // 请求菜单
+  http.get('/sys/menus', {loadingOption: {target: '.el-aside'}}).then(response => {
+    console.log(response)
+  })
 }
 const handleClose = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
@@ -67,10 +72,16 @@ const handleClose = (key: string, keyPath: string[]) => {
 </script>
 
 <style scoped>
-.el-menu-vertical{
-  min-height: 100vh;
+/* 左侧菜单全高 */
+.el-menu-vertical {
+  height: 100vh;
 }
-.el-menu-vertical:not(.el-menu--collapse) {
+
+/* Collapse 折叠面板：https://element-plus.org/zh-CN/component/menu.html#collapse-%E6%8A%98%E5%8F%A0%E9%9D%A2%E6%9D%BF */
+.el-menu-vertical:not(
+/* 已折叠的菜单 */
+.el-menu--collapse
+) {
   width: 200px;
 }
 </style>

@@ -25,4 +25,7 @@ declare module 'vue' {
     IMdiAirplaneMarker: typeof import('~icons/mdi/airplane-marker')['default']
     IMdiAnsible: typeof import('~icons/mdi/ansible')['default']
   }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }
