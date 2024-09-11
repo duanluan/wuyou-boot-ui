@@ -24,6 +24,8 @@ declare module 'vue' {
     IMdiAccountCheck: typeof import('~icons/mdi/account-check')['default']
     IMdiAirplaneMarker: typeof import('~icons/mdi/airplane-marker')['default']
     IMdiAnsible: typeof import('~icons/mdi/ansible')['default']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

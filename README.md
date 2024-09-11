@@ -66,8 +66,8 @@ export default defineConfig({
     AutoImport({
       // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
       imports: ['vue'],
-      // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox...（带样式）
       resolvers: [
+        // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox...（带样式）
         ElementPlusResolver(),
         // 自动导入图标组件
         IconsResolver({
@@ -92,3 +92,75 @@ export default defineConfig({
 })
 
 ```
+
+## Vue Router
+
+[包管理器安装](https://router.vuejs.org/zh/installation.html#%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8)：
+
+```shell
+pnpm add vue-router@4
+```
+
+在`src/views`下创建页面。
+
+`src/views/Home.vue`：
+```ts
+<template>
+  <h1>主页</h1>
+</template>
+
+<script setup lang="ts"></script>
+```
+
+`src/views/Login.vue`：
+```ts
+<template>
+  <h1>登录页</h1>
+</template>
+
+<script setup lang="ts"></script>
+```
+
+在`src/router/index.ts`中配置路由：
+
+```ts
+import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
+
+import HomeView from "../views/Home.vue";
+import LoginView from "../views/Login.vue";
+
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: "/",
+    component: HomeView,
+  }, {
+    path: "/login",
+    component: LoginView
+  }
+];
+
+// 创建路由器实例：https://router.vuejs.org/zh/guide/#%E5%88%9B%E5%BB%BA%E8%B7%AF%E7%94%B1%E5%99%A8%E5%AE%9E%E4%BE%8B
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes
+});
+
+export default router;
+```
+
+在`src/main.ts`中注册：
+
+```ts {4,8}
+import { createApp } from 'vue'
+import './style.css'
+import App from './App.vue'
+import router from './router';
+
+createApp(App)
+  // 注册路由器插件：https://router.vuejs.org/zh/guide/#%E6%B3%A8%E5%86%8C%E8%B7%AF%E7%94%B1%E5%99%A8%E6%8F%92%E4%BB%B6
+  .use(router)
+  .mount('#app')
+```
+
+手动访问`/`和`/login`，查看效果。
