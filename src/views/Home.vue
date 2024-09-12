@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
-import http from "../utils/http.ts";
+import http from "/@/utils/http.ts";
 
 const isCollapse = ref(false)
 const handleOpen = (key: string, keyPath: string[]) => {

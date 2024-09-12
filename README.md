@@ -284,3 +284,46 @@ export const useMenuStore = defineStore('menu', () => {
 ```
 
 页面上点击 +1，刷新页面，查看效果。
+
+## 根路径 src 别名 /@
+
+在`tsconfig.json`中配置：
+```json {2-7}
+{
+  "compilerOptions":{
+    "baseUrl": ".",
+    "paths": {
+      "/@/*": ["./src/*"]
+    }
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
+```
+
+在`vite.config.ts`中配置：
+```ts
+// ……
+import {resolve} from 'path'
+
+export default defineConfig({
+  // 开发或生产环境服务的公共基础路径：https://cn.vitejs.dev/config/shared-options.html#base
+  base: './',
+  resolve: {
+    // 路径别名：https://cn.vitejs.dev/config/shared-options.html#resolve-alias
+    alias: {
+      '/@': resolve(__dirname, 'src')
+    }
+  },
+  // ……
+})
+```
+
+之后就可以将`src`目录下的文件路径写为`/@`开头的绝对路径。

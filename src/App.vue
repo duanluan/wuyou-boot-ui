@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import {useMenuStore} from './store/menu';
+import {useMenuStore} from '/@/store/menu';
 
 const menuStore = useMenuStore();
 const increment = () => {

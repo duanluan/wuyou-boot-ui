@@ -1,12 +1,21 @@
-import { defineConfig } from 'vite'
+import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import {ElementPlusResolver} from 'unplugin-vue-components/resolvers'
 import Icons from "unplugin-icons/vite"
 import IconsResolver from 'unplugin-icons/resolver'
+import {resolve} from 'path'
 
 export default defineConfig({
+  // 开发或生产环境服务的公共基础路径：https://cn.vitejs.dev/config/shared-options.html#base
+  base: './',
+  resolve: {
+    // 路径别名：https://cn.vitejs.dev/config/shared-options.html#resolve-alias
+    alias: {
+      '/@': resolve(__dirname, 'src')
+    }
+  },
   plugins: [
     vue(),
     AutoImport({
