@@ -104,7 +104,7 @@ pnpm add vue-router@4
 在`src/views`下创建页面。
 
 `src/views/Home.vue`：
-```ts
+```html
 <template>
   <h1>主页</h1>
 </template>
@@ -113,7 +113,7 @@ pnpm add vue-router@4
 ```
 
 `src/views/Login.vue`：
-```ts
+```html
 <template>
   <h1>登录页</h1>
 </template>
@@ -121,7 +121,7 @@ pnpm add vue-router@4
 <script setup lang="ts"></script>
 ```
 
-在`src/router/index.ts`中配置路由：
+在`src/router/index.ts`中[配置路由](https://router.vuejs.org/zh/api/#Functions-createRouter)：
 
 ```ts
 import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
@@ -149,9 +149,9 @@ const router = createRouter({
 export default router;
 ```
 
-在`src/main.ts`中注册：
+在`src/main.ts`中[注册](https://router.vuejs.org/zh/guide/#%E6%B3%A8%E5%86%8C%E8%B7%AF%E7%94%B1%E5%99%A8%E6%8F%92%E4%BB%B6)：
 
-```ts {4,8}
+```ts {4,7-8}
 import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
@@ -163,4 +163,124 @@ createApp(App)
   .mount('#app')
 ```
 
+修改`src/App.vue`，添加路由视图：
+
+```html {2}
+<template>
+  <router-view/>
+</template>
+```
+
 手动访问`/`和`/login`，查看效果。
+
+## Pinia
+
+[包管理器安装](https://pinia.vuejs.org/zh/getting-started.html#installation)：
+
+```shell
+pnpm add pinia
+```
+
+在`src/main.ts`中使用：
+
+```ts {5,10-11}
+import { createApp } from 'vue'
+import './style.css'
+import App from './App.vue'
+import router from './router';
+import { createPinia } from 'pinia'
+
+createApp(App)
+  // 注册路由器插件：https://router.vuejs.org/zh/guide/#%E6%B3%A8%E5%86%8C%E8%B7%AF%E7%94%B1%E5%99%A8%E6%8F%92%E4%BB%B6
+  .use(router)
+  // 创建 pinia 实例（根 store）：https://pinia.vuejs.org/zh/api/modules/pinia.html#createpinia
+  .use(createPinia())
+  .mount('#app')
+```
+
+新建`src/store/menu.ts`用于测试：
+
+```ts
+import {defineStore} from 'pinia';
+
+// 创建一个 useStore 函数，检索 store 实例：https://pinia.vuejs.org/zh/api/modules/pinia.html#definestore
+export const useMenuStore = defineStore('menu', () => {
+  const count = ref(0);
+
+  const increment = () => count.value++;
+
+  return {
+    count,
+    increment,
+  };
+});
+```
+
+在`src/App.vue`中使用查看效果：
+
+```html {3-4,6-13}
+<template>
+  <router-view/>
+  <h1>menuStore.count: {{ menuStore.count }}</h1>
+  <el-button type="primary" @click="increment">+1</el-button>
+</template>
+
+<script setup lang="ts">
+import {useMenuStore} from './store/menu';
+
+const menuStore = useMenuStore();
+const increment = () => {
+  menuStore.increment();
+}
+</script>
+```
+
+pinia 持久化需要使用插件 [pinia-plugin-persistedstate](https://github.com/prazdevs/pinia-plugin-persistedstate)：
+
+```shell
+pnpm add pinia-plugin-persistedstate
+```
+
+修改`src/main.ts`启用插件：
+
+```ts {6-11,16}
+import { createApp } from 'vue'
+import './style.css'
+import App from './App.vue'
+import router from './router';
+import { createPinia } from 'pinia'
+import piniaPersistedstate from 'pinia-plugin-persistedstate'
+
+// 创建 pinia 实例（根 store）：https://pinia.vuejs.org/zh/api/modules/pinia.html#createpinia
+const pinia = createPinia()
+// pinia 持久化插件
+pinia.use(piniaPersistedstate)
+
+createApp(App)
+  // 注册路由器插件：https://router.vuejs.org/zh/guide/#%E6%B3%A8%E5%86%8C%E8%B7%AF%E7%94%B1%E5%99%A8%E6%8F%92%E4%BB%B6
+  .use(router)
+  .use(pinia)
+  .mount('#app')
+```
+
+修改`src/store/menu.ts`启用持久化：
+```ts {13-16}
+import {defineStore} from 'pinia';
+
+// 创建一个 useStore 函数，检索 store 实例：https://pinia.vuejs.org/zh/api/modules/pinia.html#definestore
+export const useMenuStore = defineStore('menu', () => {
+  const count = ref(0);
+
+  const increment = () => count.value++;
+
+  return {
+    count,
+    increment,
+  };
+}, {
+  // 持久化
+  persist: true
+});
+```
+
+页面上点击 +1，刷新页面，查看效果。
