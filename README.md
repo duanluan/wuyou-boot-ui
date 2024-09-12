@@ -1,6 +1,13 @@
 # 简介
 
+技术栈：
 
+* Vite：https://cn.vitejs.dev/guide/
+* TypeScript：https://www.tslang.cn/docs/home.html
+* Vue.js：https://cn.vuejs.org/guide/introduction.html
+* Element Plus：https://element-plus.org/zh-CN/component/overview.html
+* Vue Router：https://router.vuejs.org/zh/guide/
+* Pinia：https://pinia.vuejs.org/zh/core-concepts/
 
 # 集成步骤
 
