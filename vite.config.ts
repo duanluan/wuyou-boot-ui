@@ -13,7 +13,7 @@ export default defineConfig({
   resolve: {
     // 路径别名：https://cn.vitejs.dev/config/shared-options.html#resolve-alias
     alias: {
-      '/@': resolve(__dirname, 'src')
+      '@': resolve(__dirname, 'src')
     }
   },
   plugins: [

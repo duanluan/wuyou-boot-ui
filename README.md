@@ -100,6 +100,52 @@ export default defineConfig({
 
 ```
 
+[三种使用方式](https://github.com/sxzz/element-plus-best-practices/blob/db2dfc983ccda5570033a0ac608a1bd9d9a7f658/src/App.vue)：
+```html
+<script lang="ts" setup>
+// 方式 1:手动导入并注册图标组件
+import IconEpApple from '~icons/ep/apple'
+
+const msg = ref('')
+
+const handleClick = () => {
+  ElMessage.success('Hello world')
+}
+</script>
+
+<script lang="ts">
+export default defineComponent({
+  components: {
+    // 方法 3：使用 `unplugin-auto-import` 来自动导入组件，再手动注册组件。（不推荐）
+    IconEpRefresh,
+  },
+})
+</script>
+
+<template>
+  <el-space direction="vertical">
+    <IconEpApple />
+    
+    <!-- 方法 2：使用 `unplugin-vue-components` 插件来自动注册图标 -->
+    <i-ep-add-location />
+    <i-ep-aim />
+
+    <!-- 方法 3 -->
+    <IconEpRefresh />
+
+    <el-button @click="handleClick">
+      <el-icon><i-ep-circle-check-filled /></el-icon> Hello world
+    </el-button>
+
+    <el-input v-model="msg" />
+  </el-space>
+
+  <div v-loading="{ text: 'Loading...' }" style="height: 500px">
+    Loading Area
+  </div>
+</template>
+```
+
 ## Vue Router
 
 [包管理器安装](https://router.vuejs.org/zh/installation.html#%E5%8C%85%E7%AE%A1%E7%90%86%E5%99%A8)：
@@ -292,7 +338,7 @@ export const useMenuStore = defineStore('menu', () => {
 
 页面上点击 +1，刷新页面，查看效果。
 
-## 根路径 src 别名 /@
+## 根路径 src 别名 @
 
 在`tsconfig.json`中配置：
 ```json {2-7}
@@ -300,7 +346,7 @@ export const useMenuStore = defineStore('menu', () => {
   "compilerOptions":{
     "baseUrl": ".",
     "paths": {
-      "/@/*": ["./src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "files": [],
@@ -326,11 +372,11 @@ export default defineConfig({
   resolve: {
     // 路径别名：https://cn.vitejs.dev/config/shared-options.html#resolve-alias
     alias: {
-      '/@': resolve(__dirname, 'src')
+      '@': resolve(__dirname, 'src')
     }
   },
   // ……
 })
 ```
 
-之后就可以将`src`目录下的文件路径写为`/@`开头的绝对路径。
+之后就可以将`src`目录下的文件路径写为`@`开头的绝对路径。

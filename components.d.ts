@@ -20,15 +20,14 @@ declare module 'vue' {
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
-    IEpAddLocation: typeof import('~icons/ep/add-location')['default']
+    Iconify: typeof import('./src/components/Iconify.vue')['default']
     IMdiAbTesting: typeof import('~icons/mdi/ab-testing')['default']
     IMdiAccountCheck: typeof import('~icons/mdi/account-check')['default']
     IMdiAirplaneMarker: typeof import('~icons/mdi/airplane-marker')['default']
     IMdiAnsible: typeof import('~icons/mdi/ansible')['default']
+    RecursiveMenu: typeof import('./src/components/RecursiveMenu.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-  }
-  export interface ComponentCustomProperties {
-    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+    SvgIcon: typeof import('./src/components/SvgIcon.vue')['default']
   }
 }
