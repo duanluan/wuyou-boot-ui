@@ -2,13 +2,32 @@ import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
 
 import HomeView from "@/views/Home.vue";
 import LoginView from "@/views/Login.vue";
-
+import UsersView from "@/views/sys/UsersView.vue";
+import RolesView from "@/views/sys/RolesView.vue";
+import MenusView from "@/views/sys/MenusView.vue";
 
 const routes: RouteRecordRaw[] = [
   {
+    // 首页
     path: "/",
     component: HomeView,
+    children: [
+      {
+        // 角色管理
+        path: "sys/roles",
+        component: RolesView
+      }, {
+        // 用户管理
+        path: "sys/users",
+        component: UsersView
+      }, {
+        // 菜单管理
+        path: "sys/menus",
+        component: MenusView
+      }
+    ]
   }, {
+    // 登录页
     path: "/login",
     component: LoginView
   }

@@ -8,8 +8,6 @@ import IconsResolver from 'unplugin-icons/resolver'
 import {resolve} from 'path'
 
 export default defineConfig({
-  // 开发或生产环境服务的公共基础路径：https://cn.vitejs.dev/config/shared-options.html#base
-  base: './',
   resolve: {
     // 路径别名：https://cn.vitejs.dev/config/shared-options.html#resolve-alias
     alias: {

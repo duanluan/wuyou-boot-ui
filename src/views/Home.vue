@@ -9,7 +9,7 @@
             @close="handleClose"
         >
           <!-- 递归组件渲染菜单 -->
-          <RecursiveMenu :menu-tree="menuTreeList"/>
+          <RecursiveMenu :menu-tree="menuTreeList" @click-menu="handleClickMenu"/>
         </el-menu>
       </el-aside>
       <el-container>
@@ -19,7 +19,9 @@
             <el-radio-button :value="true">collapse</el-radio-button>
           </el-radio-group>
         </el-header>
-        <el-main>Main</el-main>
+        <el-main>
+          <router-view/>
+        </el-main>
       </el-container>
     </el-container>
   </div>
@@ -29,6 +31,7 @@
 import {ref} from 'vue'
 import http from "@/utils/http.ts";
 import RecursiveMenu from "@/components/RecursiveMenu.vue";
+import {useRouter} from "vue-router";
 
 const menuTreeList = ref<any[]>([]);
 onMounted(() => {
@@ -39,6 +42,15 @@ onMounted(() => {
     menuTreeList.value = response.data
   });
 });
+
+// 在 setup 中访问路由和当前路由：https://router.vuejs.org/zh/guide/advanced/composition-api.html#%E5%9C%A8-setup-%E4%B8%AD%E8%AE%BF%E9%97%AE%E8%B7%AF%E7%94%B1%E5%92%8C%E5%BD%93%E5%89%8D%E8%B7%AF%E7%94%B1
+const router = useRouter()
+const handleClickMenu = (item: object) => {
+  if (item && item.path) {
+    // 路由跳转
+    router.push(item.path);
+  }
+};
 
 const isCollapse = ref(false)
 const handleOpen = (key: string, keyPath: string[]) => {
