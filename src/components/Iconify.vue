@@ -1,6 +1,6 @@
 <template>
   <el-icon>
-    <Icon :icon="icon"/>
+    <Icon :icon="icon" :style="{'fontSize': fontSize}"/>
   </el-icon>
 </template>
 
@@ -11,7 +11,11 @@ import {Icon} from '@iconify/vue';
 const props = defineProps({
   icon: {
     type: String,
-    default: null,
+    required: true
+  },
+  // 大小
+  fontSize: {
+    type: [String, Number]
   }
 });
 </script>
