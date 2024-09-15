@@ -4,20 +4,20 @@
       <el-aside width="collapse">
         <el-menu
             class="el-menu-vertical"
-            :collapse="isCollapse"
-            @open="handleOpen"
-            @close="handleClose"
+            :collapse="isCollapseMenu"
         >
           <!-- 递归组件渲染菜单 -->
-          <RecursiveMenu :menu-tree="menuTreeList" @click-menu="handleClickMenu"/>
+          <RecursiveMenuItem :menu-tree="menuTreeList" @click-menu="handleClickMenu"/>
         </el-menu>
       </el-aside>
       <el-container>
         <el-header>
-          <el-radio-group v-model="isCollapse">
-            <el-radio-button :value="false">expand</el-radio-button>
-            <el-radio-button :value="true">collapse</el-radio-button>
-          </el-radio-group>
+          <Iconify
+              :icon="isCollapseMenu?'ep:expand':'ep:fold'"
+              @click="isCollapseMenu = !isCollapseMenu"
+              fontSize="23px"
+              class="collapse-menu-icon"
+          />
         </el-header>
         <el-main>
           <router-view/>
@@ -30,8 +30,9 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import http from "@/utils/http.ts";
-import RecursiveMenu from "@/components/RecursiveMenu.vue";
 import {useRouter} from "vue-router";
+import Iconify from "@/components/Iconify.vue";
+import RecursiveMenuItem from "@/components/RecursiveMenuItem.vue";
 
 const menuTreeList = ref<any[]>([]);
 onMounted(() => {
@@ -52,13 +53,8 @@ const handleClickMenu = (item: object) => {
   }
 };
 
-const isCollapse = ref(false)
-const handleOpen = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath)
-}
-const handleClose = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath)
-}
+// 菜单是否折叠
+const isCollapseMenu = ref(false)
 </script>
 
 <style scoped>
@@ -73,5 +69,24 @@ const handleClose = (key: string, keyPath: string[]) => {
 .el-menu--collapse
 ) {
   width: 200px;
+}
+
+/* 顶部 */
+.el-header {
+  height: 50px;
+  line-height: 50px;
+  border-bottom: 1px solid #dcdfe6;
+  padding: 0;
+}
+
+/* 折叠菜单图标 */
+.collapse-menu-icon {
+  width: 50px;
+  height: 49px;
+  /* 鼠标悬浮时，背景变深 */
+
+  &:hover {
+    background-color: #f9f9f9;
+  }
 }
 </style>
