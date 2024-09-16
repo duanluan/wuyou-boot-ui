@@ -2,6 +2,14 @@
   <div class="common-layout">
     <el-container style="min-height: 100vh">
       <el-aside width="collapse">
+        <el-row>
+          <el-col :span="24" class="aside-logo-title">
+            <i-mdi-alpha-z-circle class="aside-logo"/>
+            <Transition>
+              <span class="aside-title" v-if="!isCollapseMenu">无尤管理系统</span>
+            </Transition>
+          </el-col>
+        </el-row>
         <el-menu
             class="el-menu-vertical"
             :collapse="isCollapseMenu"
@@ -71,22 +79,39 @@ const isCollapseMenu = ref(false)
   width: 200px;
 }
 
+/* 侧边栏 Logo 标题 */
+.aside-logo-title {
+  height: @elHeaderHeight;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--el-menu-border-color);
+
+  .aside-logo {
+    font-size: 20px
+  }
+
+  .aside-title {
+    padding-left: 5px;
+  }
+}
+
 /* 顶部 */
 .el-header {
   height: @elHeaderHeight;
   line-height: @elHeaderHeight;
   border-bottom: 1px solid #dcdfe6;
   padding: 0;
-}
 
-/* 折叠菜单图标 */
-.collapse-menu-icon {
-  width: @elHeaderHeight;
-  height: calc(@elHeaderHeight - 1px);
+  .collapse-menu-icon {
+    /* 折叠菜单图标 */
+    width: @elHeaderHeight;
+    height: calc(@elHeaderHeight - 1px);
 
-  &:hover {
-    /* 鼠标悬浮时，背景变深 */
-    background-color: #f9f9f9;
+    &:hover {
+      /* 鼠标悬浮时，背景变深 */
+      background-color: #f9f9f9;
+    }
   }
 }
 </style>

@@ -47,7 +47,9 @@ export default defineConfig({
     // 传递给 CSS 预处理器的选项：https://cn.vitejs.dev/config/shared-options#css-preprocessoroptions
     preprocessorOptions: {
       less: {
+        // less 变量运行时修改：https://lesscss.org/usage/#using-less-in-the-browser-modify-variables
         modifyVars: {
+          // 导入外部文件：https://lesscss.org/features/#import-atrules-feature-reference
           hack: `true; @import (reference) "${resolve('src/style/global.less')}";`,
         }
       }
