@@ -57,7 +57,7 @@ const handleClickMenu = (item: object) => {
 const isCollapseMenu = ref(false)
 </script>
 
-<style scoped>
+<style scoped lang="less">
 /* 左侧菜单全高 */
 .el-menu-vertical {
   min-height: 100vh;
@@ -73,19 +73,19 @@ const isCollapseMenu = ref(false)
 
 /* 顶部 */
 .el-header {
-  height: 50px;
-  line-height: 50px;
+  height: @elHeaderHeight;
+  line-height: @elHeaderHeight;
   border-bottom: 1px solid #dcdfe6;
   padding: 0;
 }
 
 /* 折叠菜单图标 */
 .collapse-menu-icon {
-  width: 50px;
-  height: 49px;
-  /* 鼠标悬浮时，背景变深 */
+  width: @elHeaderHeight;
+  height: calc(@elHeaderHeight - 1px);
 
   &:hover {
+    /* 鼠标悬浮时，背景变深 */
     background-color: #f9f9f9;
   }
 }

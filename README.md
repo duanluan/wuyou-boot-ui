@@ -8,6 +8,7 @@
 * Element Plus：https://element-plus.org/zh-CN/component/overview.html
 * Vue Router：https://router.vuejs.org/zh/guide/
 * Pinia：https://pinia.vuejs.org/zh/core-concepts/
+* Less：https://lesscss.cn/
 
 # 集成步骤
 
@@ -340,24 +341,17 @@ export const useMenuStore = defineStore('menu', () => {
 
 ## 根路径 src 别名 @
 
-在`tsconfig.json`中配置：
-```json {2-7}
+在`tsconfig.app.json`中配置：
+```json {4-6}
 {
-  "compilerOptions":{
-    "baseUrl": ".",
+  "compilerOptions": {
+    "composite": true,
     "paths": {
       "@/*": ["./src/*"]
-    }
-  },
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
     },
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+    // ……
+  },
+  // ……
 }
 ```
 
@@ -367,8 +361,6 @@ export const useMenuStore = defineStore('menu', () => {
 import {resolve} from 'path'
 
 export default defineConfig({
-  // 开发或生产环境服务的公共基础路径：https://cn.vitejs.dev/config/shared-options.html#base
-  base: './',
   resolve: {
     // 路径别名：https://cn.vitejs.dev/config/shared-options.html#resolve-alias
     alias: {
@@ -380,3 +372,17 @@ export default defineConfig({
 ```
 
 之后就可以将`src`目录下的文件路径写为`@`开头的绝对路径。
+
+## Less
+
+[安装](https://lesscss.cn/usage/#command-line-usage--installing)：
+
+```shell
+pnpm add less -D
+```
+
+```html
+<style scoped lang="less">
+/* …… */
+</style>
+```

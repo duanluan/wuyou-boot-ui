@@ -43,4 +43,14 @@ export default defineConfig({
       autoInstall: true,
     }),
   ],
+  css: {
+    // 传递给 CSS 预处理器的选项：https://cn.vitejs.dev/config/shared-options#css-preprocessoroptions
+    preprocessorOptions: {
+      less: {
+        modifyVars: {
+          hack: `true; @import (reference) "${resolve('src/style/global.less')}";`,
+        }
+      }
+    }
+  }
 })
