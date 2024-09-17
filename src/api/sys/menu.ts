@@ -1,13 +1,14 @@
 import http, {FetchOptions} from "@/utils/http.ts";
 
 // 菜单树
-interface MenuTree {
+interface MenuTreeItem {
   id: number,
   name: string,
   order: number,
   parentId: number,
   icon: string,
   path: string,
+  children: MenuTreeItem[]
 }
 
 class MenuApi {
@@ -16,7 +17,7 @@ class MenuApi {
   static async tree(query: {
     // 多个类型
     types?: number[] | string
-  }, option?: FetchOptions): Promise<MenuTree[]> {
+  }, option?: FetchOptions): Promise<MenuTreeItem[]> {
     // 类型逗号拼接
     if (query.types && Array.isArray(query.types)) {
       query.types = query.types.join(',');
@@ -34,3 +35,4 @@ class MenuApi {
 }
 
 export default MenuApi;
+export {MenuTreeItem};
