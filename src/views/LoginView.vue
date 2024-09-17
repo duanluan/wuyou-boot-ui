@@ -58,7 +58,7 @@ const login = async (formEl: FormInstance | undefined) => {
     if (isValid) {
       UserApi.login(loginForm).then((isOk: boolean) => {
         if (isOk) {
-          router.replace('dashboard')
+          router.push('dashboard')
         }
       })
     } else {
