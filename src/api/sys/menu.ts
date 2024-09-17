@@ -1,5 +1,6 @@
 import http, {FetchOptions} from "@/utils/http.ts";
 
+// 菜单树
 interface MenuTree {
   id: number,
   name: string,
@@ -10,6 +11,8 @@ interface MenuTree {
 }
 
 class MenuApi {
+  static baseUrl = '/sys/menus';
+
   static async tree(query: {
     // 多个类型
     types?: number[] | string
@@ -19,12 +22,14 @@ class MenuApi {
       query.types = query.types.join(',');
     }
     // 拼接参数
-    if (!option.query) {
-      option.query = {};
+    if (option) {
+      if (option && !option.query) {
+        option.query = {};
+      }
+      option.query = {...query, ...option.query};
     }
-    option.query = {...query, ...option.query};
 
-    return (await http.get('/sys/menus/tree', option))?.data;
+    return (await http.get(this.baseUrl + '/tree', option))?.data;
   }
 }
 

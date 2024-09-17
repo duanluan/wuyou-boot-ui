@@ -1,5 +1,5 @@
 <template>
-  <h1>登录页</h1>
+  <h1>仪表盘</h1>
 </template>
 
 <script setup lang="ts"></script>

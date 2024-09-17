@@ -11,6 +11,7 @@
         <el-menu
             class="el-menu-vertical"
             :collapse="isCollapseMenu"
+            :default-active="$route.path"
         >
           <!-- 递归组件渲染菜单 -->
           <RecursiveMenuItem :menu-tree="menuTreeList" @click-menu="handleClickMenu"/>
@@ -38,7 +39,7 @@ import {ref} from 'vue'
 import {useRouter} from "vue-router";
 import Iconify from "@/components/Iconify.vue";
 import RecursiveMenuItem from "@/components/RecursiveMenuItem.vue";
-import MenuApi from "@/api/menu.ts";
+import MenuApi from "@/api/sys/menu.ts";
 
 const menuTreeList = ref<any[]>([]);
 onMounted(async () => {

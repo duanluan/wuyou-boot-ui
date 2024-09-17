@@ -12,7 +12,7 @@
       </template>
       <template v-else>
         <!-- $emit 方法触发自定义事件：https://cn.vuejs.org/guide/components/events#emitting-and-listening-to-events -->
-        <el-menu-item :index="String(item.id)" @click="handleClickMenu(item)">
+        <el-menu-item :index="item.path" @click="handleClickMenu(item)">
           <Iconify :icon="item.icon"/>
           <span>{{ item.name }}</span>
         </el-menu-item>

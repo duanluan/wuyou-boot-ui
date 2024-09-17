@@ -1,11 +1,5 @@
 import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
 
-import HomeView from "@/views/Home.vue";
-import LoginView from "@/views/Login.vue";
-import UsersView from "@/views/sys/UsersView.vue";
-import RolesView from "@/views/sys/RolesView.vue";
-import MenusView from "@/views/sys/MenusView.vue";
-
 const routes: RouteRecordRaw[] = [
   {
     // 首页
@@ -13,23 +7,30 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/HomeView.vue"),
     children: [
       {
+        // 仪表盘
+        name: "dashboard",
+        path: "dashboard",
+        component: () => import("@/views/DashboardView.vue")
+      },
+      {
         // 角色管理
         path: "sys/roles",
-        component: RolesView
+        component: () => import("@/views/sys/RolesView.vue")
       }, {
         // 用户管理
         path: "sys/users",
-        component: UsersView
+        component: () => import("@/views/sys/UsersView.vue")
       }, {
         // 菜单管理
         path: "sys/menus",
-        component: MenusView
+        component: () => import("@/views/sys/MenusView.vue")
       }
     ]
   }, {
     // 登录页
+    name: "login",
     path: "/login",
-    component: LoginView
+    component: () => import("@/views/LoginView.vue")
   }
 ];
 

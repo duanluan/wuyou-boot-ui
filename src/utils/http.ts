@@ -30,12 +30,6 @@ interface FetchOptions extends RequestInit {
   // 请求体
   body?: BodyInit | null;
 
-  // // TODO
-  // timeout?: number;
-  // // TODO
-  // responseType?: ResponseType;
-  // // TODO 请求地址，没用到？
-  // url?: string;
   // 在 url 后拼接参数
   query?: Record<string, any>;
   // json 参数
@@ -58,9 +52,7 @@ interface FetchOptions extends RequestInit {
   errorMsgOption?: MessageOptions;
 }
 
-interface Data<T> {
-  error: any;
-
+interface R<T> {
   // 编码
   code: number;
   // 消息
@@ -69,11 +61,11 @@ interface Data<T> {
   data: T;
 
   // 当前页码
-  current: number;
+  current?: number;
   // 每页条数
-  size: number;
+  size?: number;
   // 总条数
-  total: number;
+  total?: number;
 }
 
 class Http {
@@ -87,7 +79,7 @@ class Http {
     loading.close();
   }
 
-  fetch(url: string, options?: FetchOptions): Promise<void | Data<any>> {
+  fetch(url: string, options?: FetchOptions): Promise<void | R<any>> {
     // 默认参数和传入参数合并
     let loadingOption = {}, headers = {};
     if (options) {
@@ -105,13 +97,21 @@ class Http {
         const params = new URLSearchParams(options.query).toString();
         url += '?' + params;
       }
-      // POST、PUT 用 FormData 传参
+      // POST、PUT 用 URLSearchParams 或 FormData 传参
       else if (options.method === HttpMethod.POST || options.method === HttpMethod.PUT) {
-        let formData = new FormData();
-        for (let key in options.query) {
-          formData.append(key, options.query[key]);
+        if (options.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+          const urlSearchParams = new URLSearchParams();
+          for (let key in options.query) {
+            urlSearchParams.append(key, options.query[key]);
+          }
+          options.body = urlSearchParams;
+        } else {
+          let formData = new FormData();
+          for (let key in options.query) {
+            formData.append(key, options.query[key]);
+          }
+          options.body = formData;
         }
-        options.body = formData;
       }
     }
 
@@ -140,27 +140,28 @@ class Http {
     }
 
     // 请求
-    // const response: Response<Data<any>> = await fetch(url, options);
-
-    // if (!response.ok || response.data?.code !== 200) {
-    //   // 显示错误提示
-    //   if (options?.showErrorMsg) {
-    //     let msg;
-    //     if (response.data?.msg) {
-    //       msg = response.data.msg;
-    //     } else if (response.data?.error) {
-    //       msg = response.data.error;
-    //     }
-    //     ElMessage.error(msg);
-    //   }
-    //   return null;
-    // }
-    // return response.data;
     return fetch(options.baseUrl + url, options)
-      .then(response => {
+      .then(async response => {
         this.closeLoading(loading);
         if (response.ok) {
-          return response.json()
+          // 响应中 code 不为 200 时提示 msg
+          const r = await response.json();
+          if (r && r.code !== 200 && options?.errorMsgOption) {
+            options.errorMsgOption.message = r.msg;
+            ElMessage.error(options?.errorMsgOption);
+          }
+          return Promise.resolve(r);
+        } else {
+          // http 状态码不为 200 时提示错误
+          if (options?.showErrorMsg) {
+            ElMessage.error(options?.errorMsgOption);
+          }
+        }
+      }).catch(error => {
+        // 请求异常提示错误
+        this.closeLoading(loading);
+        if (options?.showErrorMsg) {
+          ElMessage.error(options?.errorMsgOption);
         }
       })
   }
@@ -185,7 +186,6 @@ class Http {
 const http = new Http({
   method: "GET",
   baseUrl: import.meta.env.VITE_BASE_URL,
-  // baseURL: BASE_URL,
   headers: {
     // 默认内容类型为表单
     "Content-Type": "application/x-www-form-urlencoded",
@@ -195,7 +195,9 @@ const http = new Http({
   // 加载动画选项
   loadingOption: {text: "加载中..."},
   // 默认显示错误提示
-  showErrorMsg: true
+  showErrorMsg: true,
+  // 错误提示选项
+  errorMsgOption: {message: "请求失败"},
 })
 
 export default http;
