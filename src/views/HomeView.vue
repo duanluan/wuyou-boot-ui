@@ -2,14 +2,12 @@
   <div class="common-layout">
     <el-container style="min-height: 100vh">
       <el-aside width="collapse">
-        <el-row>
-          <el-col :span="24" class="aside-logo-title">
-            <i-mdi-alpha-z-circle class="aside-logo"/>
-            <Transition>
-              <span class="aside-title" v-if="!isCollapseMenu">无尤管理系统</span>
-            </Transition>
-          </el-col>
-        </el-row>
+        <div class="form-logo-title">
+          <i-mdi-alpha-z-circle class="form-logo"/>
+          <Transition>
+            <span class="form-title" v-if="!isCollapseMenu">无尤管理系统</span>
+          </Transition>
+        </div>
         <el-menu
             class="el-menu-vertical"
             :collapse="isCollapseMenu"
@@ -37,19 +35,15 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
-import http from "@/utils/http.ts";
 import {useRouter} from "vue-router";
 import Iconify from "@/components/Iconify.vue";
 import RecursiveMenuItem from "@/components/RecursiveMenuItem.vue";
+import MenuApi from "@/api/menu.ts";
 
 const menuTreeList = ref<any[]>([]);
-onMounted(() => {
-  // 请求菜单
-  http.get('/sys/menus/tree?types=1,2', {
-    loadingOption: {target: '.el-aside'}
-  }).then(response => {
-    menuTreeList.value = response.data
-  });
+onMounted(async () => {
+  // 请求菜单树
+  menuTreeList.value = await MenuApi.tree({types: [1, 2]}, {loadingOption: {target: '.el-aside'}})
 });
 
 // 在 setup 中访问路由和当前路由：https://router.vuejs.org/zh/guide/advanced/composition-api.html#%E5%9C%A8-setup-%E4%B8%AD%E8%AE%BF%E9%97%AE%E8%B7%AF%E7%94%B1%E5%92%8C%E5%BD%93%E5%89%8D%E8%B7%AF%E7%94%B1
@@ -80,18 +74,18 @@ const isCollapseMenu = ref(false)
 }
 
 /* 侧边栏 Logo 标题 */
-.aside-logo-title {
+.form-logo-title {
   height: @elHeaderHeight;
   display: flex;
   align-items: center;
   justify-content: center;
   border-right: 1px solid var(--el-menu-border-color);
 
-  .aside-logo {
+  .form-logo {
     font-size: 20px
   }
 
-  .aside-title {
+  .form-title {
     padding-left: 5px;
   }
 }

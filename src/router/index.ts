@@ -10,7 +10,7 @@ const routes: RouteRecordRaw[] = [
   {
     // 首页
     path: "/",
-    component: HomeView,
+    component: () => import("@/views/HomeView.vue"),
     children: [
       {
         // 角色管理

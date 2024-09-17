@@ -199,3 +199,4 @@ const http = new Http({
 })
 
 export default http;
+export {FetchOptions};
