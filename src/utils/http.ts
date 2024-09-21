@@ -185,7 +185,7 @@ class Http {
 
 const http = new Http({
   method: "GET",
-  baseUrl: import.meta.env.VITE_BASE_URL,
+  baseUrl: '/api',
   headers: {
     // 默认内容类型为表单
     "Content-Type": "application/x-www-form-urlencoded",

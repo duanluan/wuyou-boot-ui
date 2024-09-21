@@ -1,4 +1,4 @@
-import {defineConfig} from 'vite'
+import {defineConfig, loadEnv} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
@@ -7,7 +7,20 @@ import Icons from "unplugin-icons/vite"
 import IconsResolver from 'unplugin-icons/resolver'
 import {resolve} from 'path'
 
-export default defineConfig({
+export default ({mode}) => defineConfig({
+  // 服务器选项：https://cn.vitejs.dev/config/server-options.html
+  server: {
+    // 自定义代理规则：https://cn.vitejs.dev/config/server-options.html#server-proxy
+    proxy: {
+      '/api': {
+        // 目标为环境变量 VITE_API_URL
+        target: loadEnv(mode, process.cwd()).VITE_API_URL,
+        changeOrigin: true,
+        // 重写路径，去掉 /api 前缀
+        rewrite: path => path.replace(/^\/api/, '')
+      }
+    }
+  },
   resolve: {
     // 路径别名：https://cn.vitejs.dev/config/shared-options.html#resolve-alias
     alias: {
