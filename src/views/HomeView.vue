@@ -19,23 +19,48 @@
       </el-aside>
       <el-container>
         <el-header>
-          <Iconify
-              :icon="isCollapseMenu?'ep:expand':'ep:fold'"
-              @click="isCollapseMenu = !isCollapseMenu"
-              fontSize="23px"
-              class="collapse-menu-icon"
-          />
-          <el-breadcrumb separator="/" class="header-breadcrumb">
-            <el-breadcrumb-item :to="{path:'/dashboard'}">首页</el-breadcrumb-item>
-            <el-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="index">
-              <template v-if="item.path">
-                <router-link :to="item.path">{{ item.name }}</router-link>
-              </template>
-              <template v-else>
-                {{ item.name }}
-              </template>
-            </el-breadcrumb-item>
-          </el-breadcrumb>
+          <div>
+            <Iconify
+                :icon="isCollapseMenu?'ep:expand':'ep:fold'"
+                @click="isCollapseMenu = !isCollapseMenu"
+                fontSize="23px"
+                class="collapse-menu-icon"
+            />
+            <el-breadcrumb separator="/" class="header-breadcrumb">
+              <el-breadcrumb-item :to="{path:'/dashboard'}">首页</el-breadcrumb-item>
+              <el-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="index">
+                <template v-if="item.path">
+                  <router-link :to="item.path">{{ item.name }}</router-link>
+                </template>
+                <template v-else>
+                  {{ item.name }}
+                </template>
+              </el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
+          <div class="header-right">
+            <div onclick="window.open('https://github.com/duanluan/wuyou-boot')">
+              <el-tooltip content="源码地址" offset="27">
+                <i-mdi-github style="color: #5a5e66"/>
+              </el-tooltip>
+            </div>
+            <div>
+              <el-dropdown trigger="click">
+                <div>
+                  <!--<i-mdi-account-box style="color: #5a5e66; font-size: 40px"/>-->
+                  <!--<i-mdi-arrow-down-drop style="position: relative; top: 11px; left: -3px"/>-->
+                  <span>{{ useUserStore().info.nickName }}</span>
+                  <i-mdi-arrow-down-drop/>
+                </div>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item>个人中心</el-dropdown-item>
+                    <el-dropdown-item @click="useUserStore().logout()">退出登录</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+          </div>
         </el-header>
         <el-main>
           <router-view/>
@@ -51,6 +76,7 @@ import {useRouter} from "vue-router";
 import Iconify from "@/components/Iconify.vue";
 import RecursiveMenuItem from "@/components/RecursiveMenuItem.vue";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
+import {useUserStore} from "../store/user.ts";
 
 const router = useRouter()
 // 菜单树
@@ -126,20 +152,7 @@ const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
 </script>
 
 <style scoped lang="less">
-/* 左侧菜单全高 */
-.el-menu-vertical {
-  min-height: 100vh;
-}
-
-/* Collapse 折叠面板：https://element-plus.org/zh-CN/component/menu.html#collapse-%E6%8A%98%E5%8F%A0%E9%9D%A2%E6%9D%BF */
-.el-menu-vertical:not(
-/* 已折叠的菜单 */
-.el-menu--collapse
-) {
-  width: 200px;
-}
-
-/* 侧边栏 Logo 标题 */
+// 侧边栏 Logo 标题
 .form-logo-title {
   height: @elHeaderHeight;
   display: flex;
@@ -156,29 +169,65 @@ const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
   }
 }
 
-/* 顶部 */
+// 左侧菜单全高
+.el-menu-vertical {
+  height: calc(100vh - @elHeaderHeight);
+}
+
+// Collapse 折叠面板：https://element-plus.org/zh-CN/component/menu.html#collapse-%E6%8A%98%E5%8F%A0%E9%9D%A2%E6%9D%BF
+// .el-menu--collapse 为已折叠的菜单
+.el-menu-vertical:not(
+.el-menu--collapse
+) {
+  width: 200px;
+}
+
+// 顶部
 .el-header {
   display: flex;
+  // 两端对齐
+  justify-content: space-between;
   height: @elHeaderHeight;
   line-height: @elHeaderHeight;
-  border-bottom: 1px solid #dcdfe6;
   padding: 0;
 
-  .collapse-menu-icon {
-    /* 折叠菜单图标 */
-    width: @elHeaderHeight;
-    height: calc(@elHeaderHeight - 1px);
+  div {
+    display: flex;
+    align-items: center;
+  }
 
+  // 折叠菜单图标
+  .collapse-menu-icon {
+    width: @elHeaderHeight;
+    height: 100%;
+
+    // 鼠标悬浮时，背景变深
     &:hover {
-      /* 鼠标悬浮时，背景变深 */
       background-color: #f9f9f9;
     }
   }
 
+  // 头部面包屑
   .header-breadcrumb {
-    /* 头部面包屑 */
     display: inline-block;
-    line-height: calc(@elHeaderHeight - 1px);
+    line-height: @elHeaderHeight;
   }
+
+  // 头部右侧
+  .header-right {
+    // 头部右侧中的每项
+    > div {
+      height: 100%;
+      padding: 0 8px;
+
+      &:hover {
+        background-color: #f9f9f9;
+      }
+    }
+  }
+}
+
+.el-main {
+  border-top: 1px solid #dcdfe6;
 }
 </style>

@@ -1,4 +1,5 @@
 import http, {FetchOptions} from "@/utils/http.ts";
+import {useUserStore} from "@/store/user.ts";
 
 // 登录表单
 interface LoginForm {
@@ -10,13 +11,28 @@ interface LoginForm {
 class UserApi {
   static baseUrl = '/sys/users';
 
-  static async login(query: LoginForm, option?: FetchOptions): Promise<boolean> {
+  /**
+   * 登录
+   * @param query 登录表单
+   * @param option 请求配置
+   */
+  static async login(query: LoginForm, option?: FetchOptions) {
     if (!option) {
       option = {};
     }
     option.query = {...query, ...option.query};
 
-    return (await http.post(this.baseUrl + '/login', option))?.code === 200;
+    const response = await http.post(this.baseUrl + '/login', option);
+    return response?.data;
+  }
+
+  /**
+   * 登出
+   * @param option 请求配置
+   */
+  static async logout(option?: FetchOptions) {
+    const response = await http.post(this.baseUrl + '/logout', option);
+    return response?.code === 200;
   }
 }
 

@@ -32,8 +32,8 @@
 <script setup lang="ts">
 import {FormInstance, FormRules} from "element-plus";
 import {reactive} from "vue";
-import UserApi, {LoginForm} from "@/api/sys/user.ts";
-import router from "@/router";
+import {LoginForm} from "@/api/sys/user.ts";
+import {useUserStore} from "@/store/user.ts";
 
 // 登录表单 ref
 const loginFormRef = ref<FormInstance>()
@@ -56,13 +56,7 @@ const login = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((isValid, invalidFields) => {
     if (isValid) {
-      UserApi.login(loginForm).then((isOk: boolean) => {
-        if (isOk) {
-          router.push('dashboard')
-        }
-      })
-    } else {
-      console.debug('登录失败', invalidFields)
+      useUserStore().login(loginForm);
     }
   })
 }
