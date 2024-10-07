@@ -90,9 +90,11 @@ const breadcrumbs = ref<{ name: string, path: string }[]>([]);
 onMounted(async () => {
   // 请求菜单树
   menuTreeList.value = await MenuApi.tree({types: [1, 2]}, {loadingOption: {target: '.el-aside'}})
+  if (!menuTreeList.value || menuTreeList.value.length === 0) return;
+
   // 将树形结构转换为平铺的列表
   const flatten = (items: MenuTreeItem[]) => {
-    items.forEach(item => {
+    for (const item of items) {
       // 将当前节点添加到 menuList
       const {children, ...menuItem} = item; // 去掉 children 属性，因为不再需要
       menuList.push(menuItem);
@@ -100,7 +102,7 @@ onMounted(async () => {
       if (item.children && item.children.length > 0) {
         flatten(item.children);
       }
-    });
+    }
   }
   flatten(menuTreeList.value);
   // 加载面包屑
@@ -124,6 +126,8 @@ const handleClickMenu = (item: MenuTreeItem) => {
 const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
   // 清空面包屑
   breadcrumbs.value = [];
+  if (!menuList || menuList.length === 0) return;
+
   /**
    * 根据 parentId 递归往上寻找父级菜单 或 根据 path 递归往下寻找子级菜单
    * @param currentItem 当前菜单项
@@ -134,9 +138,7 @@ const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
       return;
     }
     const parent = menuList.find(menu => menu.id === currentItem.parentId);
-    if (!parent) {
-      return;
-    }
+    if (!parent) return;
     breadcrumbs.value.unshift({name: parent.name, path: parent.path}); // 使用 unshift 将元素加入数组
     if (parent.parentId) {
       findParentOrChild(parent.parentId);
