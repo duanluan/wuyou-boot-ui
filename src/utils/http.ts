@@ -1,4 +1,5 @@
 import {LoadingOptions, MessageOptions} from "element-plus";
+import router from "@/router";
 
 type HttpVerb = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'CONNECT' | 'TRACE';
 
@@ -152,9 +153,17 @@ class Http {
           }
           return Promise.resolve(r);
         } else {
-          // http 状态码不为 200 时提示错误
-          if (options?.showErrorMsg) {
-            ElMessage.error(options?.errorMsgOption);
+          if (response.status === 401) {
+            ElMessage.error("请先登录");
+            // 重定向到登录页
+            router.push({name: 'login'});
+          } else if (response.status === 403) {
+            ElMessage.error("无权限");
+          } else {
+            // http 状态码不为 200 时提示错误
+            if (options?.showErrorMsg) {
+              ElMessage.error(options?.errorMsgOption);
+            }
           }
         }
       }).catch(error => {

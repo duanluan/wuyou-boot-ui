@@ -23,7 +23,7 @@ export const useUserStore = defineStore('user', () => {
   const logout = () => {
     if (UserApi.logout()) {
       info.value = {}
-      router.push('login')
+      router.push({ name: 'login' });
     }
   }
 
