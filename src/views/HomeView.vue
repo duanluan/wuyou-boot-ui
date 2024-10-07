@@ -40,7 +40,7 @@
           </div>
           <div class="header-right">
             <div onclick="window.open('https://github.com/duanluan/wuyou-boot')">
-              <el-tooltip content="源码地址" offset="27">
+              <el-tooltip content="源码地址" :offset="27">
                 <i-mdi-github style="color: #5a5e66"/>
               </el-tooltip>
             </div>
