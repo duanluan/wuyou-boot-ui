@@ -13,8 +13,8 @@
             :collapse="isCollapseMenu"
             :default-active="$route.path"
         >
-          <!-- 递归组件渲染菜单 -->
-          <RecursiveMenuItem :menu-tree="menuTreeList" @click-menu="handleClickMenu"/>
+          <!-- 递归组件渲染菜单，此处的 menuStore.menuTreeList 能保持响应式 -->
+          <RecursiveMenuItem :menu-tree="menuStore.menuTreeList" @click-menu="handleClickMenu"/>
         </el-menu>
       </el-aside>
       <el-container>
@@ -75,12 +75,13 @@ import {ref} from 'vue'
 import {useRouter} from "vue-router";
 import Iconify from "@/components/Iconify.vue";
 import RecursiveMenuItem from "@/components/RecursiveMenuItem.vue";
-import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
+import {MenuTreeItem} from "@/api/sys/menu.ts";
+import {useMenuStore} from "@/store/menu.ts";
 import {useUserStore} from "../store/user.ts";
 
 const router = useRouter()
-// 菜单树
-const menuTreeList = ref<MenuTreeItem[]>([]);
+// 菜单 store
+const menuStore = useMenuStore();
 // 菜单是否折叠
 const isCollapseMenu = ref(false)
 // 菜单列表
@@ -89,8 +90,8 @@ let menuList: MenuTreeItem[] = [];
 const breadcrumbs = ref<{ name: string, path: string }[]>([]);
 onMounted(async () => {
   // 请求菜单树
-  menuTreeList.value = await MenuApi.tree({types: [1, 2]}, {loadingOption: {target: '.el-aside'}})
-  if (!menuTreeList.value || menuTreeList.value.length === 0) return;
+  await menuStore.loadMenuTreeList({loadingOption: {target: '.el-aside'}});
+  if (menuStore.isMenuTreeListEmpty) return;
 
   // 将树形结构转换为平铺的列表
   const flatten = (items: MenuTreeItem[]) => {
@@ -104,7 +105,8 @@ onMounted(async () => {
       }
     }
   }
-  flatten(menuTreeList.value);
+  // 此处的 menuStore.menuTreeList 可以自动解包
+  flatten(menuStore.menuTreeList);
   // 加载面包屑
   loadBreadcrumbs(router.currentRoute.value.path)
 });
