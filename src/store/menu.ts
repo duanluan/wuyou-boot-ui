@@ -1,10 +1,12 @@
 import {defineStore} from 'pinia';
-import MenuApi from "@/api/sys/menu.ts";
+import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 
 // 创建一个 useStore 函数，检索 store 实例：https://pinia.vuejs.org/zh/api/modules/pinia.html#definestore
 export const useMenuStore = defineStore('menu', () => {
-  // 菜单树
+  // 菜单树列表
   const menuTreeList = ref<MenuTreeItem[]>([]);
+  // 激活菜单路径
+  const activeMenuPath = ref<string>('/dashboard');
 
   /**
    * 获取菜单树
@@ -29,11 +31,21 @@ export const useMenuStore = defineStore('menu', () => {
     menuTreeList.value = [];
   };
 
+  /**
+   * 设置激活菜单路径
+   * @param path 菜单路径
+   */
+  const setActiveMenuPath = (path: string) => {
+    activeMenuPath.value = path;
+  }
+
   return {
     menuTreeList,
     loadMenuTreeList,
     isMenuTreeListEmpty,
-    clearMenuTreeList
+    clearMenuTreeList,
+    activeMenuPath,
+    setActiveMenuPath
   };
 }, {
   // 持久化

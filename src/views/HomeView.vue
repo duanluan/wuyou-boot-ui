@@ -12,6 +12,7 @@
             class="el-menu-vertical"
             :collapse="isCollapseMenu"
             :default-active="$route.path"
+            v-model="menuStore.activeMenuPath"
         >
           <!-- 递归组件渲染菜单，此处的 menuStore.menuTreeList 能保持响应式 -->
           <RecursiveMenuItem :menu-tree="menuStore.menuTreeList" @click-menu="handleClickMenu"/>
@@ -62,6 +63,7 @@
             </div>
           </div>
         </el-header>
+        <HeaderTabs/>
         <el-main>
           <router-view/>
         </el-main>
@@ -71,13 +73,15 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue'
+import {ref, watch} from 'vue'
 import {useRouter} from "vue-router";
 import Iconify from "@/components/Iconify.vue";
 import RecursiveMenuItem from "@/components/RecursiveMenuItem.vue";
 import {MenuTreeItem} from "@/api/sys/menu.ts";
 import {useMenuStore} from "@/store/menu.ts";
 import {useUserStore} from "../store/user.ts";
+import HeaderTabs from "@/components/HeaderTabs.vue";
+import {useTabStore} from "@/store/tab.ts";
 
 const router = useRouter()
 // 菜单 store
@@ -88,11 +92,15 @@ const isCollapseMenu = ref(false)
 let menuList: MenuTreeItem[] = [];
 // 面包屑
 const breadcrumbs = ref<{ name: string, path: string }[]>([]);
+// 标签页 store
+const tabStore = useTabStore()
+/**
+ * 初始化
+ */
 onMounted(async () => {
   // 请求菜单树
   await menuStore.loadMenuTreeList({loadingOption: {target: '.el-aside'}});
   if (menuStore.isMenuTreeListEmpty) return;
-
   // 将树形结构转换为平铺的列表
   const flatten = (items: MenuTreeItem[]) => {
     for (const item of items) {
@@ -107,18 +115,21 @@ onMounted(async () => {
   }
   // 此处的 menuStore.menuTreeList 可以自动解包
   flatten(menuStore.menuTreeList);
+
+  // 当前路由
+  const currentPath = router.currentRoute.value.path;
+  // 设置激活菜单
+  menuStore.setActiveMenuPath(currentPath);
   // 加载面包屑
-  loadBreadcrumbs(router.currentRoute.value.path)
+  loadBreadcrumbs(currentPath)
 });
 
 // 在 setup 中访问路由和当前路由：https://router.vuejs.org/zh/guide/advanced/composition-api.html#%E5%9C%A8-setup-%E4%B8%AD%E8%AE%BF%E9%97%AE%E8%B7%AF%E7%94%B1%E5%92%8C%E5%BD%93%E5%89%8D%E8%B7%AF%E7%94%B1
 const handleClickMenu = (item: MenuTreeItem) => {
-  if (item && item.path) {
-    // 路由跳转
-    router.push(item.path);
-    // 加载面包屑
-    loadBreadcrumbs(item);
-  }
+  if (!item || !item.path) return;
+
+  // 添加标签
+  tabStore.addTab({label: item.name, name: item.path}, router);
 };
 
 /**
@@ -153,6 +164,12 @@ const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
     breadcrumbs.value.push({name: currentItem.name, path: currentItem.path});
   }
 }
+
+// 监听路由变化
+watch(() => router.currentRoute.value.path, (newPath) => {
+  // 加载面包屑
+  loadBreadcrumbs(newPath)
+})
 </script>
 
 <style scoped lang="less">
@@ -229,9 +246,5 @@ const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
       }
     }
   }
-}
-
-.el-main {
-  border-top: 1px solid #dcdfe6;
 }
 </style>
