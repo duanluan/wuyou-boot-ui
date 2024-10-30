@@ -1,5 +1,5 @@
 <template>
-  <div class="common-layout">
+  <div>
     <el-container style="min-height: 100vh">
       <el-aside width="collapse">
         <div class="form-logo-title">
@@ -73,7 +73,6 @@
 </template>
 
 <script setup lang="ts">
-import {ref, watch} from 'vue'
 import {useRouter} from "vue-router";
 import Iconify from "@/components/Iconify.vue";
 import RecursiveMenuItem from "@/components/RecursiveMenuItem.vue";
