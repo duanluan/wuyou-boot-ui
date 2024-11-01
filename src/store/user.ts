@@ -17,7 +17,7 @@ export const useUserStore = defineStore('user', () => {
       if (data) {
         // 保存用户信息
         info.value = data
-        router.push('dashboard')
+        router.push('DashboardView')
       }
     })
   }
@@ -26,7 +26,7 @@ export const useUserStore = defineStore('user', () => {
     if (UserApi.logout()) {
       info.value = {}
       menuStore.clearMenuTreeList()
-      router.push({name: 'login'});
+      router.push({name: 'LoginView'});
     }
   }
 

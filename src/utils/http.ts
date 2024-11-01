@@ -156,7 +156,7 @@ class Http {
           if (response.status === 401) {
             ElMessage.error("请先登录");
             // 重定向到登录页
-            router.push({name: 'login'});
+            router.push({name: 'LoginView'});
           } else if (response.status === 403) {
             ElMessage.error("无权限");
           } else {

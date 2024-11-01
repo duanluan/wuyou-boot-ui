@@ -8,11 +8,11 @@
             <span class="form-title" v-if="!isCollapseMenu">无尤管理系统</span>
           </Transition>
         </div>
+        <!-- :default-active="$route.path"：菜单选中项会根据当前路由自动修改 -->
         <el-menu
             class="el-menu-vertical"
             :collapse="isCollapseMenu"
             :default-active="$route.path"
-            v-model="menuStore.activeMenuPath"
         >
           <!-- 递归组件渲染菜单，此处的 menuStore.menuTreeList 能保持响应式 -->
           <RecursiveMenuItem :menu-tree="menuStore.menuTreeList" @click-menu="handleClickMenu"/>
@@ -63,10 +63,7 @@
             </div>
           </div>
         </el-header>
-        <HeaderTabs/>
-        <el-main>
-          <router-view/>
-        </el-main>
+        <Tabs/>
       </el-container>
     </el-container>
   </div>
@@ -79,7 +76,7 @@ import RecursiveMenuItem from "@/components/RecursiveMenuItem.vue";
 import {MenuTreeItem} from "@/api/sys/menu.ts";
 import {useMenuStore} from "@/store/menu.ts";
 import {useUserStore} from "../store/user.ts";
-import HeaderTabs from "@/components/HeaderTabs.vue";
+import Tabs from "@/components/Tabs.vue";
 import {useTabStore} from "@/store/tab.ts";
 
 const router = useRouter()
@@ -93,6 +90,7 @@ let menuList: MenuTreeItem[] = [];
 const breadcrumbs = ref<{ name: string, path: string }[]>([]);
 // 标签页 store
 const tabStore = useTabStore()
+
 /**
  * 初始化
  */
@@ -115,12 +113,16 @@ onMounted(async () => {
   // 此处的 menuStore.menuTreeList 可以自动解包
   flatten(menuStore.menuTreeList);
 
-  // 当前路由
   const currentPath = router.currentRoute.value.path;
-  // 设置激活菜单
-  menuStore.setActiveMenuPath(currentPath);
   // 加载面包屑
   loadBreadcrumbs(currentPath)
+
+  // 根据当前路由去菜单列表中查找对应的菜单项
+  const currentItem = menuList.find(menu => menu.path === currentPath);
+  if (currentItem) {
+    // 添加标签，标签页不存在当前路由时，刷新页面后能正确打开
+    tabStore.addTab({label: currentItem.name, name: currentPath}, router);
+  }
 });
 
 // 在 setup 中访问路由和当前路由：https://router.vuejs.org/zh/guide/advanced/composition-api.html#%E5%9C%A8-setup-%E4%B8%AD%E8%AE%BF%E9%97%AE%E8%B7%AF%E7%94%B1%E5%92%8C%E5%BD%93%E5%89%8D%E8%B7%AF%E7%94%B1
@@ -138,8 +140,9 @@ const handleClickMenu = (item: MenuTreeItem) => {
 const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
   // 清空面包屑
   breadcrumbs.value = [];
-  if (!menuList || menuList.length === 0) return;
+  if (typeof itemOrPath == 'string' && (!menuList || menuList.length === 0)) return;
 
+  const currentItem = (typeof itemOrPath !== 'string') ? itemOrPath : menuList.find(menu => menu.path === itemOrPath);
   /**
    * 根据 parentId 递归往上寻找父级菜单 或 根据 path 递归往下寻找子级菜单
    * @param currentItem 当前菜单项
@@ -151,12 +154,12 @@ const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
     }
     const parent = menuList.find(menu => menu.id === currentItem.parentId);
     if (!parent) return;
-    breadcrumbs.value.unshift({name: parent.name, path: parent.path}); // 使用 unshift 将元素加入数组
+    // 使用 unshift 将元素加入数组头部
+    breadcrumbs.value.unshift({name: parent.name, path: parent.path});
     if (parent.parentId) {
       findParentOrChild(parent.parentId);
     }
   }
-  const currentItem = (typeof itemOrPath !== 'string') ? itemOrPath : menuList.find(menu => menu.path === itemOrPath);
   findParentOrChild(currentItem);
   // 非首页时添加自身
   if (currentItem.path !== '/dashboard') {

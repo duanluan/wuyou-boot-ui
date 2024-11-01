@@ -5,8 +5,6 @@ import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 export const useMenuStore = defineStore('menu', () => {
   // 菜单树列表
   const menuTreeList = ref<MenuTreeItem[]>([]);
-  // 激活菜单路径
-  const activeMenuPath = ref<string>('/dashboard');
 
   /**
    * 获取菜单树
@@ -31,21 +29,7 @@ export const useMenuStore = defineStore('menu', () => {
     menuTreeList.value = [];
   };
 
-  /**
-   * 设置激活菜单路径
-   * @param path 菜单路径
-   */
-  const setActiveMenuPath = (path: string) => {
-    activeMenuPath.value = path;
-  }
-
-  return {
-    menuTreeList,
-    loadMenuTreeList,
-    isMenuTreeListEmpty,
-    clearMenuTreeList,
-    activeMenuPath,
-    setActiveMenuPath
+  return {menuTreeList, isMenuTreeListEmpty, loadMenuTreeList, clearMenuTreeList
   };
 }, {
   // 持久化

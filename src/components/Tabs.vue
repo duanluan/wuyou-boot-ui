@@ -1,23 +1,34 @@
 <template>
-  <!-- KeepAlive 在多个组件间动态切换时缓存被移除的组件实例：https://cn.vuejs.org/guide/built-ins/keep-alive#keepalive -->
-  <keep-alive>
-    <el-tabs
-        v-model="tabStore.activeTabName"
-        type="card"
-        @tab-click="clickTab"
-        class="header-tabs"
-        closable
-        @tab-remove="removeTab"
+  <el-tabs
+      v-model="tabStore.activeTabName"
+      type="card"
+      class="header-tabs"
+      closable
+      @tab-click="clickTab"
+      @tab-remove="removeTab"
+  >
+    <el-tab-pane
+        v-for="(item,index) in tabStore.tabs"
+        :key="index"
+        :label="item.label"
+        :name="item.name"
     >
-      <el-tab-pane
-          v-for="(item,index) in tabStore.tabList"
-          :key="index"
-          :label="item.label"
-          :name="item.name"
-      >
-      </el-tab-pane>
-    </el-tabs>
-  </keep-alive>
+      <el-main>
+        <!--
+        RouterView 插槽：https://router.vuejs.org/zh/guide/advanced/router-view-slot.html#RouterView-%E6%8F%92%E6%A7%BD
+        -->
+        <router-view v-slot="{ Component }">
+          <!--
+          KeepAlive 在多个组件间动态切换时缓存被移除的组件实例：https://cn.vuejs.org/guide/built-ins/keep-alive#keepalive
+          KeepAlive 包含：https://cn.vuejs.org/guide/built-ins/keep-alive#include-exclude
+          -->
+          <keep-alive :include="tabStore.cachedComponentNames">
+            <component :is="Component"/>
+          </keep-alive>
+        </router-view>
+      </el-main>
+    </el-tab-pane>
+  </el-tabs>
 </template>
 
 <script setup lang="ts">
@@ -39,17 +50,14 @@ onMounted(async () => {
 // 标签点击触发
 const clickTab = (pane: TabsPaneContext, ev: Event) => {
   let name = pane.props.name;
-  // 设置激活标签
-  tabStore.activeTabName = name;
-  // 路由跳转
-  router.push({path: name})
+  tabStore.activeTab(name, router)
 }
+
 // 删除tabs触发
 const removeTab = (name: TabPaneName) => {
   // 删除当前标签
   tabStore.removeTab(name, router)
 }
-
 </script>
 
 <style scoped lang="less">

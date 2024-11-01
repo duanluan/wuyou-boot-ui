@@ -1,34 +1,63 @@
 import {defineStore} from 'pinia';
-import {TabPaneName} from "element-plus";
 import type TabPane from "element-plus/es/components/tabs/src/tab-pane.vue";
 import {useMenuStore} from "@/store/menu.ts";
-import {Router, useRouter} from "vue-router";
+import {Router} from "vue-router";
 
-const menuStore = useMenuStore();
+interface TabItem extends TabPane {
+  componentName?: string;
+}
 
 export const useTabStore = defineStore('tab', () => {
   // 标签页列表
-  const tabList = ref<TabPane[]>([
-    {label: '仪表盘', name: '/dashboard'}
+  const tabs = ref<TabItem[]>([
+    {label: '仪表盘', name: '/dashboard', componentName: 'DashboardView'}
   ])
+  const cachedComponentNames = ref<string[]>([])
   // 激活标签页名称
-  const activeTabName = ref<TabPaneName>('/dashboard');
+  const activeTabName = ref<string>('/dashboard');
+
+  /**
+   * 激活标签页
+   * @param name 标签页名称
+   * @param router 路由
+   */
+  const activeTab = (name: string, router: Router) => {
+    // 设置激活标签
+    activeTabName.value = name;
+    // 路由跳转
+    router.push({path: name})
+  }
 
   /**
    * 添加标签页
    * @param tab 标签页
    * @param router 路由
    */
-  const addTab = (tab: TabPane, router: Router) => {
-    if (!tabList.value.some(item => item.name === tab.name)) {
-      tabList.value.push(tab)
+  const addTab = (tab: TabItem, router: Router) => {
+    // 添加的标签页不存在时
+    if (!tabs.value.some(item => item.name === tab.name)) {
+      const routeByPath = router.getRoutes().find(item => item.path === tab.name)
+      const componentName = routeByPath?.name
+      if (componentName) {
+        // 将组件名添加到标签页
+        tab.componentName = componentName
+        // 缓存标签页
+        if (routeByPath.meta.keepAlive) {
+          addComponentName(componentName)
+        }
+      }
+      // 添加到标签页列表
+      tabs.value.push(tab)
     }
-    // 激活添加的标签页
-    activeTabName.value = tab.name;
-    // 激活菜单
-    menuStore.setActiveMenuPath(activeTabName.value);
-    // 跳转路由
-    router.push(activeTabName.value);
+    activeTab(tab.name, router)
+  }
+
+  const addComponentName = (tabName: string) => {
+    // 添加的标签页未缓存时
+    if (!cachedComponentNames.value.some(item => item === tabName)) {
+      // 添加组件名到缓存
+      cachedComponentNames.value.push(tabName)
+    }
   }
 
   /**
@@ -36,24 +65,24 @@ export const useTabStore = defineStore('tab', () => {
    * @param name 标签页名称
    * @param router 路由
    */
-  const removeTab = (name: TabPaneName, router: Router) => {
+  const removeTab = (name: string, router: Router) => {
+    // 移除组件名缓存
+    const tab = tabs.value.find(item => item.name === name)
+    cachedComponentNames.value = cachedComponentNames.value.filter(item => item !== tab?.componentName)
+
+    const index = tabs.value.findIndex(item => item.name === name)
+    tabs.value.splice(index, 1)
     // 当前激活标签页为被移除标签页时
     if (activeTabName.value === name) {
       // 移除标签页后，激活被移除标签页的前一个标签页，如果前一个标签页是第一个标签页，则激活后一个标签页，如果没有后一个标签页，则激活第一个标签页
-      const index = tabList.value.findIndex(item => item.name === name)
-      const prevTab = tabList.value[index - 1]
-      const nextTab = tabList.value[index + 1]
-      activeTabName.value = prevTab ? prevTab.name : nextTab ? nextTab.name : tabList.value[0].name
-      // 激活菜单
-      menuStore.setActiveMenuPath(activeTabName.value);
-      // 跳转路由
-      router.push(activeTabName.value);
-    }
+      const prevTab = tabs.value[index - 1]
+      const nextTab = tabs.value[index + 1]
 
-    tabList.value = tabList.value.filter(item => item.name !== name)
+      activeTab((prevTab ? prevTab.name : nextTab ? nextTab.name : tabs.value[0].name), router)
+    }
   }
 
-  return {tabList, activeTabName, addTab, removeTab}
+  return {tabs, cachedComponentNames, activeTabName, activeTab, addComponentName, addTab, removeTab}
 }, {
   // 持久化
   persist: true
