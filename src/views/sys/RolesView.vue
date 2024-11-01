@@ -33,15 +33,15 @@
 
 <script setup lang="ts">
 import RoleApi from "@/api/sys/role.ts"
+import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
 
 const roleList = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const pageTotal = ref(0)
 
-
-onMounted(async () => {
-  search()
+onDebounceMounted(() => {
+  search();
 })
 
 interface SearchForm {

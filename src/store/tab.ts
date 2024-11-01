@@ -1,6 +1,5 @@
 import {defineStore} from 'pinia';
 import type TabPane from "element-plus/es/components/tabs/src/tab-pane.vue";
-import {useMenuStore} from "@/store/menu.ts";
 import {Router} from "vue-router";
 
 interface TabItem extends TabPane {
