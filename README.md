@@ -10,6 +10,10 @@
 * Pinia：https://pinia.vuejs.org/zh/core-concepts/
 * Less：https://lesscss.cn/
 
+# 现有问题
+
+- [keep-alive component in nested route result in child route mounted twice · Issue #626 · vuejs/router](https://github.com/vuejs/router/issues/626)：目前接口防抖解决
+
 # 集成步骤
 
 Vite 5.3.4 创建 Vue + TS
