@@ -13,20 +13,6 @@
         :label="item.label"
         :name="item.name"
     >
-      <el-main>
-        <!--
-        RouterView 插槽：https://router.vuejs.org/zh/guide/advanced/router-view-slot.html#RouterView-%E6%8F%92%E6%A7%BD
-        -->
-        <router-view v-slot="{ Component }">
-          <!--
-          KeepAlive 在多个组件间动态切换时缓存被移除的组件实例：https://cn.vuejs.org/guide/built-ins/keep-alive#keepalive
-          KeepAlive 包含：https://cn.vuejs.org/guide/built-ins/keep-alive#include-exclude
-          -->
-          <keep-alive :include="tabStore.cachedComponentNames">
-            <component :is="Component"/>
-          </keep-alive>
-        </router-view>
-      </el-main>
     </el-tab-pane>
   </el-tabs>
 </template>
