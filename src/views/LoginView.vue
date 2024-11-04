@@ -30,8 +30,6 @@
 </template>
 
 <script setup lang="ts">
-import {FormInstance, FormRules} from "element-plus";
-import {reactive} from "vue";
 import {LoginForm} from "@/api/sys/user.ts";
 import {useUserStore} from "@/store/user.ts";
 

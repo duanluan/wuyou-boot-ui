@@ -1,4 +1,3 @@
-import {LoadingOptions, MessageOptions} from "element-plus";
 import router from "@/router";
 
 type HttpVerb = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'CONNECT' | 'TRACE';
@@ -173,7 +172,7 @@ class Http {
           if (response.ok) {
             // 响应中 code 不为 200 时提示 msg
             const r = await response.json();
-            if (r && r.code !== 200 && options?.errorMsgOption) {
+            if (r && r.code !== 200 && options?.showErrorMsg) {
               options.errorMsgOption.message = r.msg;
               ElMessage.error(options?.errorMsgOption);
             }
@@ -186,8 +185,11 @@ class Http {
             } else if (response.status === 403) {
               ElMessage.error("无权限");
             } else {
-              // http 状态码不为 200 时提示错误
               if (options?.showErrorMsg) {
+                const r = await response.json();
+                if (r && r.code !== 200) {
+                  options.errorMsgOption.message = r.msg;
+                }
                 ElMessage.error(options?.errorMsgOption);
               }
             }

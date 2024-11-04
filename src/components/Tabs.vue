@@ -20,7 +20,6 @@
 <script setup lang="ts">
 import router from "@/router";
 import {useTabStore} from "@/store/tab.ts";
-import {TabPaneName, TabsPaneContext} from "element-plus";
 
 // 标签页 store
 const tabStore = useTabStore()

@@ -12,11 +12,18 @@
         <el-button @click="reset">重置</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="roleList" style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
-      <el-table-column prop="name" label="名称" width="180"/>
+    <el-table :data="tableData" style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
+      <el-table-column fixed prop="name" label="名称" width="180"/>
       <el-table-column prop="code" label="编码" width="180"/>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
       <el-table-column prop="description" label="描述"/>
+      <el-table-column fixed="right" label="操作" min-width="120">
+        <!-- 解构赋值当前行 -->
+        <template #default="{row}">
+          <el-button link type="primary" size="small" @click="update(row)">修改</el-button>
+          <el-button link type="primary" size="small" @click="remove(row)">删除</el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <el-pagination
         v-model:current-page="currentPage"
@@ -35,7 +42,7 @@
 import RoleApi from "@/api/sys/role.ts"
 import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
 
-const roleList = ref([])
+const tableData = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const pageTotal = ref(0)
@@ -54,9 +61,9 @@ interface SearchForm {
 const searchForm = ref<SearchForm>({})
 
 const search = async () => {
-  const response = await RoleApi.page({current: currentPage.value, size: pageSize.value, ...searchForm.value})
+  const response = await RoleApi.page({current: currentPage.value, size: pageSize.value, ...searchForm.value}, {loadingOption: {target: '.el-table'}})
   pageTotal.value = response.total
-  roleList.value = response.data
+  tableData.value = response.data
 }
 
 const reset = () => {
@@ -68,6 +75,23 @@ const changeSize = (val: number) => {
 }
 const changeCurrent = (val: number) => {
   search()
+}
+
+const update = (row: any) => {
+  console.log(row)
+}
+
+const remove = (row: any) => {
+  ElMessageBox.confirm('是否确认删除', '提示', {
+    type: 'warning',
+    confirmButtonText: '确认',
+    cancelButtonText: '取消'
+  }).then(() => {
+    RoleApi.remove(row.id, {loadingOption: {target: '.el-main'}}).then(() => {
+      search()
+    })
+  })
+
 }
 </script>
 
