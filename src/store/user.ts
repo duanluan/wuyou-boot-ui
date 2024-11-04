@@ -17,7 +17,7 @@ export const useUserStore = defineStore('user', () => {
       if (data) {
         // 保存用户信息
         info.value = data
-        router.push('DashboardView')
+        router.push({name: 'DashboardView'})
       }
     })
   }
