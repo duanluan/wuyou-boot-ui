@@ -35,12 +35,49 @@
         @current-change="changeCurrent"
         style="justify-content: right"
     />
+
+    <el-dialog v-model="updateDialogVisible" title="修改" width="650">
+      <el-form
+          ref="updateFormRef"
+          :model="updateForm"
+          :rules="updateFormRules"
+          label-width="80px"
+      >
+        <el-form-item prop="id" label="ID" style="display: none">
+          <el-input v-model="updateForm.id"/>
+        </el-form-item>
+        <el-row :gutter="5">
+          <el-col :span="12">
+            <el-form-item prop="name" label="名称">
+              <el-input v-model="updateForm.name"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="code" label="编码">
+              <el-input v-model="updateForm.code"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item prop="description" label="描述">
+              <el-input v-model="updateForm.description" type="textarea"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="updateDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmUpdate(updateFormRef)">确认</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import RoleApi from "@/api/sys/role.ts"
+import RoleApi, {RoleUpdateForm} from "@/api/sys/role.ts"
 import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
+import {FormInstance} from "element-plus";
 
 const tableData = ref([])
 const currentPage = ref(1)
@@ -77,10 +114,6 @@ const changeCurrent = (val: number) => {
   search()
 }
 
-const update = (row: any) => {
-  console.log(row)
-}
-
 const remove = (row: any) => {
   ElMessageBox.confirm('是否确认删除', '提示', {
     type: 'warning',
@@ -91,7 +124,44 @@ const remove = (row: any) => {
       search()
     })
   })
+}
 
+// 修改对话框是否显示
+const updateDialogVisible = ref(false)
+// 修改表单 ref
+const updateFormRef = ref<FormInstance>()
+// 修改表单数据
+const updateForm = reactive<RoleUpdateForm>({
+  id: '',
+  name: '',
+  code: '',
+  description: ''
+})
+// 修改表单校验规则
+const updateFormRules = reactive<FormRules<RoleUpdateForm>>({
+  name: [{required: true, message: '请输入名称', trigger: 'blur'}],
+  code: [{required: true, message: '请输入编码', trigger: 'blur'}],
+})
+
+const update = (row: any) => {
+  updateDialogVisible.value = true
+  Object.assign(updateForm, row)
+}
+
+const confirmUpdate = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((isValid, invalidFields) => {
+    if (isValid) {
+      RoleApi.update(updateForm, {loadingOption: {target: '.el-dialog'}}).then(() => {
+        // 关闭对话框
+        updateDialogVisible.value = false
+        // 刷新表格
+        search()
+        // 清空表单
+        formEl.resetFields()
+      })
+    }
+  })
 }
 </script>
 

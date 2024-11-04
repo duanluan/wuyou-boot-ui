@@ -1,6 +1,14 @@
 import {PageQO} from "@/types/common.ts";
 import http from "@/utils/http.ts";
 
+// 角色修改表单
+interface RoleUpdateForm {
+  id: number
+  name: string
+  code: string
+  description: string
+}
+
 class RoleApi {
   static baseUrl = '/sys/roles';
 
@@ -33,6 +41,20 @@ class RoleApi {
     }
     return await http.delete(`${this.baseUrl}/${ids}`, option);
   }
+
+  /**
+   * 修改
+   * @param query 修改表单
+   * @param option 请求配置
+   */
+  static async update(query: RoleUpdateForm, option?: FetchOptions) {
+    if (!option) {
+      option = {};
+    }
+    option.json = query;
+    return await http.put(`${this.baseUrl}/${query.id}`, option);
+  }
 }
 
 export default RoleApi;
+export {RoleUpdateForm};
