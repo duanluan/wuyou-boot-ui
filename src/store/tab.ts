@@ -17,38 +17,50 @@ export const useTabStore = defineStore('tab', () => {
 
   /**
    * 激活标签页
-   * @param name 标签页名称
+   * @param nameOrIndex 标签页名称或索引
    * @param router 路由
    */
-  const activeTab = (name: string, router: Router) => {
+  const activeTab = (nameOrIndex: string | number, router: Router) => {
+    if (typeof nameOrIndex === 'number') {
+      nameOrIndex = tabs.value[nameOrIndex]?.name
+      if (!nameOrIndex) {
+        throw new TypeError('nameOrIndex is number, but tab not found')
+      }
+    }
     // 设置激活标签
-    activeTabName.value = name;
+    activeTabName.value = nameOrIndex;
     // 路由跳转
-    router.push({path: name})
+    router.push({path: nameOrIndex})
   }
 
   /**
    * 添加标签页
-   * @param tab 标签页
+   * @param tabOrIndex 标签页或索引
    * @param router 路由
    */
-  const addTab = (tab: TabItem, router: Router) => {
+  const addTab = (tabOrIndex: TabItem | number, router: Router) => {
+    if (typeof tabOrIndex === 'number') {
+      tabOrIndex = tabs.value[tabOrIndex]
+      if (!tabOrIndex) {
+        throw new TypeError('tabOrIndex is number, but tab not found')
+      }
+    }
     // 添加的标签页不存在时
-    if (!tabs.value.some(item => item.name === tab.name)) {
-      const routeByPath = router.getRoutes().find(item => item.path === tab.name)
+    if (!tabs.value.some(item => item.name === tabOrIndex.name)) {
+      const routeByPath = router.getRoutes().find(item => item.path === tabOrIndex.name)
       const componentName = routeByPath?.name
       if (componentName) {
         // 将组件名添加到标签页
-        tab.componentName = componentName
+        tabOrIndex.componentName = componentName
         // 缓存标签页
         if (routeByPath.meta.keepAlive) {
           addComponentName(componentName)
         }
       }
       // 添加到标签页列表
-      tabs.value.push(tab)
+      tabs.value.push(tabOrIndex)
     }
-    activeTab(tab.name, router)
+    activeTab(tabOrIndex.name, router)
   }
 
   const addComponentName = (tabName: string) => {

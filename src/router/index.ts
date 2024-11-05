@@ -8,6 +8,7 @@ const routes: RouteRecordRaw[] = [
     // 首页
     path: "/",
     component: () => import("@/views/HomeView.vue"),
+    redirect: "/dashboard",
     children: [
       {
         // 仪表盘

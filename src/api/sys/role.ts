@@ -33,7 +33,7 @@ class RoleApi {
    */
   static async remove(ids: number[] | number | string, option?: FetchOptions) {
     if (ids.length === 0) {
-      console.error('ids不能为空');
+      throw new TypeError('ids is empty');
     }
     // 如果ids类型为number[]
     if (Array.isArray(ids)) {

@@ -136,6 +136,9 @@ onMounted(async () => {
   if (currentItem) {
     // 添加标签，标签页不存在当前路由时，刷新页面后能正确打开
     tabStore.addTab({label: currentItem.name, name: currentPath}, router);
+  } else {
+    // 打开首页
+    tabStore.addTab(0, router);
   }
 });
 
@@ -155,17 +158,16 @@ const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
   // 清空面包屑
   breadcrumbs.value = [];
   if (typeof itemOrPath == 'string' && (!menuList || menuList.length === 0)) return;
-
   const currentItem = (typeof itemOrPath !== 'string') ? itemOrPath : menuList.find(menu => menu.path === itemOrPath);
+  if (!currentItem) return;
+
   /**
    * 根据 parentId 递归往上寻找父级菜单 或 根据 path 递归往下寻找子级菜单
    * @param currentItem 当前菜单项
-   *
    */
   const findParentOrChild = (currentItem: MenuTreeItem) => {
-    if (currentItem.parentId === 0) {
-      return;
-    }
+    if (!currentItem || !currentItem.parentId) return;
+
     const parent = menuList.find(menu => menu.id === currentItem.parentId);
     if (!parent) return;
     // 使用 unshift 将元素加入数组头部
