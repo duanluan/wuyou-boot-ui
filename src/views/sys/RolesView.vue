@@ -157,8 +157,11 @@ const editFormRules = reactive<FormRules<RoleEditForm>>({
 const isSave = ref(false)
 
 const edit = (row: any) => {
-  Object.assign(editForm, row)
   editDialogVisible.value = true
+  // 第一次表单赋值要放在表单显示后和下一个 DOM 更新循环之后，否则后续执行表单初始化一直是第一次赋值的值：https://segmentfault.com/a/1190000043401023#item-4
+  nextTick(() => {
+    Object.assign(editForm, row)
+  })
   isSave.value = false
 }
 
