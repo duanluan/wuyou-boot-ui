@@ -143,7 +143,7 @@ const remove = (row: any) => {
     } else {
       ids = tableRef.value.getSelectionRows().map((item: any) => item.id)
     }
-    RoleApi.remove(ids, {loadingOption: {target: '.el-main'}}).then(() => {
+    RoleApi.remove(ids, {loadingOption: {target: '.el-main'}, showOkMsg: true}).then(() => {
       search()
     })
   })
@@ -193,9 +193,9 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
         search()
       }
       if (isSave.value) {
-        RoleApi.save(editForm, {loadingOption: {target: '.el-dialog'}}).then(afterEdit)
+        RoleApi.save(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(afterEdit)
       } else {
-        RoleApi.update(editForm, {loadingOption: {target: '.el-dialog'}}).then(afterEdit)
+        RoleApi.update(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(afterEdit)
       }
     }
   })

@@ -43,11 +43,19 @@ interface FetchOptions extends RequestInit {
    */
   loadingOption?: LoadingOptions;
   /**
+   * 是否显示成功提示
+   */
+  showOkMsg?: boolean;
+  /**
+   * 成功提示配置项
+   */
+  okMsgOption?: MessageOptions;
+  /**
    * 是否显示错误提示
    */
   showErrorMsg?: boolean;
   /**
-   * 错误提示配置项：https://element-plus.gitee.io/zh-CN/component/message.html#message-%E9%85%8D%E7%BD%AE%E9%A1%B9
+   * 错误提示配置项
    */
   errorMsgOption?: MessageOptions;
   /**
@@ -108,13 +116,17 @@ class Http {
         this.debounceMap.delete(requestKey);  // 执行后清除计时器
 
         // 合并默认参数和传入参数
-        let loadingOption = {}, headers = {};
+        let loadingOption = {}, okMsgOption = {}, errorMsgOption = {}, headers = {};
         if (options) {
           loadingOption = {...this.config.loadingOption, ...options.loadingOption}
+          okMsgOption = {...this.config.okMsgOption, ...options.okMsgOption}
+          errorMsgOption = {...this.config.errorMsgOption, ...options.errorMsgOption}
           headers = {...this.config.headers, ...options.headers}
         }
         options = {...this.config, ...options};
         options.loadingOption = loadingOption;
+        options.okMsgOption = okMsgOption;
+        options.errorMsgOption = errorMsgOption;
         options.headers = headers;
 
         // 处理参数
@@ -170,12 +182,26 @@ class Http {
         fetch(options.baseUrl + url, options).then(async response => {
           this.closeLoading(loading);
           if (response.ok) {
-            // 响应中 code 不为 200 时提示 msg
+            // JSON 响应
             const r = await response.json();
-            if (r && r.code !== 200 && options?.showErrorMsg) {
-              options.errorMsgOption.message = r.msg;
-              ElMessage.error(options?.errorMsgOption);
+            if (r) {
+              debugger
+              // 成功提示
+              if (r.code === 200 && options?.showOkMsg) {
+                if (r.msg) {
+                  options.okMsgOption.message = r.msg;
+                }
+                ElMessage.success(options?.okMsgOption);
+              }
+              // 错误提示
+              if (r.code !== 200 && options?.showErrorMsg) {
+                if (r.msg) {
+                  options.errorMsgOption.message = r.msg;
+                }
+                ElMessage.error(options?.errorMsgOption);
+              }
             }
+            // 返回响应
             resolve(r);
           } else {
             if (response.status === 401) {
@@ -187,7 +213,7 @@ class Http {
             } else {
               if (options?.showErrorMsg) {
                 const r = await response.json();
-                if (r && r.code !== 200) {
+                if (r && r.code !== 200 && r.msg) {
                   options.errorMsgOption.message = r.msg;
                 }
                 ElMessage.error(options?.errorMsgOption);
@@ -226,18 +252,23 @@ class Http {
   }
 }
 
+// 创建一个默认实例
 const http = new Http({
   method: "GET",
   baseUrl: '/api',
   headers: {
-    // 默认内容类型为表单
+    // 内容类型为表单
     "Content-Type": "application/x-www-form-urlencoded",
   },
-  // 默认显示加载动画
+  // 显示加载动画
   showLoading: true,
   // 加载动画选项
   loadingOption: {text: "加载中..."},
-  // 默认显示错误提示
+  // 不显示成功提示
+  showOkMsg: false,
+  // 成功提示选项
+  okMsgOption: {message: "操作成功"},
+  // 显示错误提示
   showErrorMsg: true,
   // 错误提示选项
   errorMsgOption: {message: "请求失败"},
