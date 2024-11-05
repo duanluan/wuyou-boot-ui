@@ -45,7 +45,7 @@ export default ({mode}) => defineConfig({
       resolvers: [
         // 自动注册图标组件
         IconsResolver({
-          // 启用的图标合集。默认启用 mdi（https://icon-sets.iconify.design/mdi/）合集
+          // 启用的图标合集。默认启用 mdi（https://icones.netlify.app/collection/mdi、https://icon-sets.iconify.design/mdi/）合集
           enabledCollections: ['mdi', 'ep'],
         }),
         // 自动导入 Element Plus 组件
