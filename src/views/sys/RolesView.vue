@@ -17,8 +17,13 @@
         <i-ep-plus class="el-icon--left"/>
         新增
       </el-button>
+      <el-button type="danger" size="small" @click="remove()">
+        <i-ep-delete class="el-icon--left"/>
+        删除
+      </el-button>
     </div>
-    <el-table :data="tableData" style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
+    <el-table ref="tableRef" :data="tableData" style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
+      <el-table-column type="selection" width="55"/>
       <el-table-column fixed prop="name" label="名称" width="180"/>
       <el-table-column prop="code" label="编码" width="180"/>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
@@ -89,8 +94,8 @@
 <script setup lang="ts">
 import RoleApi, {RoleEditForm} from "@/api/sys/role.ts"
 import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
-import {FormInstance} from "element-plus";
 
+const tableRef = ref()
 const tableData = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
@@ -132,7 +137,13 @@ const remove = (row: any) => {
     confirmButtonText: '确认',
     cancelButtonText: '取消'
   }).then(() => {
-    RoleApi.remove(row.id, {loadingOption: {target: '.el-main'}}).then(() => {
+    let ids: number[]
+    if (row) {
+      ids = [row.id]
+    } else {
+      ids = tableRef.value.getSelectionRows().map((item: any) => item.id)
+    }
+    RoleApi.remove(ids, {loadingOption: {target: '.el-main'}}).then(() => {
       search()
     })
   })
