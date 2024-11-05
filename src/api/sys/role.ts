@@ -1,8 +1,8 @@
 import {PageQO} from "@/types/common.ts";
 import http from "@/utils/http.ts";
 
-// 角色修改表单
-interface RoleUpdateForm {
+// 角色编辑表单
+interface RoleEditForm {
   id: number
   name: string
   code: string
@@ -44,17 +44,30 @@ class RoleApi {
 
   /**
    * 修改
-   * @param query 修改表单
+   * @param query 编辑表单
    * @param option 请求配置
    */
-  static async update(query: RoleUpdateForm, option?: FetchOptions) {
+  static async update(query: RoleEditForm, option?: FetchOptions) {
     if (!option) {
       option = {};
     }
     option.json = query;
     return await http.put(`${this.baseUrl}/${query.id}`, option);
   }
+
+  /**
+   * 保存
+   * @param query 编辑表单
+   * @param option 请求配置
+   */
+  static async save(query: RoleEditForm, option?: FetchOptions) {
+    if (!option) {
+      option = {};
+    }
+    option.json = query;
+    return await http.post(this.baseUrl, option);
+  }
 }
 
 export default RoleApi;
-export {RoleUpdateForm};
+export {RoleEditForm};

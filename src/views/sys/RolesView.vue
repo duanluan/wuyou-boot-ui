@@ -12,6 +12,12 @@
         <el-button @click="reset">重置</el-button>
       </el-form-item>
     </el-form>
+    <div style="margin-bottom: 8px">
+      <el-button type="primary" size="small" @click="add()">
+        <i-ep-plus class="el-icon--left"/>
+        新增
+      </el-button>
+    </div>
     <el-table :data="tableData" style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
       <el-table-column fixed prop="name" label="名称" width="180"/>
       <el-table-column prop="code" label="编码" width="180"/>
@@ -20,8 +26,14 @@
       <el-table-column fixed="right" label="操作" min-width="120">
         <!-- 解构赋值当前行 -->
         <template #default="{row}">
-          <el-button link type="primary" size="small" @click="update(row)">修改</el-button>
-          <el-button link type="primary" size="small" @click="remove(row)">删除</el-button>
+          <el-button link type="primary" size="small" @click="edit(row)">
+            <i-ep-edit/>
+            修改
+          </el-button>
+          <el-button link type="primary" size="small" @click="remove(row)">
+            <i-ep-delete/>
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -36,38 +48,38 @@
         style="justify-content: right"
     />
 
-    <el-dialog v-model="updateDialogVisible" title="修改" width="650">
+    <el-dialog v-model="editDialogVisible" @close="editFormRef.resetFields()" :title="isSave ? '新增' : '修改'" width="650">
       <el-form
-          ref="updateFormRef"
-          :model="updateForm"
-          :rules="updateFormRules"
+          ref="editFormRef"
+          :model="editForm"
+          :rules="editFormRules"
           label-width="80px"
       >
         <el-form-item prop="id" label="ID" style="display: none">
-          <el-input v-model="updateForm.id"/>
+          <el-input v-model="editForm.id"/>
         </el-form-item>
         <el-row :gutter="5">
           <el-col :span="12">
             <el-form-item prop="name" label="名称">
-              <el-input v-model="updateForm.name"/>
+              <el-input v-model="editForm.name"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item prop="code" label="编码">
-              <el-input v-model="updateForm.code"/>
+              <el-input v-model="editForm.code"/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item prop="description" label="描述">
-              <el-input v-model="updateForm.description" type="textarea"/>
+              <el-input v-model="editForm.description" type="textarea"/>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="updateDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmUpdate(updateFormRef)">确认</el-button>
+          <el-button @click="editDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmEdit(editFormRef)">确认</el-button>
         </div>
       </template>
     </el-dialog>
@@ -75,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import RoleApi, {RoleUpdateForm} from "@/api/sys/role.ts"
+import RoleApi, {RoleEditForm} from "@/api/sys/role.ts"
 import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
 import {FormInstance} from "element-plus";
 
@@ -127,39 +139,50 @@ const remove = (row: any) => {
 }
 
 // 修改对话框是否显示
-const updateDialogVisible = ref(false)
-// 修改表单 ref
-const updateFormRef = ref<FormInstance>()
-// 修改表单数据
-const updateForm = reactive<RoleUpdateForm>({
+const editDialogVisible = ref(false)
+// 编辑表单 ref
+const editFormRef = ref<FormInstance>()
+// 编辑表单数据
+const editForm = reactive<RoleEditForm>({
   id: '',
   name: '',
   code: '',
   description: ''
 })
-// 修改表单校验规则
-const updateFormRules = reactive<FormRules<RoleUpdateForm>>({
+// 编辑表单校验规则
+const editFormRules = reactive<FormRules<RoleEditForm>>({
   name: [{required: true, message: '请输入名称', trigger: 'blur'}],
   code: [{required: true, message: '请输入编码', trigger: 'blur'}],
 })
+const isSave = ref(false)
 
-const update = (row: any) => {
-  updateDialogVisible.value = true
-  Object.assign(updateForm, row)
+const edit = (row: any) => {
+  Object.assign(editForm, row)
+  editDialogVisible.value = true
+  isSave.value = false
 }
 
-const confirmUpdate = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((isValid, invalidFields) => {
+const add = () => {
+  editDialogVisible.value = true
+  isSave.value = true
+}
+
+const confirmEdit = async (editFormEl: FormInstance | undefined) => {
+  if (!editFormEl) return
+  await editFormEl.validate((isValid, invalidFields) => {
     if (isValid) {
-      RoleApi.update(updateForm, {loadingOption: {target: '.el-dialog'}}).then(() => {
+      const afterEdit = () => {
+        editFormEl.resetFields()
         // 关闭对话框
-        updateDialogVisible.value = false
+        editDialogVisible.value = false
         // 刷新表格
         search()
-        // 清空表单
-        formEl.resetFields()
-      })
+      }
+      if (isSave.value) {
+        RoleApi.save(editForm, {loadingOption: {target: '.el-dialog'}}).then(afterEdit)
+      } else {
+        RoleApi.update(editForm, {loadingOption: {target: '.el-dialog'}}).then(afterEdit)
+      }
     }
   })
 }
