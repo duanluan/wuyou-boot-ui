@@ -30,7 +30,7 @@
       <el-table-column prop="sort" label="顺序" width="100"/>
       <el-table-column label="状态" width="100">
         <template #default="scope">
-          <el-switch :active-value="1" :inactive-value="0" v-model="scope.row.status" @change="changeStatus(scope.row)" :disabled="scope.row.code === 'superAdmin'"/>
+          <el-switch :active-value="RoleStatus.ENABLE" :inactive-value="RoleStatus.DISABLE" v-model="scope.row.status" @change="changeStatus(scope.row)" :disabled="scope.row.code === RoleCode.SUPER_ADMIN"/>
         </template>
       </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
@@ -77,7 +77,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item prop="status" label="状态">
-              <el-switch :active-value="1" :inactive-value="0" v-model="editForm.status"/>
+              <el-switch :active-value="RoleStatus.ENABLE" :inactive-value="RoleStatus.DISABLE" v-model="editForm.status"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -110,6 +110,7 @@
 <script setup lang="ts">
 import RoleApi, {RoleEditForm} from "@/api/sys/role.ts"
 import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
+import {RoleCode, RoleStatus} from "@/enums/role.ts";
 
 const tableRef = ref()
 const tableData = ref([])
@@ -175,7 +176,7 @@ const editForm = reactive<RoleEditForm>({
   name: '',
   code: '',
   sort: 1,
-  status: 1,
+  status: RoleStatus.ENABLE,
   description: ''
 })
 // 编辑表单校验规则
