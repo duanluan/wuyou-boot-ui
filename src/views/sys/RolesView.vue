@@ -26,8 +26,14 @@
       <el-table-column type="selection" width="55"/>
       <el-table-column fixed prop="name" label="名称" width="180"/>
       <el-table-column prop="code" label="编码" width="180"/>
-      <el-table-column prop="createdTime" label="创建时间" width="220"/>
       <el-table-column prop="description" label="描述"/>
+      <el-table-column prop="sort" label="顺序" width="100"/>
+      <el-table-column label="状态" width="100">
+        <template #default="scope">
+          <el-switch :active-value="1" :inactive-value="0" v-model="scope.row.status" @change="changeStatus(scope.row)" :disabled="scope.row.code === 'superAdmin'"/>
+        </template>
+      </el-table-column>
+      <el-table-column prop="createdTime" label="创建时间" width="220"/>
       <el-table-column fixed="right" label="操作" min-width="120">
         <!-- 解构赋值当前行 -->
         <template #default="{row}">
@@ -70,8 +76,18 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item prop="status" label="状态">
+              <el-switch :active-value="1" :inactive-value="0" v-model="editForm.status"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item prop="code" label="编码">
               <el-input v-model="editForm.code"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="sort" label="顺序">
+              <el-input-number v-model="editForm.sort" controls-position="right"/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -158,12 +174,15 @@ const editForm = reactive<RoleEditForm>({
   id: '',
   name: '',
   code: '',
+  sort: 1,
+  status: 1,
   description: ''
 })
 // 编辑表单校验规则
 const editFormRules = reactive<FormRules<RoleEditForm>>({
   name: [{required: true, message: '请输入名称', trigger: 'blur'}],
   code: [{required: true, message: '请输入编码', trigger: 'blur'}],
+  sort: [{required: true, message: '请输入顺序', trigger: 'blur'}],
 })
 const isSave = ref(false)
 
@@ -199,6 +218,12 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
       }
     }
   })
+}
+
+const changeStatus = async (row: any) => {
+  if (!await RoleApi.updateStatus(row.id, row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
+    row.status = row.status === 1 ? 0 : 1
+  }
 }
 </script>
 

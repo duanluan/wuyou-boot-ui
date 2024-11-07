@@ -6,6 +6,8 @@ interface RoleEditForm {
   id: number
   name: string
   code: string
+  sort: number,
+  status: number,
   description: string
 }
 
@@ -53,6 +55,21 @@ class RoleApi {
     }
     option.json = query;
     return await http.put(`${this.baseUrl}/${query.id}`, option);
+  }
+
+  /**
+   * 修改状态
+   * @param id ID
+   * @param status 状态
+   * @param option 请求配置
+   */
+  static async updateStatus(id: number, status: number, option?: FetchOptions) {
+    if (!option) {
+      option = {};
+    }
+    option.json = {id, status};
+    const responseJson = await http.patch(`${this.baseUrl}/${id}/status`, option)
+    return responseJson && responseJson.code === 200;
   }
 
   /**
