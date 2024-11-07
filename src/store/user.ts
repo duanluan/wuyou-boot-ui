@@ -2,12 +2,14 @@ import {defineStore} from 'pinia';
 import UserApi, {LoginForm} from "@/api/sys/user.ts";
 import router from "@/router";
 import {useMenuStore} from "@/store/menu.ts";
+import {useTabStore} from "@/store/tab.ts";
 
 // 创建一个 useStore 函数，检索 store 实例：https://pinia.vuejs.org/zh/api/modules/pinia.html#definestore
 export const useUserStore = defineStore('user', () => {
-  const token = ref('');
   const info = ref({});
   const menuStore = useMenuStore()
+  const tabStore = useTabStore()
+
   /**
    * 登录成功后跳转到仪表盘
    * @param loginForm 登录表单
@@ -22,18 +24,29 @@ export const useUserStore = defineStore('user', () => {
     })
   }
 
+  /**
+   * 清空
+   */
+  const clean = () => {
+    info.value = {}
+  }
+
+  /**
+   * 登出
+   */
   const logout = () => {
     if (UserApi.logout()) {
-      info.value = {}
-      menuStore.clearMenuTreeList()
       router.push({name: 'LoginView'});
+      clean()
+      menuStore.clean()
+      tabStore.clean()
     }
   }
 
   return {
     login,
+    clean,
     logout,
-    token,
     info
   };
 }, {

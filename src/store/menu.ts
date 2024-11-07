@@ -23,13 +23,13 @@ export const useMenuStore = defineStore('menu', () => {
   });
 
   /**
-   * 清空菜单树
+   * 清空
    */
-  const clearMenuTreeList = () => {
+  const clean = () => {
     menuTreeList.value = [];
   };
 
-  return {menuTreeList, isMenuTreeListEmpty, loadMenuTreeList, clearMenuTreeList
+  return {menuTreeList, isMenuTreeListEmpty, loadMenuTreeList, clean
   };
 }, {
   // 持久化

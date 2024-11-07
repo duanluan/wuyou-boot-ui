@@ -7,13 +7,16 @@ interface TabItem extends TabPane {
 }
 
 export const useTabStore = defineStore('tab', () => {
+  // 默认标签页列表
+  const defaultTabs: TabItem = [{label: '仪表盘', name: '/dashboard', componentName: 'DashboardView'}]
   // 标签页列表
-  const tabs = ref<TabItem[]>([
-    {label: '仪表盘', name: '/dashboard', componentName: 'DashboardView'}
-  ])
+  const tabs = ref<TabItem[]>(defaultTabs)
+  // 缓存的组件名
   const cachedComponentNames = ref<string[]>([])
+  // 默认激活标签页名称
+  const defaultActiveTabName = '/dashboard'
   // 激活标签页名称
-  const activeTabName = ref<string>('/dashboard');
+  const activeTabName = ref<string>(defaultActiveTabName);
 
   /**
    * 激活标签页
@@ -93,7 +96,16 @@ export const useTabStore = defineStore('tab', () => {
     }
   }
 
-  return {tabs, cachedComponentNames, activeTabName, activeTab, addComponentName, addTab, removeTab}
+  /**
+   * 清空
+   */
+  const clean = () => {
+    tabs.value = defaultTabs
+    cachedComponentNames.value = []
+    activeTabName.value = defaultActiveTabName
+  }
+
+  return {tabs, cachedComponentNames, activeTabName, activeTab, addComponentName, addTab, removeTab, clean}
 }, {
   // 持久化
   persist: true
