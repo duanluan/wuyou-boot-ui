@@ -137,7 +137,7 @@ class Http {
             url += '?' + params;
           }
           // POST、PUT 用 URLSearchParams 或 FormData 传参
-          else if (options.method === HttpMethod.POST || options.method === HttpMethod.PUT) {
+          else if (options.method === HttpMethod.POST || options.method === HttpMethod.PUT || options.method === HttpMethod.PATCH) {
             if (options.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
               const urlSearchParams = new URLSearchParams();
               for (let key in options.query) {
@@ -154,8 +154,8 @@ class Http {
           }
         }
 
-        // GET 和 PUT 用 json 传参
-        if (options.json && (options.method === HttpMethod.POST || options.method === HttpMethod.PUT)) {
+        // json 传参：POST、PUT、PATCH
+        if (options.json && (options.method === HttpMethod.POST || options.method === HttpMethod.PUT || options.method === HttpMethod.PATCH)) {
           // 设置 body
           options.body = JSON.stringify(options.json);
           // 设置 headers
@@ -185,7 +185,6 @@ class Http {
             // JSON 响应
             const r = await response.json();
             if (r) {
-              debugger
               // 成功提示
               if (r.code === 200 && options?.showOkMsg) {
                 if (r.msg) {
@@ -211,13 +210,15 @@ class Http {
             } else if (response.status === 403) {
               ElMessage.error("无权限");
             } else {
+              const r = await response.json();
               if (options?.showErrorMsg) {
-                const r = await response.json();
                 if (r && r.code !== 200 && r.msg) {
                   options.errorMsgOption.message = r.msg;
                 }
                 ElMessage.error(options?.errorMsgOption);
               }
+              // 返回响应
+              resolve(r);
             }
           }
         }).catch(error => {
@@ -241,6 +242,10 @@ class Http {
 
   post(url: string, option?: FetchOptions) {
     return this.fetch(url, {...option, method: 'POST'});
+  }
+
+  patch(url: string, option?: FetchOptions) {
+    return this.fetch(url, {...option, method: 'PATCH'});
   }
 
   put(url: string, option?: FetchOptions) {
