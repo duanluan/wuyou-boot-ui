@@ -20,12 +20,7 @@ class RoleApi {
    * @param option 请求配置
    */
   static async page(query?: PageQO & {}, option?: FetchOptions) {
-    if (!option) {
-      option = {};
-    }
-    option.query = {...query, ...option.query};
-
-    return await http.get(this.baseUrl, option);
+    return await http.get(this.baseUrl, query, option);
   }
 
   /**
@@ -34,14 +29,7 @@ class RoleApi {
    * @param option 请求配置
    */
   static async remove(ids: number[] | number | string, option?: FetchOptions) {
-    if (ids.length === 0) {
-      throw new TypeError('ids is empty');
-    }
-    // 如果ids类型为number[]
-    if (Array.isArray(ids)) {
-      ids = ids.join(',')
-    }
-    return await http.delete(`${this.baseUrl}/${ids}`, option);
+    return await http.deleteByIds(`${this.baseUrl}/{}`, ids, option);
   }
 
   /**
@@ -50,11 +38,7 @@ class RoleApi {
    * @param option 请求配置
    */
   static async update(query: RoleEditForm, option?: FetchOptions) {
-    if (!option) {
-      option = {};
-    }
-    option.json = query;
-    return await http.put(`${this.baseUrl}/${query.id}`, option);
+    return await http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
   }
 
   /**
@@ -64,11 +48,7 @@ class RoleApi {
    * @param option 请求配置
    */
   static async updateStatus(id: number, status: number, option?: FetchOptions) {
-    if (!option) {
-      option = {};
-    }
-    option.json = {id, status};
-    const responseJson = await http.patch(`${this.baseUrl}/${id}/status`, option)
+    const responseJson = await http.patchByJson(`${this.baseUrl}/${id}/status`, {id, status}, option)
     return responseJson && responseJson.code === 200;
   }
 
@@ -78,11 +58,7 @@ class RoleApi {
    * @param option 请求配置
    */
   static async save(query: RoleEditForm, option?: FetchOptions) {
-    if (!option) {
-      option = {};
-    }
-    option.json = query;
-    return await http.post(this.baseUrl, option);
+    return await http.postByJson(this.baseUrl, query, option);
   }
 }
 

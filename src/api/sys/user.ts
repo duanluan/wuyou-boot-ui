@@ -1,5 +1,4 @@
 import http, {FetchOptions} from "@/utils/http.ts";
-import {useUserStore} from "@/store/user.ts";
 
 // 登录表单
 interface LoginForm {
@@ -16,13 +15,8 @@ class UserApi {
    * @param query 登录表单
    * @param option 请求配置
    */
-  static async login(query: LoginForm, option?: FetchOptions) {
-    if (!option) {
-      option = {};
-    }
-    option.query = {...query, ...option.query};
-
-    const response = await http.post(this.baseUrl + '/login', option);
+  static async login(query: LoginForm = {}, option?: FetchOptions) {
+    const response = await http.postByQuery(this.baseUrl + '/login', query, option);
     return response?.data;
   }
 

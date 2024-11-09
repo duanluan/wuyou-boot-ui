@@ -236,23 +236,98 @@ class Http {
     });
   }
 
-  get(url: string, option?: FetchOptions) {
+  /**
+   * GET 请求
+   * @param url URL
+   * @param query 参数
+   * @param option 请求选项
+   */
+  get(url: string, query?: {}, option?: FetchOptions = {query: {}}) {
+    // 参数合并
+    option.query = {...query, ...option.query};
     return this.fetch(url, {...option, method: 'GET'});
   }
 
+  /**
+   * POST 请求
+   * @param url URL
+   * @param option 请求选项
+   */
   post(url: string, option?: FetchOptions) {
     return this.fetch(url, {...option, method: 'POST'});
   }
 
-  patch(url: string, option?: FetchOptions) {
-    return this.fetch(url, {...option, method: 'PATCH'});
+  /**
+   * POST 请求
+   * @param url URL
+   * @param query 参数
+   * @param option 请求选项
+   */
+  postByQuery(url: string, query: {}, option?: FetchOptions = {query: {}}) {
+    // 参数合并
+    option.query = {...query, ...option.query};
+    return this.fetch(url, {...option, method: 'POST'});
   }
 
-  put(url: string, option?: FetchOptions) {
+  /**
+   * POST 请求
+   * @param url URL
+   * @param json body json 参数
+   * @param option 请求选项
+   */
+  postByJson(url: string, json: {}, option?: FetchOptions = {json: {}}) {
+    // 参数合并
+    option.json = {...json, ...option.json};
+    return this.fetch(url, {...option, method: 'POST'});
+  }
+
+  /**
+   * PUT 请求
+   * @param url URL
+   * @param json body json 参数
+   * @param option 请求选项
+   */
+  putByJson(url: string, json: {}, option?: FetchOptions = {json: {}}) {
+    // 参数合并
+    option.json = {...json, ...option.json};
     return this.fetch(url, {...option, method: 'PUT'});
   }
 
+  /**
+   * PATCH 请求
+   * @param url URL
+   * @param json body json 参数
+   * @param option 请求选项
+   */
+  patchByJson(url: string, json: {}, option?: FetchOptions = {json: {}}) {
+    // 参数合并
+    option.json = {...json, ...option.json};
+    return this.fetch(url, {...option, method: 'PATCH'});
+  }
+
+  /**
+   * DELETE 请求
+   * @param url URL
+   * @param option 请求选项
+   */
   delete(url: string, option?: FetchOptions) {
+    return this.fetch(url, {...option, method: 'DELETE'});
+  }
+
+  /**
+   * DELETE 请求删除多个
+   * @param url URL
+   * @param ids ID 字符串、字符串/数字数组、数字
+   * @param option 请求选项
+   */
+  deleteByIds(url: string, ids: number[] | string[] | number | string, option?: FetchOptions) {
+    if (!isValidStrOrNumArrOrNum(ids)) {
+      return
+    }
+    if (Array.isArray(ids)) {
+      ids = ids.join(',')
+    }
+    url = url.replace('{}', ids);
     return this.fetch(url, {...option, method: 'DELETE'});
   }
 }
@@ -280,5 +355,34 @@ const http = new Http({
   debounceDelay: 300
 })
 
+/**
+ * 判断字符串、字符串/数字数组、数字是否有效
+ * @param input 字符串、字符串/数字数组、数字
+ */
+const isValidStrOrNumArrOrNum = (input: string | string[] | number[] | number): string => {
+  if (!input) {
+    return false
+  }
+  if (typeof input === 'string' && input.trim() === '') {
+    return false
+  }
+  if (Array.isArray(input)) {
+    if (input.length == 0) {
+      return false
+    } else if (input.length == 1) {
+      if (typeof input[0] === 'string' && input[0].trim() === '') {
+        return false
+      }
+      if (typeof input[0] === 'number' && input[0] <= 0) {
+        return false
+      }
+    }
+  }
+  if (typeof input === 'number' && input <= 0) {
+    return false
+  }
+  return true
+}
+
 export default http;
-export {FetchOptions};
+export {FetchOptions, isValidStrOrNumArrOrNum};
