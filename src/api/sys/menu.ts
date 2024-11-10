@@ -8,7 +8,8 @@ interface MenuTreeItem {
   parentId: number,
   icon: string,
   path: string,
-  children: MenuTreeItem[]
+  children: MenuTreeItem[],
+  checked: boolean,
 }
 
 class MenuApi {
@@ -17,8 +18,10 @@ class MenuApi {
   static async tree(query?: {
     // 多个类型
     types?: number[] | string
-  }, option?: FetchOptions): Promise<MenuTreeItem[]> {
-    // 类型逗号拼接
+    // 角色 ID
+    roleCodeList?: number[],
+    // 是否获取全部和选中
+    isAllAndChecked?: boolean
   } = {}, option?: FetchOptions): Promise<MenuTreeItem[]> {
     // 逗号拼接
     if (query.types && Array.isArray(query.types)) {

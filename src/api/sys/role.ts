@@ -1,5 +1,5 @@
 import {PageQO} from "@/types/common.ts";
-import http from "@/utils/http.ts";
+import http, {FetchOptions} from "@/utils/http.ts";
 
 // 角色编辑表单
 interface RoleEditForm {
@@ -49,6 +49,17 @@ class RoleApi {
    */
   static async updateStatus(id: number, status: number, option?: FetchOptions) {
     const responseJson = await http.patchByJson(`${this.baseUrl}/${id}/status`, {id, status}, option)
+    return responseJson && responseJson.code === 200;
+  }
+
+  /**
+   * 更新菜单
+   * @param id ID
+   * @param menuIds 菜单 ID 数组
+   * @param option 请求配置
+   */
+  static async updateMenus(id: number, menuIds: number[], option?: FetchOptions) {
+    const responseJson = await http.patchByJson(`${this.baseUrl}/${id}/menus`, {id, menuIds}, option);
     return responseJson && responseJson.code === 200;
   }
 
