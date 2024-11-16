@@ -320,8 +320,8 @@ class Http {
    * @param ids ID 字符串、字符串/数字数组、数字
    * @param option 请求选项
    */
-  deleteByIds(url: string, ids: number[] | string[] | number | string, option?: FetchOptions) {
-    if (!isValidStrOrNumArrOrNum(ids)) {
+  deleteByIds(url: string, ids: string[] | string, option?: FetchOptions) {
+    if (!isValidStrOrStrArr(ids)) {
       return
     }
     if (Array.isArray(ids)) {
@@ -356,10 +356,10 @@ const http = new Http({
 })
 
 /**
- * 判断字符串、字符串/数字数组、数字是否有效
- * @param input 字符串、字符串/数字数组、数字
+ * 判断字符串、字符串数组是否有效
+ * @param input 字符串、字符串数组
  */
-const isValidStrOrNumArrOrNum = (input: string | string[] | number[] | number): string => {
+const isValidStrOrStrArr = (input: string | string[]): string => {
   if (!input) {
     return false
   }
@@ -373,16 +373,10 @@ const isValidStrOrNumArrOrNum = (input: string | string[] | number[] | number): 
       if (typeof input[0] === 'string' && input[0].trim() === '') {
         return false
       }
-      if (typeof input[0] === 'number' && input[0] <= 0) {
-        return false
-      }
     }
-  }
-  if (typeof input === 'number' && input <= 0) {
-    return false
   }
   return true
 }
 
 export default http;
-export {FetchOptions, isValidStrOrNumArrOrNum};
+export {FetchOptions, isValidStrOrStrArr};

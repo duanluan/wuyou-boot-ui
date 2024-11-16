@@ -2,10 +2,10 @@ import http, {FetchOptions} from "@/utils/http.ts";
 
 // 菜单树
 interface MenuTreeItem {
-  id: number,
+  id: string,
   name: string,
   order: number,
-  parentId: number,
+  parentid: string,
   icon: string,
   path: string,
   children: MenuTreeItem[],
@@ -18,8 +18,8 @@ class MenuApi {
   static async tree(query?: {
     // 多个类型
     types?: number[] | string
-    // 角色 ID
-    roleCodeList?: number[],
+    // 角色编码列表
+    roleCodeList?: string[],
     // 是否获取全部和选中
     isAllAndChecked?: boolean
   } = {}, option?: FetchOptions): Promise<MenuTreeItem[]> {

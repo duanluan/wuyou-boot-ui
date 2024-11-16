@@ -3,12 +3,12 @@ import http, {FetchOptions} from "@/utils/http.ts";
 
 // 角色编辑表单
 interface RoleEditForm {
-  id: number
-  name: string
-  code: string
-  sort: number,
-  status: number,
-  description: string
+  id: string | null // ID
+  name: string // 名称
+  code: string // 编码
+  sort: number, // 顺序
+  status: number, // 状态
+  description: string // 描述
 }
 
 class RoleApi {
@@ -24,12 +24,31 @@ class RoleApi {
   }
 
   /**
+   * 列表
+   * @param query 查询条件
+   * @param option 请求配置
+   */
+  static async list(query?: {}, option?: FetchOptions) {
+    const response = await this.page(option);
+    return response && response.data;
+  }
+
+  /**
    * 删除
    * @param ids ID 数组
    * @param option 请求配置
    */
-  static async remove(ids: number[] | number | string, option?: FetchOptions) {
+  static async remove(ids: string[] | string, option?: FetchOptions) {
     return await http.deleteByIds(`${this.baseUrl}/{}`, ids, option);
+  }
+
+  /**
+   * 保存
+   * @param query 编辑表单
+   * @param option 请求配置
+   */
+  static async save(query: RoleEditForm, option?: FetchOptions) {
+    return await http.postByJson(this.baseUrl, query, option);
   }
 
   /**
@@ -47,7 +66,7 @@ class RoleApi {
    * @param status 状态
    * @param option 请求配置
    */
-  static async updateStatus(id: number, status: number, option?: FetchOptions) {
+  static async updateStatus(id: string, status: number, option?: FetchOptions) {
     const responseJson = await http.patchByJson(`${this.baseUrl}/${id}/status`, {id, status}, option)
     return responseJson && responseJson.code === 200;
   }
@@ -58,18 +77,9 @@ class RoleApi {
    * @param menuIds 菜单 ID 数组
    * @param option 请求配置
    */
-  static async updateMenus(id: number, menuIds: number[], option?: FetchOptions) {
+  static async updateMenus(id: string, menuIds: string[], option?: FetchOptions) {
     const responseJson = await http.patchByJson(`${this.baseUrl}/${id}/menus`, {id, menuIds}, option);
     return responseJson && responseJson.code === 200;
-  }
-
-  /**
-   * 保存
-   * @param query 编辑表单
-   * @param option 请求配置
-   */
-  static async save(query: RoleEditForm, option?: FetchOptions) {
-    return await http.postByJson(this.baseUrl, query, option);
   }
 }
 

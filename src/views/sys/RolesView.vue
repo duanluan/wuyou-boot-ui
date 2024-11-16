@@ -67,7 +67,7 @@
         style="justify-content: right"
     />
 
-    <el-dialog v-model="editDialogVisible" @close="editFormRef.resetFields()" :title="isAdd ? '新增' : '修改'" width="650">
+    <el-dialog v-model="editDialogVisible" @close="editFormRef.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="650">
       <el-form
           ref="editFormRef"
           :model="editForm"
@@ -113,7 +113,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="configMenuDialogVisible" title="菜单权限" width="500">
+    <el-dialog v-model="configMenuDialogVisible" title="菜单权限" draggable width="500">
       <el-form
           ref="configMenuFormRef"
           :model="configMenuForm"
@@ -165,6 +165,7 @@ import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
 import {RoleCode, RoleStatus} from "@/enums/role.ts";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 import {FormInstance, TreeInstance} from "element-plus";
+import UserApi from "@/api/sys/user.ts";
 
 const tableRef = ref()
 const tableData = ref([])
@@ -198,7 +199,7 @@ const remove = (row: any) => {
     confirmButtonText: '确认',
     cancelButtonText: '取消'
   }).then(() => {
-    let ids: number[]
+    let ids: string[]
     if (row) {
       ids = [row.id]
     } else {
@@ -252,19 +253,21 @@ const add = () => {
 const confirmEdit = async (editFormEl: FormInstance | undefined) => {
   if (!editFormEl) return
   await editFormEl.validate((isValid, invalidFields) => {
-    if (isValid) {
-      const afterEdit = () => {
-        editFormEl.resetFields()
-        // 关闭对话框
-        editDialogVisible.value = false
-        // 刷新表格
-        search()
-      }
-      if (isAdd.value) {
-        RoleApi.save(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(afterEdit)
-      } else {
-        RoleApi.update(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(afterEdit)
-      }
+    if (!isValid) return
+    const afterEdit = (response) => {
+      if (response?.code !== 200) return
+
+      // 重置表单
+      editFormEl.resetFields()
+      // 关闭对话框
+      editDialogVisible.value = false
+      // 刷新表格
+      search()
+    }
+    if (isAdd.value) {
+      UserApi.save(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(response => afterEdit(response))
+    } else {
+      UserApi.update(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(response => afterEdit(response))
     }
   })
 }
@@ -296,7 +299,7 @@ const configMenu = async (row: any) => {
 
 // 获取选中的菜单 ID
 const getCheckedKeys = (menuTreeData: MenuTreeItem[]) => {
-  const checkedKeys: number[] = []
+  const checkedKeys: string[] = []
   const loop = (data: any[]) => {
     for (const item of data) {
       // 如果当前项被选中，则将其 ID 添加到 checkedKeys
