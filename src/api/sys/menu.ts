@@ -19,13 +19,16 @@ class MenuApi {
     // 多个类型
     types?: number[] | string
     // 角色编码列表
-    roleCodeList?: string[],
+    roleCodes?: string[] | string,
     // 是否获取全部和选中
     isAllAndChecked?: boolean
   } = {}, option?: FetchOptions): Promise<MenuTreeItem[]> {
     // 逗号拼接
     if (query.types && Array.isArray(query.types)) {
       query.types = query.types.join(',');
+    }
+    if (query.roleCodes && Array.isArray(query.roleCodes)) {
+      query.roleCodes = query.roleCodes.join(',');
     }
     return (await http.get(this.baseUrl + '/tree', query, option))?.data;
   }

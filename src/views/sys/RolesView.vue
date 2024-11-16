@@ -294,7 +294,7 @@ const configMenu = async (row: any) => {
   configMenuDialogVisible.value = true
   Object.assign(configMenuForm, row)
   // 获取菜单树
-  menuTreeData.value = await MenuApi.tree({isAllAndChecked: true, roleCodeList: [row.code]});
+  menuTreeData.value = await MenuApi.tree({isAllAndChecked: true, roleCodes: [row.code]});
 }
 
 // 获取选中的菜单 ID
