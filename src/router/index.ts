@@ -1,5 +1,7 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from "vue-router"
 
+const dashboardPath = "/dashboard"
+
 /**
  * 路由中的名字要和组件名一致，否则 keep-alive 无法缓存组件
  */
@@ -8,7 +10,7 @@ const routes: RouteRecordRaw[] = [
     // 首页
     path: "/",
     component: () => import("@/views/HomeView.vue"),
-    redirect: "/dashboard",
+    redirect: dashboardPath,
     children: [
       {
         // 仪表盘
@@ -57,3 +59,4 @@ const router = createRouter({
 })
 
 export default router
+export {dashboardPath}

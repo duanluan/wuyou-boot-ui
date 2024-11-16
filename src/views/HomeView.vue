@@ -28,7 +28,7 @@
                 class="collapse-menu-icon"
             />
             <el-breadcrumb separator="/" class="header-breadcrumb">
-              <el-breadcrumb-item :to="{path:'/dashboard'}">首页</el-breadcrumb-item>
+              <el-breadcrumb-item :to="{path: dashboardPath}">首页</el-breadcrumb-item>
               <el-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="index">
                 <template v-if="item.path">
                   <router-link :to="item.path">{{ item.name }}</router-link>
@@ -92,6 +92,7 @@ import {useMenuStore} from "@/store/menu.ts";
 import {useUserStore} from "../store/user.ts";
 import Tabs from "@/components/Tabs.vue";
 import {useTabStore} from "@/store/tab.ts";
+import {dashboardPath} from "@/router";
 
 const router = useRouter()
 // 菜单 store
@@ -178,7 +179,7 @@ const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
   }
   findParentOrChild(currentItem);
   // 非首页时添加自身
-  if (currentItem.path !== '/dashboard') {
+  if (currentItem.path !== dashboardPath) {
     breadcrumbs.value.push({name: currentItem.name, path: currentItem.path});
   }
 }

@@ -166,6 +166,7 @@ import {RoleCode, RoleStatus} from "@/enums/role.ts";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 import {FormInstance, TreeInstance} from "element-plus";
 import UserApi from "@/api/sys/user.ts";
+import {dashboardPath} from "@/router";
 
 const tableRef = ref()
 const tableData = ref([])
@@ -295,6 +296,12 @@ const configMenu = async (row: any) => {
   Object.assign(configMenuForm, row)
   // 获取菜单树
   menuTreeData.value = await MenuApi.tree({isAllAndChecked: true, roleCodes: [row.code]});
+  // 禁用勾选仪表盘
+  menuTreeData.value.forEach(item => {
+    if (item.path === dashboardPath) {
+      item.disabled = true
+    }
+  })
 }
 
 // 获取选中的菜单 ID
@@ -302,6 +309,10 @@ const getCheckedKeys = (menuTreeData: MenuTreeItem[]) => {
   const checkedKeys: string[] = []
   const loop = (data: any[]) => {
     for (const item of data) {
+      // 选中仪表盘
+      if (item.path === dashboardPath) {
+        checkedKeys.push(item.id)
+      }
       // 如果当前项被选中，则将其 ID 添加到 checkedKeys
       if (item.checked) {
         checkedKeys.push(item.id)

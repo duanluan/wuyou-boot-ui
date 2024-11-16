@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia';
 import type TabPane from "element-plus/es/components/tabs/src/tab-pane.vue";
 import {Router} from "vue-router";
+import {dashboardPath} from "@/router";
 
 interface TabItem extends TabPane {
   componentName?: string;
@@ -8,13 +9,13 @@ interface TabItem extends TabPane {
 
 export const useTabStore = defineStore('tab', () => {
   // 默认标签页列表
-  const defaultTabs: TabItem = [{label: '仪表盘', name: '/dashboard', componentName: 'DashboardView'}]
+  const defaultTabs: TabItem = [{label: '仪表盘', name: dashboardPath, componentName: 'DashboardView'}]
   // 标签页列表
   const tabs = ref<TabItem[]>(defaultTabs)
   // 缓存的组件名
   const cachedComponentNames = ref<string[]>([])
   // 默认激活标签页名称
-  const defaultActiveTabName = '/dashboard'
+  const defaultActiveTabName = dashboardPath
   // 激活标签页名称
   const activeTabName = ref<string>(defaultActiveTabName);
 
