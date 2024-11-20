@@ -30,7 +30,7 @@
       <el-table-column prop="sort" label="顺序" width="100"/>
       <el-table-column label="启用状态" width="100">
         <template #default="scope">
-          <el-switch :active-value="RoleStatus.ENABLE" :inactive-value="RoleStatus.DISABLE" v-model="scope.row.status" @change="changeStatus(scope.row)" :disabled="scope.row.code === RoleCode.SUPER_ADMIN"/>
+          <el-switch :active-value="CommonStatus.ENABLE" :inactive-value="CommonStatus.DISABLE" v-model="scope.row.status" @change="changeStatus(scope.row)" :disabled="scope.row.code === RoleCode.SUPER_ADMIN"/>
         </template>
       </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
@@ -85,7 +85,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item prop="status" label="启用状态">
-              <el-switch :active-value="RoleStatus.ENABLE" :inactive-value="RoleStatus.DISABLE" v-model="editForm.status" :disabled="editForm.code === RoleCode.SUPER_ADMIN"/>
+              <el-switch :active-value="CommonStatus.ENABLE" :inactive-value="CommonStatus.DISABLE" v-model="editForm.status" :disabled="editForm.code === RoleCode.SUPER_ADMIN"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -162,11 +162,12 @@
 <script setup lang="ts">
 import RoleApi, {RoleEditForm} from "@/api/sys/role.ts"
 import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
-import {RoleCode, RoleStatus} from "@/enums/role.ts";
+import {RoleCode} from "@/enums/role.ts";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 import {FormInstance, TreeInstance} from "element-plus";
 import UserApi from "@/api/sys/user.ts";
 import {dashboardPath} from "@/router";
+import {CommonStatus} from "@/enums/common.ts";
 
 const tableRef = ref()
 const tableData = ref([])
@@ -222,7 +223,7 @@ const editForm = reactive<RoleEditForm>({
   name: '',
   code: '',
   sort: 1,
-  status: RoleStatus.ENABLE,
+  status: CommonStatus.ENABLE,
   description: ''
 })
 // 编辑表单校验规则
