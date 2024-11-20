@@ -24,3 +24,8 @@ body {
 
 #app {
 }
+
+/* 选择下拉框 */
+.el-select {
+  width: 192px !important;
+}
