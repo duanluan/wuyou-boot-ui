@@ -61,6 +61,17 @@ class DeptApi {
   static async update(query: RoleEditForm, option?: FetchOptions) {
     return await http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
   }
+
+  /**
+   * 修改状态
+   * @param id ID
+   * @param status 状态
+   * @param option 请求配置
+   */
+  static async updateStatus(id: string, status: number, option?: FetchOptions) {
+    const responseJson = await http.patchByJson(`${this.baseUrl}/${id}/status`, {id, status}, option)
+    return responseJson && responseJson.code === 200;
+  }
 }
 
 export default DeptApi;

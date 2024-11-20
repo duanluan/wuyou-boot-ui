@@ -5,7 +5,7 @@
         <el-input v-model="searchForm.name"/>
       </el-form-item>
       <el-form-item label="状态">
-        <el-select v-model="searchForm.status" placeholder="请选择状态" style="width: ">
+        <el-select v-model="searchForm.status" placeholder="请选择状态">
           <el-option v-for="item in commonStatusOptions" :label="item.label" :value="item.value"/>
         </el-select>
       </el-form-item>
@@ -24,7 +24,7 @@
         删除
       </el-button>
     </div>
-    <el-table ref="tableRef" :data="tableData" row-key="id" default-expand-all style="width: 100% margin-bottom: 15px" header-cell-class-name="table-th">
+    <el-table ref="tableRef" :data="tableData" row-key="id" default-expand-all style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
       <el-table-column type="selection" width="55"/>
       <el-table-column fixed prop="name" label="名称" width="180"/>
       <el-table-column prop="sort" label="顺序" width="100"/>
@@ -230,9 +230,9 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
 
 // 修改状态
 const changeStatus = async (row: any) => {
-  // if (!await RoleApi.updateStatus(row.id, row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
-  //   row.status = row.status === 1 ? 0 : 1
-  // }
+  if (!await DeptApi.updateStatus(row.id, row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
+    row.status = row.status === 1 ? 0 : 1
+  }
 }
 </script>
 
