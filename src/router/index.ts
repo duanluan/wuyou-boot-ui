@@ -17,8 +17,15 @@ const routes: RouteRecordRaw[] = [
         name: "DashboardView",
         path: "dashboard",
         component: () => import("@/views/DashboardView.vue"),
-      },
-      {
+      }, {
+        // 用户管理
+        name: "UsersView",
+        path: "sys/users",
+        component: () => import("@/views/sys/UsersView.vue"),
+        meta: {
+          keepAlive: true
+        }
+      }, {
         // 角色管理
         name: "RolesView",
         path: "sys/roles",
@@ -27,10 +34,10 @@ const routes: RouteRecordRaw[] = [
           keepAlive: true
         }
       }, {
-        // 用户管理
-        name: "UsersView",
-        path: "sys/users",
-        component: () => import("@/views/sys/UsersView.vue"),
+        // 部门管理
+        name: "DeptsView",
+        path: "sys/depts",
+        component: () => import("@/views/sys/DeptsView.vue"),
         meta: {
           keepAlive: true
         }
