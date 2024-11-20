@@ -4,7 +4,7 @@ import http, {FetchOptions} from "@/utils/http.ts";
 interface MenuTreeItem {
   id: string,
   name: string,
-  order: number,
+  sort: number,
   parentid: string,
   icon: string,
   path: string,
