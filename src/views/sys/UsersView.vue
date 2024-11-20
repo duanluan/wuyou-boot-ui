@@ -120,8 +120,8 @@ onDebounceMounted(() => {
 })
 
 interface SearchForm {
-  name: string // 名称
-  code: string // 编码
+  nickName: string // 昵称
+  username: string // 用户名
 }
 
 const searchForm = ref<SearchForm>({})
