@@ -56,7 +56,7 @@
         style="justify-content: right"
     />
 
-    <el-dialog v-model="editDialogVisible" @close="editFormRef.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="650">
+    <el-dialog v-model="editDialogVisible" @close="editFormRef.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="600">
       <el-form
           ref="editFormRef"
           :model="editForm"

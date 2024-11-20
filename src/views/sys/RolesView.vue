@@ -67,7 +67,7 @@
         style="justify-content: right"
     />
 
-    <el-dialog v-model="editDialogVisible" @close="editFormRef.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="650">
+    <el-dialog v-model="editDialogVisible" @close="editFormRef.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="600">
       <el-form
           ref="editFormRef"
           :model="editForm"
@@ -156,6 +156,50 @@
         </div>
       </template>
     </el-dialog>
+
+    <!--    <el-dialog v-model="configDataScopeDialogVisible" title="数据权限" draggable width="500">-->
+    <!--      <el-form-->
+    <!--          ref="configDataScopeFormRef"-->
+    <!--          :model="configDataScopeForm"-->
+    <!--          label-width="80px"-->
+    <!--      >-->
+    <!--        <el-form-item prop="id" label="ID" style="display: none">-->
+    <!--          <el-input v-model="configDataScopeForm.id"/>-->
+    <!--        </el-form-item>-->
+    <!--        <el-row :gutter="5">-->
+    <!--          <el-col :span="24">-->
+    <!--            <el-form-item prop="name" label="名称">-->
+    <!--              <el-input v-model="configDataScopeForm.name" disabled/>-->
+    <!--            </el-form-item>-->
+    <!--          </el-col>-->
+    <!--          <el-col :span="24">-->
+    <!--            <el-form-item prop="code" label="编码">-->
+    <!--              <el-input v-model="configDataScopeForm.code" disabled/>-->
+    <!--            </el-form-item>-->
+    <!--          </el-col>-->
+    <!--          <el-col :span="24">-->
+    <!--            <el-form-item label="菜单">-->
+    <!--              <el-tree-->
+    <!--                  ref="menuTreeRef"-->
+    <!--                  :props="{label: 'name', children: 'children'}"-->
+    <!--                  :data="menuTreeData"-->
+    <!--                  node-key="id"-->
+    <!--                  :default-checked-keys="getCheckedKeys(menuTreeData)"-->
+    <!--                  :default-expanded-keys="menuTreeData.map(item => item.id)"-->
+    <!--                  show-checkbox-->
+    <!--                  check-strictly-->
+    <!--              />-->
+    <!--            </el-form-item>-->
+    <!--          </el-col>-->
+    <!--        </el-row>-->
+    <!--      </el-form>-->
+    <!--      <template #footer>-->
+    <!--        <div class="dialog-footer">-->
+    <!--          <el-button @click="configDataScopeDialogVisible = false">取消</el-button>-->
+    <!--          <el-button type="primary" @click="confirmConfigDataScope(menuTreeRef)">确认</el-button>-->
+    <!--        </div>-->
+    <!--      </template>-->
+    <!--    </el-dialog>-->
   </div>
 </template>
 
@@ -334,6 +378,23 @@ const confirmConfigMenu = async (menuTreeEl: TreeInstance) => {
   await RoleApi.updateMenus(configMenuForm.id, checkedKeys, {loadingOption: {target: '.el-dialog'}, showOkMsg: true})
   configMenuDialogVisible.value = false
 }
+
+// const configDataScopeDialogVisible = ref(false)
+// const configDataScopeFormRef = ref<FormInstance>()
+// const configDataScopeForm = reactive<RoleEditForm>({
+//   id: '',
+//   name: '',
+//   code: ''
+// })
+// const menuTreeRef = ref<TreeInstance>()
+// const menuTreeData = ref<MenuTreeItem>([])
+//
+// // 配置菜单权限
+// const configDataScope = async (row: any) => {
+//   configDataScopeDialogVisible.value = true
+//   Object.assign(configDataScopeForm, row)
+//
+// }
 </script>
 
 <style scoped>
