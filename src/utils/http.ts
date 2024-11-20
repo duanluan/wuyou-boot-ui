@@ -62,6 +62,10 @@ interface FetchOptions extends RequestInit {
    * 防抖延迟
    */
   debounceDelay: number;
+  /**
+   * 是否启用防抖
+   */
+  enableDebounce?: boolean;
 }
 
 interface R<T> {
@@ -104,135 +108,142 @@ class Http {
     this.debounceMap.delete(key);
   }
 
-  fetch(url: string, options?: FetchOptions): Promise<void | R<any>> {
-    const requestKey = this.getRequestKey(url, options || {});
-    return new Promise((resolve) => {
-      // 防抖处理：如果存在相同请求的计时器，清除旧的请求计时器
-      if (this.debounceMap.has(requestKey)) {
-        this.clearDebounce(requestKey);
+  private executeFetch(url: string, options?: FetchOptions, resolve) {
+    // 合并默认参数和传入参数
+    options = {
+      ...this.config, ...options,
+      headers: {...this.config.headers, ...options.headers},
+      loadingOption: {...this.config.loadingOption, ...options.loadingOption},
+      okMsgOption: {...this.config.okMsgOption, ...options.okMsgOption},
+      errorMsgOption: {...this.config.errorMsgOption, ...options.errorMsgOption}
+    };
+
+    // 处理参数
+    if (options.query) {
+      // GET、DELETE 在 url 后拼接参数
+      if (options.method === HttpMethod.GET || options.method === HttpMethod.DELETE) {
+        const params = new URLSearchParams(options.query).toString();
+        url += '?' + params;
       }
-      // 设置新的计时器，延迟请求执行
-      const timer = window.setTimeout(async () => {
-        this.debounceMap.delete(requestKey);  // 执行后清除计时器
-
-        // 合并默认参数和传入参数
-        let loadingOption = {}, okMsgOption = {}, errorMsgOption = {}, headers = {};
-        if (options) {
-          loadingOption = {...this.config.loadingOption, ...options.loadingOption}
-          okMsgOption = {...this.config.okMsgOption, ...options.okMsgOption}
-          errorMsgOption = {...this.config.errorMsgOption, ...options.errorMsgOption}
-          headers = {...this.config.headers, ...options.headers}
-        }
-        options = {...this.config, ...options};
-        options.loadingOption = loadingOption;
-        options.okMsgOption = okMsgOption;
-        options.errorMsgOption = errorMsgOption;
-        options.headers = headers;
-
-        // 处理参数
-        if (options.query) {
-          // GET、DELETE 在 url 后拼接参数
-          if (options.method === HttpMethod.GET || options.method === HttpMethod.DELETE) {
-            const params = new URLSearchParams(options.query).toString();
-            url += '?' + params;
+      // POST、PUT 用 URLSearchParams 或 FormData 传参
+      else if (options.method === HttpMethod.POST || options.method === HttpMethod.PUT || options.method === HttpMethod.PATCH) {
+        if (options.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+          const urlSearchParams = new URLSearchParams();
+          for (let key in options.query) {
+            urlSearchParams.append(key, options.query[key]);
           }
-          // POST、PUT 用 URLSearchParams 或 FormData 传参
-          else if (options.method === HttpMethod.POST || options.method === HttpMethod.PUT || options.method === HttpMethod.PATCH) {
-            if (options.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
-              const urlSearchParams = new URLSearchParams();
-              for (let key in options.query) {
-                urlSearchParams.append(key, options.query[key]);
-              }
-              options.body = urlSearchParams;
-            } else {
-              let formData = new FormData();
-              for (let key in options.query) {
-                formData.append(key, options.query[key]);
-              }
-              options.body = formData;
-            }
+          options.body = urlSearchParams;
+        } else {
+          let formData = new FormData();
+          for (let key in options.query) {
+            formData.append(key, options.query[key]);
           }
+          options.body = formData;
         }
+      }
+    }
 
-        // json 传参：POST、PUT、PATCH
-        if (options.json && (options.method === HttpMethod.POST || options.method === HttpMethod.PUT || options.method === HttpMethod.PATCH)) {
-          // 设置 body
-          options.body = JSON.stringify(options.json);
-          // 设置 headers
-          if (!options.headers) {
-            options.headers = {"Content-Type": "application/json"};
-          } else {
-            if (options.headers instanceof Headers) {
-              options.headers.append("Content-Type", "application/json");
-            } else if (Array.isArray(options.headers)) {
-              options.headers.push(["Content-Type", "application/json"]);
-            } else {
-              options.headers["Content-Type"] = "application/json";
+    // json 传参：POST、PUT、PATCH
+    if (options.json && (options.method === HttpMethod.POST || options.method === HttpMethod.PUT || options.method === HttpMethod.PATCH)) {
+      // 设置 body
+      options.body = JSON.stringify(options.json);
+      // 设置 headers
+      if (!options.headers) {
+        options.headers = {"Content-Type": "application/json"};
+      } else {
+        if (options.headers instanceof Headers) {
+          options.headers.append("Content-Type", "application/json");
+        } else if (Array.isArray(options.headers)) {
+          options.headers.push(["Content-Type", "application/json"]);
+        } else {
+          options.headers["Content-Type"] = "application/json";
+        }
+      }
+    }
+
+    // 显示加载动画
+    let loading: any;
+    if (options?.showLoading) {
+      loading = ElLoading.service(options.loadingOption);
+    }
+
+    // 请求
+    fetch(options.baseUrl + url, options).then(async response => {
+      this.closeLoading(loading);
+      if (response.ok) {
+        // JSON 响应
+        const r = await response.json();
+        if (r) {
+          // 成功提示
+          if (r.code === 200 && options?.showOkMsg) {
+            if (r.msg) {
+              options.okMsgOption.message = r.msg;
             }
+            ElMessage.success(options?.okMsgOption);
           }
-        }
-
-        // 显示加载动画
-        let loading: any;
-        if (options?.showLoading) {
-          loading = ElLoading.service(options.loadingOption);
-        }
-
-        // 请求
-        fetch(options.baseUrl + url, options).then(async response => {
-          this.closeLoading(loading);
-          if (response.ok) {
-            // JSON 响应
-            const r = await response.json();
-            if (r) {
-              // 成功提示
-              if (r.code === 200 && options?.showOkMsg) {
-                if (r.msg) {
-                  options.okMsgOption.message = r.msg;
-                }
-                ElMessage.success(options?.okMsgOption);
-              }
-              // 错误提示
-              if (r.code !== 200 && options?.showErrorMsg) {
-                if (r.msg) {
-                  options.errorMsgOption.message = r.msg;
-                }
-                ElMessage.error(options?.errorMsgOption);
-              }
+          // 错误提示
+          if (r.code !== 200 && options?.showErrorMsg) {
+            if (r.msg) {
+              options.errorMsgOption.message = r.msg;
             }
-            // 返回响应
-            resolve(r);
-          } else {
-            if (response.status === 401) {
-              ElMessage.error("请先登录");
-              // 重定向到登录页
-              router.push({name: 'LoginView'});
-            } else if (response.status === 403) {
-              ElMessage.error("无权限");
-            } else {
-              const r = await response.json();
-              if (options?.showErrorMsg) {
-                if (r && r.code !== 200 && r.msg) {
-                  options.errorMsgOption.message = r.msg;
-                }
-                ElMessage.error(options?.errorMsgOption);
-              }
-              // 返回响应
-              resolve(r);
-            }
-          }
-        }).catch(error => {
-          // 请求异常提示错误
-          this.closeLoading(loading);
-          if (options?.showErrorMsg) {
             ElMessage.error(options?.errorMsgOption);
           }
-        })
+        }
+        // 返回响应
+        resolve(r);
+      } else {
+        if (response.status === 401) {
+          ElMessage.error("请先登录");
+          // 重定向到登录页
+          router.push({name: 'LoginView'});
+        } else if (response.status === 403) {
+          ElMessage.error("无权限");
+        } else {
+          const r = await response.json();
+          if (options?.showErrorMsg) {
+            if (r && r.code !== 200 && r.msg) {
+              options.errorMsgOption.message = r.msg;
+            }
+            ElMessage.error(options?.errorMsgOption);
+          }
+          // 返回响应
+          resolve(r);
+        }
+      }
+    }).catch(error => {
+      // 请求异常提示错误
+      this.closeLoading(loading);
+      if (options?.showErrorMsg) {
+        ElMessage.error(options?.errorMsgOption);
+      }
+    })
+  }
 
-      }, options.debounceDelay);
+  fetch(url: string, options?: FetchOptions): Promise<void | R<any>> {
+    return new Promise((resolve) => {
+      // 启用防抖
+      if (options?.enableDebounce ?? this.config.enableDebounce) {
+        const requestKey = this.getRequestKey(url, options || {});
 
-      // 将计时器添加到防抖映射中
-      this.debounceMap.set(requestKey, timer);
+        // 防抖处理：如果存在相同请求的计时器，清除旧的请求计时器
+        if (this.debounceMap.has(requestKey)) {
+          this.clearDebounce(requestKey);
+        }
+        // 设置新的计时器，延迟请求执行
+        const timer = window.setTimeout(async () => {
+          // 执行后清除计时器
+          this.debounceMap.delete(requestKey);
+          // 执行
+          this.executeFetch(url, options, resolve)
+        }, options.debounceDelay);
+
+        // 将计时器添加到防抖映射中
+        this.debounceMap.set(requestKey, timer);
+      }
+      // 不启用防抖，直接执行
+      else {
+        this.executeFetch(url, options, resolve);
+      }
     });
   }
 
@@ -352,7 +363,10 @@ const http = new Http({
   showErrorMsg: true,
   // 错误提示选项
   errorMsgOption: {message: "请求失败"},
-  debounceDelay: 300
+  // 防抖延迟
+  debounceDelay: 300,
+  // 启用防抖
+  enableDebounce: true,
 })
 
 /**
