@@ -24,7 +24,7 @@
         删除
       </el-button>
     </div>
-    <el-table ref="tableRef" :data="tableData" row-key="id" default-expand-all style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
+    <el-table ref="tableRef" :data="tableData" row-key="id" default-expand-all style="width: 100% margin-bottom: 15px" header-cell-class-name="table-th">
       <el-table-column type="selection" width="55"/>
       <el-table-column fixed prop="name" label="名称" width="180"/>
       <el-table-column prop="sort" label="顺序" width="100"/>
@@ -71,7 +71,7 @@
                   :render-after-expand="false"
                   :props="{label: 'name', value: 'id'}"
                   check-strictly
-                  style="width: 100% !important;"
+                  style="width: 100% !important"
               />
             </el-form-item>
           </el-col>
@@ -103,21 +103,19 @@
 </template>
 
 <script setup lang="ts">
-import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
-import DeptApi, {DeptEditForm} from "@/api/sys/dept.ts";
-import {FormInstance} from "element-plus";
-import {CommonStatus, commonStatusOptions} from "@/enums/common.ts";
+import {onDebounceMounted} from "@/utils/debounceLifecycle.ts"
+import DeptApi, {DeptEditForm} from "@/api/sys/dept.ts"
+import {FormInstance} from "element-plus"
+import {CommonStatus, commonStatusOptions} from "@/enums/common.ts"
 
 const tableRef = ref()
 const tableData = ref([])
-let deptTreeSelectData = []
+let deptTreeSelectData = ref([])
 
 // 页面加载时
 onDebounceMounted(async () => {
-  await search();
-  // 将表格数据保存下来
-  deptTreeSelectData = tableData.value
-  console.log(deptTreeSelectData)
+  await search()
+  getDeptTreeSelectData(tableData.value)
 })
 
 interface SearchForm {
@@ -130,7 +128,20 @@ const searchForm = ref<SearchForm>({})
 
 // 搜索
 const search = async () => {
-  tableData.value = await DeptApi.tree(searchForm.value, {loadingOption: {target: '.el-table'}})
+  tableData.value = await DeptApi.tree(searchForm.value, {loadingOption: {target: '.el-table'}, enableDebounce: false})
+}
+
+// 获取部门树下拉数据
+const getDeptTreeSelectData = async (data) => {
+  if (data) {
+    // 深拷贝 tableData 以避免修改引用
+    tableData.value = JSON.parse(JSON.stringify(data));
+    deptTreeSelectData.value = data
+  } else {
+    deptTreeSelectData.value = await DeptApi.tree({}, {showLoading: false, enableDebounce: false})
+  }
+  // 添加一个空选项，值为 0
+  deptTreeSelectData.value.unshift({id: 0, name: '根部门'})
 }
 
 // 删除
@@ -148,6 +159,7 @@ const remove = (row: any) => {
     }
     DeptApi.remove(ids, {loadingOption: {target: '.el-main'}, showOkMsg: true}).then(() => {
       search()
+      getDeptTreeSelectData()
     })
   })
 }
@@ -165,10 +177,9 @@ const editForm = reactive<DeptEditForm>({
 })
 // 编辑表单校验规则
 const editFormRules = reactive<FormRules<DeptEditForm>>({
-  username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
-  nickName: [{required: true, message: '请输入昵称', trigger: 'blur'}],
-  password: [{required: true, message: '请输入密码', trigger: 'blur'}],
-  roleIds: [{required: true, message: '请选择角色', trigger: 'blur'}],
+  parentId: [{required: true, message: '请选择上级', trigger: 'blur'}],
+  name: [{required: true, message: '请输入名称', trigger: 'blur'}],
+  sort: [{required: true, message: '请输入顺序', trigger: 'blur'}],
 })
 // 是否为新增，用于区分新增和编辑的对话框标题、接口调用
 const isAdd = ref(false)
@@ -207,6 +218,7 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
       editDialogVisible.value = false
       // 刷新表格
       search()
+      getDeptTreeSelectData()
     }
     if (isAdd.value) {
       DeptApi.save(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(response => afterEdit(response))
