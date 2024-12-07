@@ -6,7 +6,7 @@
       </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="searchForm.status" placeholder="请选择状态">
-          <el-option v-for="item in commonStatusOptions" :label="item.label" :value="item.value"/>
+          <el-option v-for="item in CommonStatus.getOptions()" :label="item.label" :value="item.value"/>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -30,7 +30,7 @@
       <el-table-column prop="sort" label="顺序" width="100"/>
       <el-table-column label="启用状态" width="100">
         <template #default="scope">
-          <el-switch :active-value="CommonStatus.ENABLE" :inactive-value="CommonStatus.DISABLE" v-model="scope.row.status" @change="changeStatus(scope.row)"/>
+          <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="scope.row.status" @change="changeStatus(scope.row)"/>
         </template>
       </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
@@ -87,7 +87,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item prop="status" label="启用状态">
-              <el-switch :active-value="CommonStatus.ENABLE" :inactive-value="CommonStatus.DISABLE" v-model="editForm.status"/>
+              <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="editForm.status"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -106,7 +106,7 @@
 import {onDebounceMounted} from "@/utils/debounceLifecycle.ts"
 import DeptApi, {DeptEditForm} from "@/api/sys/dept.ts"
 import {FormInstance} from "element-plus"
-import {CommonStatus, commonStatusOptions} from "@/enums/common.ts"
+import {CommonStatus} from "@/enums/common.ts"
 
 const tableRef = ref()
 const tableData = ref([])
@@ -178,7 +178,7 @@ const editForm = reactive<DeptEditForm>({
   id: '',
   name: '',
   sort: 1,
-  status: CommonStatus.ENABLE,
+  status: CommonStatus.ENABLE.value,
 })
 // 编辑表单校验规则
 const editFormRules = reactive<FormRules<DeptEditForm>>({

@@ -30,7 +30,7 @@
       <el-table-column prop="sort" label="顺序" width="100"/>
       <el-table-column label="启用状态" width="100">
         <template #default="scope">
-          <el-switch :active-value="CommonStatus.ENABLE" :inactive-value="CommonStatus.DISABLE" v-model="scope.row.status" @change="changeStatus(scope.row)" :disabled="scope.row.code === RoleCode.SUPER_ADMIN"/>
+          <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="scope.row.status" @change="changeStatus(scope.row)" :disabled="scope.row.code === RoleCode.SUPER_ADMIN"/>
         </template>
       </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
@@ -85,7 +85,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item prop="status" label="启用状态">
-              <el-switch :active-value="CommonStatus.ENABLE" :inactive-value="CommonStatus.DISABLE" v-model="editForm.status" :disabled="editForm.code === RoleCode.SUPER_ADMIN"/>
+              <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="editForm.status" :disabled="editForm.code === RoleCode.SUPER_ADMIN"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -297,7 +297,7 @@ const editForm = reactive<RoleEditForm>({
   name: '',
   code: '',
   sort: 1,
-  status: CommonStatus.ENABLE,
+  status: CommonStatus.ENABLE.value,
   description: ''
 })
 // 编辑表单校验规则
