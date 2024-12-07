@@ -140,7 +140,7 @@
                   :props="{label: 'name', children: 'children'}"
                   :data="menuTreeData"
                   node-key="id"
-                  :default-checked-keys="getCheckedKeys(menuTreeData)"
+                  :default-checked-keys="getTreeCheckedKeys(menuTreeData, item => item.path === dashboardPath)"
                   :default-expanded-keys="menuTreeData.map(item => item.id)"
                   show-checkbox
                   check-strictly
@@ -152,66 +152,96 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="configMenuDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmConfigMenu(menuTreeRef)">确认</el-button>
+          <el-button type="primary" @click="confirmConfigMenu(configMenuFormRef,menuTreeRef)">确认</el-button>
         </div>
       </template>
     </el-dialog>
 
-    <!--    <el-dialog v-model="configDataScopeDialogVisible" title="数据权限" draggable width="500">-->
-    <!--      <el-form-->
-    <!--          ref="configDataScopeFormRef"-->
-    <!--          :model="configDataScopeForm"-->
-    <!--          label-width="80px"-->
-    <!--      >-->
-    <!--        <el-form-item prop="id" label="ID" style="display: none">-->
-    <!--          <el-input v-model="configDataScopeForm.id"/>-->
-    <!--        </el-form-item>-->
-    <!--        <el-row :gutter="5">-->
-    <!--          <el-col :span="24">-->
-    <!--            <el-form-item prop="name" label="名称">-->
-    <!--              <el-input v-model="configDataScopeForm.name" disabled/>-->
-    <!--            </el-form-item>-->
-    <!--          </el-col>-->
-    <!--          <el-col :span="24">-->
-    <!--            <el-form-item prop="code" label="编码">-->
-    <!--              <el-input v-model="configDataScopeForm.code" disabled/>-->
-    <!--            </el-form-item>-->
-    <!--          </el-col>-->
-    <!--          <el-col :span="24">-->
-    <!--            <el-form-item label="菜单">-->
-    <!--              <el-tree-->
-    <!--                  ref="menuTreeRef"-->
-    <!--                  :props="{label: 'name', children: 'children'}"-->
-    <!--                  :data="menuTreeData"-->
-    <!--                  node-key="id"-->
-    <!--                  :default-checked-keys="getCheckedKeys(menuTreeData)"-->
-    <!--                  :default-expanded-keys="menuTreeData.map(item => item.id)"-->
-    <!--                  show-checkbox-->
-    <!--                  check-strictly-->
-    <!--              />-->
-    <!--            </el-form-item>-->
-    <!--          </el-col>-->
-    <!--        </el-row>-->
-    <!--      </el-form>-->
-    <!--      <template #footer>-->
-    <!--        <div class="dialog-footer">-->
-    <!--          <el-button @click="configDataScopeDialogVisible = false">取消</el-button>-->
-    <!--          <el-button type="primary" @click="confirmConfigDataScope(menuTreeRef)">确认</el-button>-->
-    <!--        </div>-->
-    <!--      </template>-->
-    <!--    </el-dialog>-->
+    <el-dialog v-model="configDataScopeDialogVisible" title="数据权限" draggable width="500">
+      <el-form
+          ref="configDataScopeFormRef"
+          :model="configDataScopeForm"
+          :rules="configDataScopeFormRules"
+          label-width="80px"
+      >
+        <el-form-item prop="id" label="ID" style="display: none">
+          <el-input v-model="configDataScopeForm.id"/>
+        </el-form-item>
+        <el-row :gutter="5">
+          <el-col :span="24">
+            <el-form-item prop="name" label="名称">
+              <el-input v-model="configDataScopeForm.name" disabled/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item prop="code" label="编码">
+              <el-input v-model="configDataScopeForm.code" disabled/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item prop="queryDataScope" label="查询">
+              <el-col :span="24">
+                <el-select v-model="configDataScopeForm.queryDataScope" placeholder="请选择" clearable>
+                  <el-option v-for="item in DataScopeType.getOptions()" :label="item.label" :value="item.value"/>
+                </el-select>
+              </el-col>
+              <el-col :span="24" v-if="configDataScopeForm.queryDataScope == 2" style="margin-top: 10px">
+                <el-tree
+                    ref="queryDataScopeDeptTreeRef"
+                    :props="{label: 'name', children: 'children'}"
+                    :data="queryDataScopeDeptTreeData"
+                    node-key="id"
+                    :default-checked-keys="getTreeCheckedKeys(queryDataScopeDeptTreeData)"
+                    :default-expanded-keys="queryDataScopeDeptTreeData.map(item => item.id)"
+                    show-checkbox
+                    check-strictly
+                />
+              </el-col>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item prop="updateDataScope" label="增删改">
+              <el-col :span="24">
+                <el-select v-model="configDataScopeForm.updateDataScope" placeholder="请选择" clearable>
+                  <el-option v-for="item in DataScopeType.getOptions()" :label="item.label" :value="item.value"/>
+                </el-select>
+              </el-col>
+              <el-col :span="24" v-if="configDataScopeForm.updateDataScope == 2" style="margin-top: 10px">
+                <el-tree
+                    ref="updateDataScopeDeptTreeRef"
+                    :props="{label: 'name', children: 'children'}"
+                    :data="updateDataScopeDeptTreeData"
+                    node-key="id"
+                    :default-checked-keys="getTreeCheckedKeys(updateDataScopeDeptTreeData)"
+                    :default-expanded-keys="updateDataScopeDeptTreeData.map(item => item.id)"
+                    show-checkbox
+                    check-strictly
+                />
+              </el-col>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="configDataScopeDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmConfigDataScope(configDataScopeFormRef, queryDataScopeDeptTreeRef, updateDataScopeDeptTreeRef)">确认</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import RoleApi, {RoleEditForm} from "@/api/sys/role.ts"
 import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
-import {RoleCode} from "@/enums/role.ts";
+import {DataScopeActionType, DataScopeType, RoleCode} from "@/enums/role.ts";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 import {FormInstance, TreeInstance} from "element-plus";
 import UserApi from "@/api/sys/user.ts";
 import {dashboardPath} from "@/router";
 import {CommonStatus} from "@/enums/common.ts";
+import DeptApi from "@/api/sys/dept.ts";
 
 const tableRef = ref()
 const tableData = ref([])
@@ -303,10 +333,10 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
     const afterEdit = (response) => {
       if (response?.code !== 200) return
 
-      // 重置表单
-      editFormEl.resetFields()
       // 关闭对话框
       editDialogVisible.value = false
+      // 重置表单
+      editFormEl.resetFields()
       // 刷新表格
       search()
     }
@@ -327,11 +357,7 @@ const changeStatus = async (row: any) => {
 
 const configMenuDialogVisible = ref(false)
 const configMenuFormRef = ref<FormInstance>()
-const configMenuForm = reactive<RoleEditForm>({
-  id: '',
-  name: '',
-  code: ''
-})
+const configMenuForm = reactive<RoleEditForm>({})
 const menuTreeRef = ref<TreeInstance>()
 const menuTreeData = ref<MenuTreeItem>([])
 
@@ -340,7 +366,7 @@ const configMenu = async (row: any) => {
   configMenuDialogVisible.value = true
   Object.assign(configMenuForm, row)
   // 获取菜单树
-  menuTreeData.value = await MenuApi.tree({isAllAndChecked: true, roleCodes: [row.code]});
+  menuTreeData.value = await MenuApi.tree({roleCodes: [row.code], isAllAndChecked: true});
   // 禁用勾选仪表盘
   menuTreeData.value.forEach(item => {
     if (item.path === dashboardPath) {
@@ -349,13 +375,14 @@ const configMenu = async (row: any) => {
   })
 }
 
-// 获取选中的菜单 ID
-const getCheckedKeys = (menuTreeData: MenuTreeItem[]) => {
+// 获取树的选中项 ID 数组
+const getTreeCheckedKeys = (treeData: [], checkedFn?: (item: any) => boolean) => {
+  if (!treeData) return []
   const checkedKeys: string[] = []
   const loop = (data: any[]) => {
     for (const item of data) {
-      // 选中仪表盘
-      if (item.path === dashboardPath) {
+      // 判断是否选中的回调函数
+      if (checkedFn && checkedFn(item)) {
         checkedKeys.push(item.id)
       }
       // 如果当前项被选中，则将其 ID 添加到 checkedKeys
@@ -368,33 +395,61 @@ const getCheckedKeys = (menuTreeData: MenuTreeItem[]) => {
       }
     }
   }
-  loop(menuTreeData)
+  loop(treeData)
   return checkedKeys
 }
 
 // 确认配置菜单权限
-const confirmConfigMenu = async (menuTreeEl: TreeInstance) => {
+const confirmConfigMenu = async (configMenuFormEl, menuTreeEl: TreeInstance) => {
   let checkedKeys = menuTreeEl.getCheckedKeys();
-  await RoleApi.updateMenus(configMenuForm.id, checkedKeys, {loadingOption: {target: '.el-dialog'}, showOkMsg: true})
-  configMenuDialogVisible.value = false
+  if (await RoleApi.updateMenus(configMenuForm.id, checkedKeys, {loadingOption: {target: '.el-dialog'}, showOkMsg: true})) {
+    configMenuDialogVisible.value = false
+    configMenuFormEl.resetFields()
+    search()
+  }
 }
 
-// const configDataScopeDialogVisible = ref(false)
-// const configDataScopeFormRef = ref<FormInstance>()
-// const configDataScopeForm = reactive<RoleEditForm>({
-//   id: '',
-//   name: '',
-//   code: ''
-// })
-// const menuTreeRef = ref<TreeInstance>()
-// const menuTreeData = ref<MenuTreeItem>([])
-//
-// // 配置菜单权限
-// const configDataScope = async (row: any) => {
-//   configDataScopeDialogVisible.value = true
-//   Object.assign(configDataScopeForm, row)
-//
-// }
+const configDataScopeDialogVisible = ref(false)
+const configDataScopeFormRef = ref<FormInstance>()
+const configDataScopeForm = reactive<RoleEditForm>({})
+const configDataScopeFormRules = reactive<FormRules<RoleEditForm>>({
+  queryDataScope: [{required: true, message: '请选择查询数据权限', trigger: 'blur'}],
+  updateDataScope: [{required: true, message: '请选择增删改数据权限', trigger: 'blur'}],
+})
+
+const queryDataScopeDeptTreeRef = ref<TreeInstance>()
+const queryDataScopeDeptTreeData = ref([])
+const updateDataScopeDeptTreeRef = ref<TreeInstance>()
+const updateDataScopeDeptTreeData = ref([])
+
+// 配置数据权限
+const configDataScope = async (row: any) => {
+  configDataScopeDialogVisible.value = true
+  Object.assign(configDataScopeForm, row)
+  // 获取部门树
+  const query = {roleCodes: [row.code], isAllAndChecked: true}
+  queryDataScopeDeptTreeData.value = await DeptApi.tree({...query, dataScopeActionType: DataScopeActionType.QUERY});
+  updateDataScopeDeptTreeData.value = await DeptApi.tree({...query, dataScopeActionType: DataScopeActionType.UPDATE});
+}
+
+// 确认配置数据权限
+const confirmConfigDataScope = async (configDataScopeFormEl, queryDataScopeDeptTreeEl: TreeInstance, updateDataScopeDeptTreeEl: TreeInstance) => {
+  if (!configDataScopeFormEl) return
+  await configDataScopeFormEl.validate(async (isValid, invalidFields) => {
+    if (!isValid) return
+
+    if (await RoleApi.updateDataScope(
+        configDataScopeForm.id,
+        configDataScopeForm.queryDataScope, configDataScopeForm.updateDataScope,
+        queryDataScopeDeptTreeEl?.getCheckedKeys(), updateDataScopeDeptTreeEl?.getCheckedKeys(),
+        {loadingOption: {target: '.el-dialog'}, showOkMsg: true}
+    )) {
+      configDataScopeDialogVisible.value = false
+      configDataScopeFormEl.resetFields()
+      search()
+    }
+  })
+}
 </script>
 
 <style scoped>
