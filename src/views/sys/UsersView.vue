@@ -198,10 +198,10 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
     const afterEdit = (response) => {
       if (response?.code !== 200) return
 
-      // 重置表单
-      editFormEl.resetFields()
       // 关闭对话框
       editDialogVisible.value = false
+      // 重置表单
+      editFormEl.resetFields()
       // 刷新表格
       search()
     }
