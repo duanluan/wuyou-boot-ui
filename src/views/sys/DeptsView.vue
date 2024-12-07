@@ -128,7 +128,12 @@ const searchForm = ref<SearchForm>({})
 
 // 搜索
 const search = async () => {
-  tableData.value = await DeptApi.tree(searchForm.value, {loadingOption: {target: '.el-table'}, enableDebounce: false})
+  const query = searchForm.value
+  // 查询条件如果不是只查了一个状态时，不构建树
+  if (query && Object.keys(query).length > 0 && !query.status && !Object.entries(query).some(([key, value]) => key !== 'status' && value)) {
+    query.notBuildTree = true
+  }
+  tableData.value = await DeptApi.tree(query, {loadingOption: {target: '.el-table'}, enableDebounce: false})
 }
 
 // 获取部门树下拉数据
@@ -212,10 +217,10 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
     const afterEdit = (response) => {
       if (response?.code !== 200) return
 
-      // 重置表单
-      editFormEl.resetFields()
       // 关闭对话框
       editDialogVisible.value = false
+      // 重置表单
+      editFormEl.resetFields()
       // 刷新表格
       search()
       getDeptTreeSelectData()

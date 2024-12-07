@@ -28,10 +28,6 @@ class DeptApi {
    * @param option 请求配置
    */
   static async tree(query?: {}, option?: FetchOptions) {
-    // 非仅有 status 有值时不构建树
-    if (query && Object.keys(query).length > 0 && !query.status && !Object.entries(query).some(([key, value]) => key !== 'status' && value)) {
-      query.notBuildTree = true
-    }
     return (await http.get(this.baseUrl + '/tree', query, option))?.data;
   }
 
