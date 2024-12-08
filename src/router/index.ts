@@ -42,6 +42,14 @@ const routes: RouteRecordRaw[] = [
           keepAlive: true
         }
       }, {
+        // 岗位管理
+        name: "PostsView",
+        path: "sys/posts",
+        component: () => import("@/views/sys/PostsView.vue"),
+        meta: {
+          keepAlive: true
+        }
+      }, {
         // 菜单管理
         name: "MenusView",
         path: "sys/menus",
