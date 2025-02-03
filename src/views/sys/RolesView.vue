@@ -238,7 +238,6 @@ import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
 import {DataScopeActionType, DataScopeType, RoleCode} from "@/enums/role.ts";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 import {FormInstance, TreeInstance} from "element-plus";
-import UserApi from "@/api/sys/user.ts";
 import {dashboardPath} from "@/router";
 import {CommonStatus} from "@/enums/common.ts";
 import DeptApi from "@/api/sys/dept.ts";
@@ -341,9 +340,9 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
       search()
     }
     if (isAdd.value) {
-      UserApi.save(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(response => afterEdit(response))
+      RoleApi.save(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(response => afterEdit(response))
     } else {
-      UserApi.update(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(response => afterEdit(response))
+      RoleApi.update(editForm, {loadingOption: {target: '.el-dialog'}, showOkMsg: true}).then(response => afterEdit(response))
     }
   })
 }
