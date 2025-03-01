@@ -13,6 +13,19 @@
         </Transition>
       </div>
 
+      <el-form-item prop="tenantId">
+        <el-dropdown style="margin: 0 auto">
+          <span class="el-dropdown-link">
+            {{ selectedTenantName || '请选择租户' }}
+            <i-ep-arrow-down class="el-icon--right"/>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item v-for="item in tenants" :key="item.id" :value="item.id" @click="loginForm.tenantId = item.id; selectedTenantName = item.name">{{ item.name }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </el-form-item>
       <el-form-item prop="username">
         <el-input v-model="loginForm.username" placeholder="用户名" @keyup.enter="login(loginFormRef)"/>
       </el-form-item>
@@ -32,17 +45,34 @@
 <script setup lang="ts">
 import {LoginForm} from "@/api/sys/user.ts";
 import {useUserStore} from "@/store/user.ts";
+import TenantApi from "@/api/sys/tenant.ts";
+
+// 页面加载时
+onMounted(() => {
+  getTenants()
+})
+
+const tenants = ref([])
+// 获取租户列表
+const getTenants = async () => {
+  tenants.value = await TenantApi.list()
+  loginForm.tenantId = tenants.value[0].id
+  selectedTenantName.value = tenants.value[0].name
+}
+const selectedTenantName = ref('');
 
 // 登录表单 ref
 const loginFormRef = ref<FormInstance>()
 // 登录表单数据
 const loginForm = reactive<LoginForm>({
+  tenantId: 0,
   username: '',
   password: '',
   remember: false
 })
 // 登录表单校验规则
 const loginFormRules = reactive<FormRules<LoginForm>>({
+  tenantId: [{required: true, message: '请选择租户', trigger: 'blur'}],
   username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
   password: [{required: true, message: '请输入密码', trigger: 'blur'}]
 })
@@ -68,27 +98,34 @@ const login = async (formEl: FormInstance | undefined) => {
   height: 100vh;
   background: #888;
 
-  .form-logo-title {
-    /* 侧边栏 Logo 标题 */
-    height: @elHeaderHeight;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-
-    .form-logo {
-      font-size: 20px
-    }
-
-    .form-title {
-      padding-left: 5px;
-    }
-  }
-
   .login-form {
     width: 350px;
     padding: 10px 25px 0 25px;
     background: white;
+
+    .form-logo-title {
+      /* 侧边栏 Logo 标题 */
+      height: @elHeaderHeight;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+
+      .form-logo {
+        font-size: 20px
+      }
+
+      .form-title {
+        padding-left: 5px;
+      }
+    }
+
+    .el-dropdown-link {
+      cursor: pointer;
+      color: var(--el-color-primary);
+      display: flex;
+      align-items: center;
+    }
   }
 }
 </style>
