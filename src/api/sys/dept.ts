@@ -1,6 +1,7 @@
 import http, {FetchOptions} from "@/utils/http.ts";
 import {PageQO} from "@/types/common.ts";
 import {RoleEditForm} from "@/api/sys/role.ts";
+import BaseApi from "@/api/api.ts";
 
 interface DeptEditForm {
   id: string | null // ID
@@ -19,7 +20,7 @@ class DeptApi {
    * @param option 请求配置
    */
   static async page(query?: PageQO & {}, option?: FetchOptions) {
-    return await http.get(this.baseUrl, query, option);
+    return BaseApi.page(this.baseUrl, query, option);
   }
 
   /**
@@ -71,4 +72,4 @@ class DeptApi {
 }
 
 export default DeptApi;
-export {DeptEditForm};
+export type {DeptEditForm};

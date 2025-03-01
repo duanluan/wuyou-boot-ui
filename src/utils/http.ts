@@ -373,7 +373,7 @@ const http = new Http({
  * 判断字符串、字符串数组是否有效
  * @param input 字符串、字符串数组
  */
-const isValidStrOrStrArr = (input: string | string[]): string => {
+const isValidStrOrStrArr = (input: string | string[]): boolean => {
   if (!input) {
     return false
   }
@@ -393,4 +393,5 @@ const isValidStrOrStrArr = (input: string | string[]): string => {
 }
 
 export default http;
-export {FetchOptions, isValidStrOrStrArr};
+export type {R, FetchOptions};
+export {isValidStrOrStrArr};

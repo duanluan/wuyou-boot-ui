@@ -1,5 +1,6 @@
 import http, {FetchOptions} from "@/utils/http.ts";
 import {PageQO} from "@/types/common.ts";
+import BaseApi from "@/api/api.ts";
 
 interface TenantEditForm {
   id: string | null // ID
@@ -17,7 +18,7 @@ class TenantApi {
    * @param option 请求配置
    */
   static async page(query?: PageQO & {}, option?: FetchOptions) {
-    return await http.get(this.baseUrl, query, option);
+    return BaseApi.page(this.baseUrl, query, option);
   }
 
   /**
@@ -70,4 +71,4 @@ class TenantApi {
 }
 
 export default TenantApi;
-export {TenantEditForm};
+export type {TenantEditForm};

@@ -1,6 +1,7 @@
 import {PageQO} from "@/types/common.ts"
 import http, {FetchOptions} from "@/utils/http.ts"
 import {DataScopeType} from "@/enums/role.ts"
+import BaseApi from "@/api/api.ts";
 
 // 角色编辑表单
 interface RoleEditForm {
@@ -21,7 +22,7 @@ class RoleApi {
    * @param option 请求配置
    */
   static async page(query?: PageQO & {}, option?: FetchOptions) {
-    return await http.get(this.baseUrl, query, option)
+    return BaseApi.page(this.baseUrl, query, option);
   }
 
   /**
@@ -99,4 +100,4 @@ class RoleApi {
 }
 
 export default RoleApi
-export {RoleEditForm}
+export type {RoleEditForm}

@@ -35,4 +35,4 @@ class MenuApi {
 }
 
 export default MenuApi;
-export {MenuTreeItem};
+export type {MenuTreeItem};
