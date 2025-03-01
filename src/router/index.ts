@@ -57,6 +57,14 @@ const routes: RouteRecordRaw[] = [
         meta: {
           keepAlive: true
         }
+      }, {
+        // 租户管理
+        name: "TenantsView",
+        path: "sys/tenants",
+        component: () => import("@/views/sys/TenantsView.vue"),
+        meta: {
+          keepAlive: true
+        }
       }
     ]
   }, {
