@@ -3,7 +3,7 @@ import * as CryptoJS from 'crypto-js';
 
 const debounceMap: Map<string, number> = new Map();
 
-const debounceExecution = (callback, delay = 300) => {
+const debounceExecution = (callback: any, delay = 300) => {
   // 生成请求的唯一标识
   const key = CryptoJS.SHA256(callback.toString()).toString()
 
@@ -20,7 +20,7 @@ const debounceExecution = (callback, delay = 300) => {
   debounceMap.set(key, timeout)
 }
 
-const onDebounceMounted = (callback, delay = 300) => {
+const onDebounceMounted = (callback: any, delay = 300) => {
   onMounted(() => {
     debounceExecution(callback, delay)
   })

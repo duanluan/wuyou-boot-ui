@@ -1,4 +1,5 @@
 import router from "@/router";
+import {LoadingOptions, MessageOptions} from "element-plus";
 
 type HttpVerb = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'CONNECT' | 'TRACE';
 
@@ -26,7 +27,8 @@ interface FetchOptions extends RequestInit {
   // 基础 URL
   baseUrl?: string | '',
   // 请求头
-  headers?: HeadersInit;
+  // headers?: HeadersInit;
+  headers?: Record<string, string>;
   // 请求体
   body?: BodyInit | null;
 
@@ -61,7 +63,7 @@ interface FetchOptions extends RequestInit {
   /**
    * 防抖延迟
    */
-  debounceDelay: number;
+  debounceDelay?: number;
   /**
    * 是否启用防抖
    */
@@ -97,8 +99,8 @@ class Http {
   }
 
   // 生成请求的唯一标识
-  private getRequestKey(url: string, options: FetchOptions): string {
-    return `${options.method || 'GET'}:${url}:${JSON.stringify(options.query)}:${JSON.stringify(options.json)}`;
+  private getRequestKey(url: string, options?: FetchOptions): string {
+    return `${options?.method || 'GET'}:${url}:${JSON.stringify(options?.query)}:${JSON.stringify(options?.json)}`;
   }
 
   // 清除请求的防抖计时器
@@ -108,14 +110,14 @@ class Http {
     this.debounceMap.delete(key);
   }
 
-  private executeFetch(url: string, options?: FetchOptions, resolve) {
+  private executeFetch(url: string, options?: FetchOptions, resolve?: any) {
     // 合并默认参数和传入参数
     options = {
       ...this.config, ...options,
-      headers: {...this.config.headers, ...options.headers},
-      loadingOption: {...this.config.loadingOption, ...options.loadingOption},
-      okMsgOption: {...this.config.okMsgOption, ...options.okMsgOption},
-      errorMsgOption: {...this.config.errorMsgOption, ...options.errorMsgOption}
+      headers: {...this.config.headers, ...options?.headers},
+      loadingOption: {...this.config.loadingOption, ...options?.loadingOption},
+      okMsgOption: {...this.config.okMsgOption, ...options?.okMsgOption},
+      errorMsgOption: {...this.config.errorMsgOption, ...options?.errorMsgOption}
     };
 
     // 处理参数
@@ -127,7 +129,7 @@ class Http {
       }
       // POST、PUT 用 URLSearchParams 或 FormData 传参
       else if (options.method === HttpMethod.POST || options.method === HttpMethod.PUT || options.method === HttpMethod.PATCH) {
-        if (options.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+        if (options.headers?.['Content-Type'] === 'application/x-www-form-urlencoded') {
           const urlSearchParams = new URLSearchParams();
           for (let key in options.query) {
             urlSearchParams.append(key, options.query[key]);
@@ -163,7 +165,7 @@ class Http {
 
     // 显示加载动画
     let loading: any;
-    if (options?.showLoading) {
+    if (options.showLoading) {
       loading = ElLoading.service(options.loadingOption);
     }
 
@@ -179,14 +181,14 @@ class Http {
             if (r.msg) {
               options.okMsgOption.message = r.msg;
             }
-            ElMessage.success(options?.okMsgOption);
+            ElMessage.success(options.okMsgOption);
           }
           // 错误提示
           if (r.code !== 200 && options?.showErrorMsg) {
             if (r.msg) {
               options.errorMsgOption.message = r.msg;
             }
-            ElMessage.error(options?.errorMsgOption);
+            ElMessage.error(options.errorMsgOption);
           }
         }
         // 返回响应
@@ -211,6 +213,7 @@ class Http {
         }
       }
     }).catch(error => {
+      console.debug('请求异常', error);
       // 请求异常提示错误
       this.closeLoading(loading);
       if (options?.showErrorMsg) {
@@ -223,7 +226,7 @@ class Http {
     return new Promise((resolve) => {
       // 启用防抖
       if (options?.enableDebounce ?? this.config.enableDebounce) {
-        const requestKey = this.getRequestKey(url, options || {});
+        const requestKey = this.getRequestKey(url, options);
 
         // 防抖处理：如果存在相同请求的计时器，清除旧的请求计时器
         if (this.debounceMap.has(requestKey)) {
@@ -235,7 +238,7 @@ class Http {
           this.debounceMap.delete(requestKey);
           // 执行
           this.executeFetch(url, options, resolve)
-        }, options.debounceDelay);
+        }, options?.debounceDelay);
 
         // 将计时器添加到防抖映射中
         this.debounceMap.set(requestKey, timer);
@@ -253,7 +256,7 @@ class Http {
    * @param query 参数
    * @param option 请求选项
    */
-  get(url: string, query?: {}, option?: FetchOptions = {query: {}}) {
+  get(url: string, query?: {}, option: FetchOptions = {query: {}}) {
     // 参数合并
     option.query = {...query, ...option.query};
     return this.fetch(url, {...option, method: 'GET'});
@@ -274,7 +277,7 @@ class Http {
    * @param query 参数
    * @param option 请求选项
    */
-  postByQuery(url: string, query: {}, option?: FetchOptions = {query: {}}) {
+  postByQuery(url: string, query: {}, option: FetchOptions = {query: {}}) {
     // 参数合并
     option.query = {...query, ...option.query};
     return this.fetch(url, {...option, method: 'POST'});
@@ -286,7 +289,7 @@ class Http {
    * @param json body json 参数
    * @param option 请求选项
    */
-  postByJson(url: string, json: {}, option?: FetchOptions = {json: {}}) {
+  postByJson(url: string, json: {}, option: FetchOptions = {json: {}}) {
     // 参数合并
     option.json = {...json, ...option.json};
     return this.fetch(url, {...option, method: 'POST'});
@@ -298,7 +301,7 @@ class Http {
    * @param json body json 参数
    * @param option 请求选项
    */
-  putByJson(url: string, json: {}, option?: FetchOptions = {json: {}}) {
+  putByJson(url: string, json: {}, option: FetchOptions = {json: {}}) {
     // 参数合并
     option.json = {...json, ...option.json};
     return this.fetch(url, {...option, method: 'PUT'});
@@ -310,7 +313,7 @@ class Http {
    * @param json body json 参数
    * @param option 请求选项
    */
-  patchByJson(url: string, json: {}, option?: FetchOptions = {json: {}}) {
+  patchByJson(url: string, json: {}, option: FetchOptions = {json: {}}) {
     // 参数合并
     option.json = {...json, ...option.json};
     return this.fetch(url, {...option, method: 'PATCH'});

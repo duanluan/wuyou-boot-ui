@@ -5,4 +5,4 @@ interface PageQO {
   size: number;
 }
 
-export {PageQO};
+export type {PageQO};

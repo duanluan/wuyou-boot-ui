@@ -26,7 +26,7 @@ class UserApi {
    * @param query 登录表单
    * @param option 请求配置
    */
-  static async login(query: LoginForm = {}, option?: FetchOptions) {
+  static async login(query: LoginForm, option?: FetchOptions) {
     const response = await http.postByQuery(this.baseUrl + '/login', query, option);
     return response?.data;
   }
@@ -45,7 +45,7 @@ class UserApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static async page(query?: PageQO & {}, option?: FetchOptions) {
+  static async page(query: PageQO & {}, option?: FetchOptions) {
     return BaseApi.page(this.baseUrl, query, option);
   }
 

@@ -15,7 +15,7 @@ interface MenuTreeItem {
 class MenuApi {
   static baseUrl = '/sys/menus';
 
-  static async tree(query?: {
+  static async tree(query: {
     // 多个类型
     types?: number[] | string
     // 角色编码列表

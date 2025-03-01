@@ -1,19 +1,20 @@
 import {defineStore} from 'pinia';
-import type TabPane from "element-plus/es/components/tabs/src/tab-pane.vue";
-import {Router} from "vue-router";
+import {Router, RouteRecordNameGeneric} from "vue-router";
 import {dashboardPath} from "@/router";
 
-interface TabItem extends TabPane {
-  componentName?: string;
+interface TabItem {
+  label: string;
+  name: string;
+  componentName: RouteRecordNameGeneric;
 }
 
 export const useTabStore = defineStore('tab', () => {
   // 默认标签页列表
-  const defaultTabs: TabItem = [{label: '仪表盘', name: dashboardPath, componentName: 'DashboardView'}]
+  const defaultTabs: TabItem[] = [{label: '仪表盘', name: dashboardPath, componentName: 'DashboardView'}]
   // 标签页列表
   const tabs = ref<TabItem[]>(defaultTabs)
   // 缓存的组件名
-  const cachedComponentNames = ref<string[]>([])
+  const cachedComponentNames = ref<RouteRecordNameGeneric[]>([])
   // 默认激活标签页名称
   const defaultActiveTabName = dashboardPath
   // 激活标签页名称
@@ -67,7 +68,7 @@ export const useTabStore = defineStore('tab', () => {
     activeTab(tabOrIndex.name, router)
   }
 
-  const addComponentName = (tabName: string) => {
+  const addComponentName = (tabName: RouteRecordNameGeneric) => {
     // 添加的标签页未缓存时
     if (!cachedComponentNames.value.some(item => item === tabName)) {
       // 添加组件名到缓存
