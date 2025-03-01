@@ -36,7 +36,7 @@ class PostApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static async save(query: RoleEditForm, option?: FetchOptions) {
+  static async save(query: PostEditForm, option?: FetchOptions) {
     return await http.postByJson(this.baseUrl, query, option);
   }
 
@@ -45,7 +45,7 @@ class PostApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static async update(query: RoleEditForm, option?: FetchOptions) {
+  static async update(query: PostEditForm, option?: FetchOptions) {
     return await http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
   }
 
