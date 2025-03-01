@@ -4,7 +4,7 @@
         <el-sub-menu :index="String(item.id)">
           <!-- SubMenu Slots 自定义标题内容 title：https://element-plus.org/zh-CN/component/menu.html#submenu-slots -->
           <template #title>
-            <Iconify :icon="item.icon"/>
+            <Iconify :icon="item.icon" v-if="item.icon"/>
             <span>{{ item.name }}</span>
           </template>
           <RecursiveMenuItem :menu-tree="item.children" @click-menu="handleClickMenu"/>
@@ -13,7 +13,7 @@
       <template v-else>
         <!-- $emit 方法触发自定义事件：https://cn.vuejs.org/guide/components/events#emitting-and-listening-to-events -->
         <el-menu-item :index="item.path" @click="handleClickMenu(item)">
-          <Iconify :icon="item.icon"/>
+          <Iconify :icon="item.icon" v-if="item.icon"/>
           <span>{{ item.name }}</span>
         </el-menu-item>
       </template>
