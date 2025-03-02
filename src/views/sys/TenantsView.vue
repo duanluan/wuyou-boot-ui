@@ -101,7 +101,6 @@
 </template>
 
 <script setup lang="ts">
-import {onDebounceMounted} from "@/utils/debounceLifecycle.ts"
 import TenantApi, {TenantEditForm} from "@/api/sys/tenant.ts"
 import {FormInstance} from "element-plus"
 import {CommonStatus} from "@/enums/common.ts"
@@ -113,7 +112,7 @@ const pageSize = ref(10)
 const pageTotal = ref(0)
 
 // 页面加载时
-onDebounceMounted(() => {
+onMounted(() => {
   search()
 })
 

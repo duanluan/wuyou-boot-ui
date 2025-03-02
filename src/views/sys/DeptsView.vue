@@ -103,7 +103,6 @@
 </template>
 
 <script setup lang="ts">
-import {onDebounceMounted} from "@/utils/debounceLifecycle.ts"
 import DeptApi, {DeptEditForm} from "@/api/sys/dept.ts"
 import {FormInstance} from "element-plus"
 import {CommonStatus} from "@/enums/common.ts"
@@ -113,7 +112,7 @@ const tableData = ref([])
 let deptTreeSelectData = ref([])
 
 // 页面加载时
-onDebounceMounted(async () => {
+onMounted(async () => {
   await search()
   getDeptTreeSelectData(tableData.value)
 })

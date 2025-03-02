@@ -234,7 +234,6 @@
 
 <script setup lang="ts">
 import RoleApi, {RoleEditForm} from "@/api/sys/role.ts"
-import {onDebounceMounted} from "@/utils/debounceLifecycle.ts";
 import {DataScopeActionType, DataScopeType, RoleCode} from "@/enums/role.ts";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 import {FormInstance, TreeInstance} from "element-plus";
@@ -249,7 +248,7 @@ const pageSize = ref(10)
 const pageTotal = ref(0)
 
 // 页面加载时
-onDebounceMounted(() => {
+onMounted(() => {
   search();
 })
 
