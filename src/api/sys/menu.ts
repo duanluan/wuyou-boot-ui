@@ -16,13 +16,15 @@ class MenuApi {
   static baseUrl = '/sys/menus';
 
   static async tree(query: {
+    // 是否刷新缓存
+    isRefreshCache: boolean,
     // 多个类型
     types?: number[] | string
     // 角色编码列表
     roleCodes?: string[] | string,
     // 是否获取全部和选中
     isAllAndChecked?: boolean
-  } = {}, option?: FetchOptions): Promise<MenuTreeItem[]> {
+  } = {isRefreshCache: false}, option?: FetchOptions): Promise<MenuTreeItem[]> {
     // 逗号拼接
     if (query.types && Array.isArray(query.types)) {
       query.types = query.types.join(',');

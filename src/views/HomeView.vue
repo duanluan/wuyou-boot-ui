@@ -113,7 +113,7 @@ const tabStore = useTabStore()
  */
 onMounted(async () => {
   // 请求菜单树
-  await menuStore.loadMenuTreeList({loadingOption: {target: '.el-aside'}});
+  await menuStore.loadMenuTreeList(false, {loadingOption: {target: '.el-aside'}});
   if (menuStore.isMenuTreeListEmpty) return;
   // 将树形结构转换为平铺的列表
   const flatten = (items: MenuTreeItem[]) => {
