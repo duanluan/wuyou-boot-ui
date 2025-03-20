@@ -41,7 +41,7 @@ interface FetchOptions extends RequestInit {
    */
   showLoading?: boolean;
   /**
-   * 加载动画配置项：https://element-plus.gitee.io/zh-CN/component/loading.html#%E9%85%8D%E7%BD%AE%E9%A1%B9
+   * 加载动画配置项：https://element-plus.org/zh-CN/component/loading.html#%E9%85%8D%E7%BD%AE%E9%A1%B9
    */
   loadingOption?: LoadingOptions;
   /**
@@ -177,14 +177,14 @@ class Http {
         const r = await response.json();
         if (r) {
           // 成功提示
-          if (r.code === 200 && options?.showOkMsg) {
+          if (options.showOkMsg && options.okMsgOption && r.code === 200) {
             if (r.msg) {
               options.okMsgOption.message = r.msg;
             }
             ElMessage.success(options.okMsgOption);
           }
           // 错误提示
-          if (r.code !== 200 && options?.showErrorMsg) {
+          if (options.showErrorMsg && options.errorMsgOption && r.code !== 200) {
             if (r.msg) {
               options.errorMsgOption.message = r.msg;
             }
@@ -202,11 +202,11 @@ class Http {
           ElMessage.error("无权限");
         } else {
           const r = await response.json();
-          if (options?.showErrorMsg) {
-            if (r && r.code !== 200 && r.msg) {
+          if (options.showErrorMsg && options.errorMsgOption && r && r.code !== 200) {
+            if (r.msg) {
               options.errorMsgOption.message = r.msg;
             }
-            ElMessage.error(options?.errorMsgOption);
+            ElMessage.error(options.errorMsgOption);
           }
           // 返回响应
           resolve(r);
@@ -216,8 +216,8 @@ class Http {
       console.debug('请求异常', error);
       // 请求异常提示错误
       this.closeLoading(loading);
-      if (options?.showErrorMsg) {
-        ElMessage.error(options?.errorMsgOption);
+      if (options.showErrorMsg) {
+        ElMessage.error(options.errorMsgOption);
       }
     })
   }

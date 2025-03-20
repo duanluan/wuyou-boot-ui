@@ -27,10 +27,10 @@
     <el-table ref="tableRef" :data="tableData" style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
       <el-table-column type="selection" width="55"/>
       <el-table-column fixed prop="name" label="名称" width="180"/>
-      <el-table-column prop="sort" label="顺序" width="100"/>
-      <el-table-column label="启用状态" width="100">
-        <template #default="scope">
-          <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="scope.row.status" @change="changeStatus(scope.row)"/>
+      <el-table-column prop="sort" label="顺序" align="center"width="100"/>
+      <el-table-column label="启用状态" align="center" width="100">
+        <template #default="{row}">
+          <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="row.status" @change="changeStatus(row)"/>
         </template>
       </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
@@ -62,7 +62,7 @@
         style="justify-content: right"
     />
 
-    <el-dialog v-model="editDialogVisible" @close="editFormRef.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="600">
+    <el-dialog v-model="editDialogVisible" @close="editFormRef?.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="600">
       <el-form
           ref="editFormRef"
           :model="editForm"

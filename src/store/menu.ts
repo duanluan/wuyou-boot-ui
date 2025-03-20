@@ -10,11 +10,8 @@ export const useMenuStore = defineStore('menu', () => {
   /**
    * 获取菜单树
    */
-  const loadMenuTreeList = async (isRefreshCache: boolean = false, apiOption?: FetchOptions) => {
-    // 如果菜单树为空，且不是刷新缓存，则请求加载菜单树
-    if (isMenuTreeListEmpty.value || isRefreshCache) {
-      menuTreeList.value = await MenuApi.tree({isRefreshCache, types: [1, 2]}, apiOption);
-    }
+  const loadMenuTree = async (apiOption?: FetchOptions) => {
+    menuTreeList.value = await MenuApi.tree(apiOption);
   };
 
   /**
@@ -31,8 +28,20 @@ export const useMenuStore = defineStore('menu', () => {
     menuTreeList.value = [];
   };
 
+  /**
+   * 刷新缓存
+   */
+  const refreshTreeCache = async (apiOption?: FetchOptions) => {
+    // 刷新缓存成功后，重新加载菜单树
+    if(await MenuApi.refreshTreeCache()) {
+      loadMenuTree(apiOption);
+      return true;
+    }
+    return false;
+  }
+
   return {
-    menuTreeList, isMenuTreeListEmpty, loadMenuTreeList, clean
+    menuTreeList, isMenuTreeListEmpty, loadMenuTree, clean, refreshTreeCache
   };
 }, {
   // 持久化

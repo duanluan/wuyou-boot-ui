@@ -27,8 +27,8 @@
       <el-table-column fixed prop="name" label="名称" width="180"/>
       <el-table-column prop="code" label="编码" width="180"/>
       <el-table-column prop="description" label="描述"/>
-      <el-table-column prop="sort" label="顺序" width="100"/>
-      <el-table-column label="启用状态" width="100">
+      <el-table-column prop="sort" label="顺序" align="center"width="100"/>
+      <el-table-column label="启用状态" align="center" width="100">
         <template #default="scope">
           <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="scope.row.status" @change="changeStatus(scope.row)" :disabled="scope.row.code === RoleCode.SUPER_ADMIN"/>
         </template>
@@ -67,7 +67,7 @@
         style="justify-content: right"
     />
 
-    <el-dialog v-model="editDialogVisible" @close="editFormRef.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="600">
+    <el-dialog v-model="editDialogVisible" @close="editFormRef?.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="600">
       <el-form
           ref="editFormRef"
           :model="editForm"
@@ -364,7 +364,7 @@ const configMenu = async (row: any) => {
   configMenuDialogVisible.value = true
   Object.assign(configMenuForm, row)
   // 获取菜单树
-  menuTreeData.value = await MenuApi.tree({roleCodes: [row.code], isAllAndChecked: true});
+  menuTreeData.value = await MenuApi.treeTable({roleCodes: [row.code], isAllAndChecked: true});
   // 禁用勾选仪表盘
   menuTreeData.value.forEach(item => {
     if (item.path === dashboardPath) {

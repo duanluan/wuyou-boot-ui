@@ -27,10 +27,10 @@
     <el-table ref="tableRef" :data="tableData" row-key="id" default-expand-all style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
       <el-table-column type="selection" width="55"/>
       <el-table-column fixed prop="name" label="名称" width="180"/>
-      <el-table-column prop="sort" label="顺序" width="100"/>
-      <el-table-column label="启用状态" width="100">
-        <template #default="scope">
-          <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="scope.row.status" @change="changeStatus(scope.row)"/>
+      <el-table-column prop="sort" label="顺序" align="center"width="100"/>
+      <el-table-column label="启用状态" align="center" width="100">
+        <template #default="{row}">
+          <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="row.status" @change="changeStatus(row)"/>
         </template>
       </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
@@ -52,7 +52,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog v-model="editDialogVisible" @close="editFormRef.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="600">
+    <el-dialog v-model="editDialogVisible" @close="editFormRef?.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="600">
       <el-form
           ref="editFormRef"
           :model="editForm"
@@ -103,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import DeptApi, {DeptEditForm} from "@/api/sys/dept.ts"
+import DeptApi, {DeptSearchForm, DeptEditForm} from "@/api/sys/dept.ts"
 import {FormInstance} from "element-plus"
 import {CommonStatus} from "@/enums/common.ts"
 
@@ -117,13 +117,7 @@ onMounted(async () => {
   getDeptTreeSelectData(tableData.value)
 })
 
-interface SearchForm {
-  notBuildTree: boolean // 是否不构建树
-  name: string // 名称
-  status: number // 状态
-}
-
-const searchForm = ref<SearchForm>({})
+const searchForm = ref<DeptSearchForm>({})
 
 // 搜索
 const search = async () => {
@@ -135,7 +129,10 @@ const search = async () => {
   tableData.value = await DeptApi.tree(query, {loadingOption: {target: '.el-table'}, enableDebounce: false})
 }
 
-// 获取部门树下拉数据
+/**
+ * 获取部门树下拉数据，如果有数据则直接使用，否则调用接口获取
+ * @param data 部门树数据
+ */
 const getDeptTreeSelectData = async (data) => {
   if (data) {
     // 深拷贝 tableData 以避免修改引用

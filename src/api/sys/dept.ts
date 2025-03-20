@@ -1,34 +1,28 @@
 import http, {FetchOptions} from "@/utils/http.ts";
-import {PageQO} from "@/types/common.ts";
-import {RoleEditForm} from "@/api/sys/role.ts";
-import BaseApi from "@/api/api.ts";
+
+interface DeptSearchForm {
+  notBuildTree: boolean // 是否不构建树
+  name: string // 名称
+  status: number // 状态
+}
 
 interface DeptEditForm {
   id: string | null // ID
   name: string // 名称
   parentId: string | null // 上级部门
   sort: number // 排序
-  status: number, // 状态
+  status: number // 状态
 }
 
 class DeptApi {
   static baseUrl = '/sys/depts';
 
   /**
-   * 分页列表
-   * @param query 查询条件
-   * @param option 请求配置
-   */
-  static async page(query?: PageQO & {}, option?: FetchOptions) {
-    return BaseApi.page(this.baseUrl, query, option);
-  }
-
-  /**
    * 树
    * @param query 查询条件
    * @param option 请求配置
    */
-  static async tree(query: {}, option?: FetchOptions) {
+  static async tree(query: DeptSearchForm, option?: FetchOptions) {
     return (await http.get(this.baseUrl + '/tree', query, option))?.data;
   }
 
@@ -46,7 +40,7 @@ class DeptApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static async save(query: RoleEditForm, option?: FetchOptions) {
+  static async save(query: DeptEditForm, option?: FetchOptions) {
     return await http.postByJson(this.baseUrl, query, option);
   }
 
@@ -55,7 +49,7 @@ class DeptApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static async update(query: RoleEditForm, option?: FetchOptions) {
+  static async update(query: DeptEditForm, option?: FetchOptions) {
     return await http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
   }
 
@@ -72,4 +66,4 @@ class DeptApi {
 }
 
 export default DeptApi;
-export type {DeptEditForm};
+export type {DeptSearchForm, DeptEditForm};

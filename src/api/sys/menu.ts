@@ -1,40 +1,112 @@
 import http, {FetchOptions} from "@/utils/http.ts";
 
+interface MenuSearchForm {
+  notBuildTree?: boolean // 是否不构建树
+  name?: string // 名称
+  status?: number // 状态
+
+  types?: number[] | string // 多个类型
+  roleCodes?: string[] | string // 角色编码列表
+  isAllAndChecked?: boolean // 是否获取全部和选中
+}
+
 // 菜单树
 interface MenuTreeItem {
   id: string,
-  name: string,
   sort: number,
-  parentid: string,
-  icon: string,
-  path: string,
-  children: MenuTreeItem[],
-  checked: boolean,
+  parentId: string,
+  children?: MenuTreeItem[],
+  checked?: boolean,
+  icon?: string,
+  name: string,
+  type: number,
+  method?: string,
+  path?: string,
+  permission?: string,
+  status: number,
+  createTime: string
+}
+
+interface MenuEditForm {
+  id: string | null
+  parentId: string | null
+  name: string
+  type: number
+  method: string
+  path: string
+  permission: string
+  sort: number
+  status: number,
 }
 
 class MenuApi {
   static baseUrl = '/sys/menus';
 
-  static async tree(query: {
-    // 是否刷新缓存
-    isRefreshCache: boolean,
-    // 多个类型
-    types?: number[] | string
-    // 角色编码列表
-    roleCodes?: string[] | string,
-    // 是否获取全部和选中
-    isAllAndChecked?: boolean
-  } = {isRefreshCache: false}, option?: FetchOptions): Promise<MenuTreeItem[]> {
-    // 逗号拼接
-    if (query.types && Array.isArray(query.types)) {
-      query.types = query.types.join(',');
-    }
-    if (query.roleCodes && Array.isArray(query.roleCodes)) {
-      query.roleCodes = query.roleCodes.join(',');
-    }
-    return (await http.get(this.baseUrl + '/tree', query, option))?.data;
+  /**
+   * 树
+   * @param option 请求配置
+   */
+  static async tree(option?: FetchOptions): Promise<MenuTreeItem[]> {
+    return (await http.get(this.baseUrl + '/tree', option))?.data;
+  }
+
+  /**
+   * 刷新缓存
+   * @param option 请求配置
+   */
+  static async refreshTreeCache(option?: FetchOptions) {
+    const responseJson = await http.post(this.baseUrl + '/refreshTreeCache', option);
+    return responseJson && responseJson.code === 200;
+  }
+
+  /**
+   * 树表
+   * @param query 查询条件
+   * @param option 请求配置
+   */
+  static async treeTable(query: MenuSearchForm, option?: FetchOptions): Promise<MenuTreeItem[]> {
+    return (await http.get(this.baseUrl + '/treeTable', query, option))?.data;
+  }
+
+
+  /**
+   * 删除
+   * @param ids ID 数组
+   * @param option 请求配置
+   */
+  static async remove(ids: string[] | string, option?: FetchOptions) {
+    return await http.deleteByIds(`${this.baseUrl}/{}`, ids, option);
+  }
+
+  /**
+   * 保存
+   * @param query 编辑表单
+   * @param option 请求配置
+   */
+  static async save(query: MenuEditForm, option?: FetchOptions) {
+    return await http.postByJson(this.baseUrl, query, option);
+  }
+
+  /**
+   * 修改
+   * @param query 编辑表单
+   * @param option 请求配置
+   */
+  static async update(query: MenuEditForm, option?: FetchOptions) {
+    return await http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
+  }
+
+  /**
+   * 修改状态
+   * @param id ID
+   * @param status 状态
+   * @param option 请求配置
+   */
+  static async updateStatus(id: string, status: number, option?: FetchOptions) {
+    const responseJson = await http.patchByJson(`${this.baseUrl}/${id}/status`, {id, status}, option)
+    return responseJson && responseJson.code === 200;
   }
 }
 
 export default MenuApi;
-export type {MenuTreeItem};
+export type {MenuSearchForm, MenuTreeItem, MenuEditForm};
