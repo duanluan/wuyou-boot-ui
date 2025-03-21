@@ -30,7 +30,7 @@ class RoleApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static async list(query: {}, option?: FetchOptions) {
+  static async list(query: {} = {}, option?: FetchOptions) {
     const response = await this.page(query, option)
     return response && response.data
   }

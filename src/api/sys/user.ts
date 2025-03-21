@@ -15,7 +15,9 @@ interface UserEditForm {
   id: string | null // ID
   nickName: string // 昵称
   username: string // 用户名
+  password?: string // 密码
   roleIds: string[] // 角色 ID 数组
+  postIds?: string[] // 岗位 ID 数组
 }
 
 class UserApi {
@@ -45,7 +47,7 @@ class UserApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static async page(query: PageQO & {}, option?: FetchOptions) {
+  static async page(query: PageQO & {} | {}, option?: FetchOptions) {
     return BaseApi.page(this.baseUrl, query, option);
   }
 

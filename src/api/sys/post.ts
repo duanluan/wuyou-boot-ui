@@ -18,8 +18,18 @@ class PostApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static async page(query?: PageQO & {}, option?: FetchOptions) {
+  static async page(query: PageQO & {} | {}, option?: FetchOptions) {
     return BaseApi.page(this.baseUrl, query, option);
+  }
+
+  /**
+   * 列表
+   * @param query 查询条件
+   * @param option 请求配置
+   */
+  static async list(query: {} = {}, option?: FetchOptions) {
+    const response = await this.page(query, option)
+    return response && response.data
   }
 
   /**

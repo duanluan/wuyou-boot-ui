@@ -31,6 +31,11 @@
           <el-tag v-for="roleName in row.roleNames" :key="roleName" type="primary" style="margin-right: 5px">{{ roleName }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="岗位">
+        <template #default="{row}">
+          <el-tag v-for="postName in row.postNames" :key="postName" type="info" style="margin-right: 5px">{{ postName }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
       <el-table-column fixed="right" label="操作" min-width="120">
         <template #default="{row}">
@@ -82,10 +87,17 @@
               <el-input v-model="editForm.password" type="password"/>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item prop="roleIds" label="角色">
               <el-select v-model="editForm.roleIds" multiple placeholder="请选择角色">
                 <el-option v-for="item in roles" :key="item.id" :label="item.name" :value="item.id"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="postIds" label="岗位">
+              <el-select v-model="editForm.postIds" multiple placeholder="请选择岗位">
+                <el-option v-for="item in posts" :key="item.id" :label="item.name" :value="item.id"/>
               </el-select>
             </el-form-item>
           </el-col>
@@ -105,6 +117,7 @@
 import UserApi, {UserEditForm} from "@/api/sys/user.ts";
 import {FormInstance} from "element-plus";
 import RoleApi from "@/api/sys/role.ts";
+import PostApi from "@/api/sys/post.ts";
 
 const tableRef = ref()
 const tableData = ref([])
@@ -116,6 +129,7 @@ const pageTotal = ref(0)
 onMounted(() => {
   search();
   getRoles();
+  getPosts();
 })
 
 interface SearchForm {
@@ -218,6 +232,14 @@ const roles = ref([])
 const getRoles = async () => {
   roles.value = await RoleApi.list()
 }
+// 岗位列表
+const posts = ref([])
+// 获取岗位列表
+const getPosts = async () => {
+  posts.value = await PostApi.list()
+}
+
+
 </script>
 
 <style scoped>
