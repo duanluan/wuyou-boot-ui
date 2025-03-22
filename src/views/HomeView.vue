@@ -24,7 +24,7 @@
             <Iconify
                 :icon="isCollapseMenu?'ep:expand':'ep:fold'"
                 @click="isCollapseMenu = !isCollapseMenu"
-                fontSize="23px"
+                size="23px"
                 class="collapse-menu-icon"
             />
             <el-breadcrumb separator="/" class="header-breadcrumb">
