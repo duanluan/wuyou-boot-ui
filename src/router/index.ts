@@ -1,12 +1,18 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from "vue-router"
 
-const dashboardPath = "/dashboard"
 const dashboardPath = "/dashboard", dashboardTab = {label: '仪表盘', name: dashboardPath}
+const profilePath = "/profile", profileTab = {label: '个人中心', name: profilePath}
 
 /**
  * 路由中的名字要和组件名一致，否则 keep-alive 无法缓存组件
  */
 const routes: RouteRecordRaw[] = [
+  {
+    // 登录页
+    name: "LoginView",
+    path: "/login",
+    component: () => import("@/views/LoginView.vue")
+  },
   {
     // 首页
     path: "/",
@@ -18,6 +24,11 @@ const routes: RouteRecordRaw[] = [
         name: "DashboardView",
         path: "dashboard",
         component: () => import("@/views/DashboardView.vue"),
+      }, {
+        // 个人中心
+        name: "ProfileView",
+        path: profilePath,
+        component: () => import("@/views/ProfileView.vue")
       }, {
         // 用户管理
         name: "UsersView",
@@ -68,11 +79,6 @@ const routes: RouteRecordRaw[] = [
         }
       }
     ]
-  }, {
-    // 登录页
-    name: "LoginView",
-    path: "/login",
-    component: () => import("@/views/LoginView.vue")
   }
 ]
 
@@ -83,4 +89,4 @@ const router = createRouter({
 })
 
 export default router
-export {dashboardPath}
+export {dashboardPath, dashboardTab, profileTab}

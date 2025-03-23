@@ -55,7 +55,7 @@
                 </div>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item>个人中心</el-dropdown-item>
+                    <el-dropdown-item @click="useTabStore().addTab(profileTab, $router)">个人中心</el-dropdown-item>
                     <el-dropdown-item @click="useUserStore().logout()">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
@@ -94,7 +94,7 @@ import {useMenuStore} from "@/store/menu.ts";
 import {useUserStore} from "../store/user.ts";
 import Tabs from "@/components/Tabs.vue";
 import {useTabStore} from "@/store/tab.ts";
-import {dashboardPath, dashboardTab} from "@/router";
+import {dashboardPath, dashboardTab, profileTab} from "@/router";
 
 const router = useRouter()
 // 菜单 store
