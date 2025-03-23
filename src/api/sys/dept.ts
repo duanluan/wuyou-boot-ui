@@ -31,8 +31,8 @@ class DeptApi {
    * @param ids ID 数组
    * @param option 请求配置
    */
-  static async remove(ids: string[] | string, option?: FetchOptions) {
-    return await http.deleteByIds(`${this.baseUrl}/{}`, ids, option);
+  static remove(ids: string[] | string, option?: FetchOptions) {
+    return http.deleteByIds(`${this.baseUrl}/{}`, ids, option);
   }
 
   /**
@@ -40,8 +40,8 @@ class DeptApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static async save(query: DeptEditForm, option?: FetchOptions) {
-    return await http.postByJson(this.baseUrl, query, option);
+  static save(query: DeptEditForm, option?: FetchOptions) {
+    return http.postByJson(this.baseUrl, query, option);
   }
 
   /**
@@ -49,8 +49,8 @@ class DeptApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static async update(query: DeptEditForm, option?: FetchOptions) {
-    return await http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
+  static update(query: DeptEditForm, option?: FetchOptions) {
+    return http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
   }
 
   /**

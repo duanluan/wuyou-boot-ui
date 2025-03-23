@@ -34,8 +34,8 @@ export const useUserStore = defineStore('user', () => {
   /**
    * 登出
    */
-  const logout = () => {
-    if (UserApi.logout()) {
+  const logout = async () => {
+    if (await UserApi.logout()) {
       router.push({name: 'LoginView'});
       clean()
       menuStore.clean()

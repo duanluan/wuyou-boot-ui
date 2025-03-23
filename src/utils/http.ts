@@ -222,7 +222,7 @@ class Http {
     })
   }
 
-  fetch(url: string, options?: FetchOptions): Promise<void | R<any>> {
+  fetch(url: string, options?: FetchOptions): Promise<R<any>> {
     return new Promise((resolve) => {
       // 启用防抖
       if (options?.enableDebounce ?? this.config.enableDebounce) {

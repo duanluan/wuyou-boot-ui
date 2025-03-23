@@ -47,7 +47,7 @@ class UserApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static async page(query: PageQO & {} | {}, option?: FetchOptions) {
+  static page(query: PageQO & {} | {}, option?: FetchOptions) {
     return BaseApi.page(this.baseUrl, query, option);
   }
 
@@ -56,8 +56,8 @@ class UserApi {
    * @param ids ID 数组
    * @param option 请求配置
    */
-  static async remove(ids: string[] | string, option?: FetchOptions) {
-    return await http.deleteByIds(`${this.baseUrl}/{}`, ids, option);
+  static remove(ids: string[] | string, option?: FetchOptions) {
+    return http.deleteByIds(`${this.baseUrl}/{}`, ids, option);
   }
 
   /**
@@ -65,8 +65,8 @@ class UserApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static async save(query: RoleEditForm, option?: FetchOptions) {
-    return await http.postByJson(this.baseUrl, query, option);
+  static save(query: RoleEditForm, option?: FetchOptions) {
+    return http.postByJson(this.baseUrl, query, option);
   }
 
   /**
@@ -74,8 +74,8 @@ class UserApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static async update(query: RoleEditForm, option?: FetchOptions) {
-    return await http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
+  static update(query: RoleEditForm, option?: FetchOptions) {
+    return http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
   }
 }
 
