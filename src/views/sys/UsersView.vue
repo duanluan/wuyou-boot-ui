@@ -31,6 +31,7 @@
           <el-tag v-for="roleName in row.roleNames" :key="roleName" type="primary" style="margin-right: 5px">{{ roleName }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column prop="deptName" label="部门"/>
       <el-table-column label="岗位">
         <template #default="{row}">
           <el-tag v-for="postName in row.postNames" :key="postName" type="info" style="margin-right: 5px">{{ postName }}</el-tag>
@@ -95,6 +96,18 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item prop="deptId" label="部门">
+              <el-tree-select
+                  v-model="editForm.deptId"
+                  :data="deptTreeSelectData"
+                  :render-after-expand="false"
+                  :props="{label: 'name', value: 'id'}"
+                  check-strictly
+                  style="width: 100% !important"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item prop="postIds" label="岗位">
               <el-select v-model="editForm.postIds" multiple placeholder="请选择岗位">
                 <el-option v-for="item in posts" :key="item.id" :label="item.name" :value="item.id"/>
@@ -118,18 +131,21 @@ import UserApi, {UserEditForm} from "@/api/sys/user.ts";
 import {FormInstance} from "element-plus";
 import RoleApi from "@/api/sys/role.ts";
 import PostApi from "@/api/sys/post.ts";
+import DeptApi from "@/api/sys/dept.ts";
 
 const tableRef = ref()
 const tableData = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const pageTotal = ref(0)
+let deptTreeSelectData = ref([])
 
 // 页面加载时
-onMounted(() => {
+onMounted(async () => {
   search();
   getRoles();
   getPosts();
+  deptTreeSelectData.value = await DeptApi.tree({}, {showLoading: false, enableDebounce: false})
 })
 
 interface SearchForm {
@@ -238,8 +254,6 @@ const posts = ref([])
 const getPosts = async () => {
   posts.value = await PostApi.list()
 }
-
-
 </script>
 
 <style scoped>
