@@ -94,7 +94,7 @@ import {useMenuStore} from "@/store/menu.ts";
 import {useUserStore} from "../store/user.ts";
 import Tabs from "@/components/Tabs.vue";
 import {useTabStore} from "@/store/tab.ts";
-import {dashboardPath} from "@/router";
+import {dashboardPath, dashboardTab} from "@/router";
 
 const router = useRouter()
 // 菜单 store
@@ -141,7 +141,7 @@ onMounted(async () => {
     tabStore.addTab({label: currentItem.name, name: currentPath}, router);
   } else {
     // 打开首页
-    tabStore.addTab(0, router);
+    tabStore.addTab(dashboardTab, router);
   }
 });
 

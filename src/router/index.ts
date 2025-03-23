@@ -1,6 +1,7 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from "vue-router"
 
 const dashboardPath = "/dashboard"
+const dashboardPath = "/dashboard", dashboardTab = {label: '仪表盘', name: dashboardPath}
 
 /**
  * 路由中的名字要和组件名一致，否则 keep-alive 无法缓存组件

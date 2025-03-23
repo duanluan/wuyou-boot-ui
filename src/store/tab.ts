@@ -1,16 +1,16 @@
 import {defineStore} from 'pinia';
 import {Router, RouteRecordNameGeneric} from "vue-router";
-import {dashboardPath} from "@/router";
+import {dashboardPath, dashboardTab} from "@/router";
 
 interface TabItem {
   label: string;
   name: string;
-  componentName: RouteRecordNameGeneric;
+  componentName?: RouteRecordNameGeneric;
 }
 
 export const useTabStore = defineStore('tab', () => {
   // 默认标签页列表
-  const defaultTabs: TabItem[] = [{label: '仪表盘', name: dashboardPath, componentName: 'DashboardView'}]
+  const defaultTabs: TabItem[] = [dashboardTab]
   // 标签页列表
   const tabs = ref<TabItem[]>(defaultTabs)
   // 缓存的组件名
