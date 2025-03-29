@@ -28,13 +28,19 @@ const routes: RouteRecordRaw[] = [
         // 个人中心
         name: "ProfileView",
         path: profilePath,
-        component: () => import("@/views/ProfileView.vue")
+        component: () => import("@/views/ProfileView.vue"),
+        meta: {
+          keepAlive: true,
+          // 如果菜单中找不到该路由，用于添加到面包屑、标签页中
+          breadcrumbs: [{name: '个人中心', path: profilePath}]
+        }
       }, {
         // 用户管理
         name: "UsersView",
         path: "sys/users",
         component: () => import("@/views/sys/UsersView.vue"),
         meta: {
+          // 是否缓存标签页
           keepAlive: true
         }
       }, {

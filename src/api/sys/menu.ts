@@ -10,7 +10,7 @@ interface MenuSearchForm {
   isAllAndChecked?: boolean // 是否获取全部和选中
 }
 
-// 菜单树
+// 菜单树项
 interface MenuTreeItem {
   id: string,
   sort: number,

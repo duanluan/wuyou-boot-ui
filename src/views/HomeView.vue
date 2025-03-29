@@ -140,8 +140,26 @@ onMounted(async () => {
     // 添加标签，标签页不存在当前路由时，刷新页面后能正确打开
     tabStore.addTab({label: currentItem.name, name: currentPath}, router);
   } else {
-    // 打开首页
-    tabStore.addTab(dashboardTab, router);
+    // 从已打开的标签页中查找
+    const tab = tabStore.tabs.find(tab => tab.name === currentPath);
+    if (tab) {
+      // 如果标签页已打开，则直接打开
+      tabStore.addTab(tab, router);
+    } else {
+      // 从路由列表中查找是否存在面包屑
+      const route = router.getRoutes().find(route => route.path === currentPath);
+      if (route?.meta?.breadcrumbs) {
+        // 打开面包屑最后一项
+        const lastBreadcrumbsItem = route.meta.breadcrumbs[route.meta.breadcrumbs.length - 1];
+        tabStore.addTab({
+          label: lastBreadcrumbsItem.name,
+          name: lastBreadcrumbsItem.path
+        }, router);
+      } else {
+        // 打开首页
+        tabStore.addTab(dashboardTab, router);
+      }
+    }
   }
 });
 
@@ -160,29 +178,36 @@ const handleClickMenu = (item: MenuTreeItem) => {
 const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
   // 清空面包屑
   breadcrumbs.value = [];
-  if (typeof itemOrPath == 'string' && (!menuList || menuList.length === 0)) return;
+  // 当前项：如果不是菜单树项，就根据路径从菜单列表中找
   const currentItem = (typeof itemOrPath !== 'string') ? itemOrPath : menuList.find(menu => menu.path === itemOrPath);
-  if (!currentItem) return;
-
-  /**
-   * 根据 parentId 递归往上寻找父级菜单 或 根据 path 递归往下寻找子级菜单
-   * @param currentItem 当前菜单项
-   */
-  const findParentOrChild = (currentItem: MenuTreeItem) => {
-    if (!currentItem || !currentItem.parentId) return;
-
-    const parent = menuList.find(menu => menu.id === currentItem.parentId);
-    if (!parent) return;
-    // 使用 unshift 将元素加入数组头部
-    breadcrumbs.value.unshift({name: parent.name, path: parent.path});
-    if (parent.parentId) {
-      findParentOrChild(parent.parentId);
+  if (currentItem) {
+    /**
+     * 根据 parentId 递归往上寻找父级菜单，将找到的父级菜单项添加到面包屑中
+     * @param currentItem 当前菜单项
+     */
+    const findParentOrChild = (currentItem: MenuTreeItem) => {
+      // 根据 parentId 查找父级菜单
+      const parent = menuList.find(menu => menu.id === currentItem.parentId);
+      if (!parent) return false;
+      // 使用 unshift 将元素加入数组头部
+      breadcrumbs.value.unshift({name: parent.name, path: parent.path});
+      // 仍有父级时继续查找
+      if (parent.parentId) {
+        findParentOrChild(parent);
+      }
     }
-  }
-  findParentOrChild(currentItem);
-  // 非首页时添加自身
-  if (currentItem.path !== dashboardPath) {
-    breadcrumbs.value.push({name: currentItem.name, path: currentItem.path});
+    findParentOrChild(currentItem);
+    // 非首页时添加自身项
+    if (currentItem.path !== dashboardPath) {
+      breadcrumbs.value.push({name: currentItem.name, path: currentItem.path});
+    }
+  } else {
+    // 根据路由从路由列表中获取 meta.breadcrumb
+    const route = router.getRoutes().find(route => route.path === itemOrPath);
+    if (route?.meta?.breadcrumbs) {
+      // 如果有面包屑，则直接使用
+      breadcrumbs.value = route.meta.breadcrumbs;
+    }
   }
 }
 
