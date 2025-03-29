@@ -78,6 +78,24 @@ class UserApi {
   static update(query: RoleEditForm, option?: FetchOptions) {
     return http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
   }
+
+  /**
+   * 更新个人信息
+   * @param query 编辑表单
+   * @param option 请求配置
+   */
+  static updateProfile(query: RoleEditForm, option?: FetchOptions) {
+    return http.putByJson(`${this.baseUrl}/${query.id}/profile`, query, option);
+  }
+
+  /**
+   * 修改密码
+   * @param query 编辑表单
+   * @param option 请求配置
+   */
+  static updatePwd(query: { id: string, oldPassword: string, newPassword: string }, option?: FetchOptions) {
+    return http.putByJson(`${this.baseUrl}/${query.id}/pwd`, query, option);
+  }
 }
 
 export default UserApi;
