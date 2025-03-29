@@ -27,7 +27,7 @@
     <el-table ref="tableRef" :data="tableData" row-key="id" default-expand-all style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
       <el-table-column type="selection" width="55"/>
       <el-table-column fixed prop="name" label="名称" width="180"/>
-      <el-table-column prop="sort" label="顺序" align="center"width="100"/>
+      <el-table-column prop="sort" label="顺序" align="center" width="100"/>
       <el-table-column label="启用状态" align="center" width="100">
         <template #default="{row}">
           <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="row.status" @change="changeStatus(row)"/>
@@ -141,8 +141,10 @@ const getDeptTreeSelectData = async (data) => {
   } else {
     deptTreeSelectData.value = await DeptApi.tree({}, {showLoading: false, enableDebounce: false})
   }
-  // 添加一个空选项，值为 0
-  deptTreeSelectData.value.unshift({id: 0, name: '根部门'})
+  // 添加根部门，值为 0
+  if (deptTreeSelectData.value.length > 0 && deptTreeSelectData.value[0].id !== '0') {
+    deptTreeSelectData.value.unshift({id: '0', name: '根部门'})
+  }
 }
 
 // 删除

@@ -97,6 +97,13 @@
           </el-col>
           <el-col :span="12">
             <el-form-item prop="deptId" label="部门">
+              <!--
+              render-after-expand：是否在第一次展开某个树节点后才渲染其子节点
+              props：节点属性值
+              check-strictly：在显示复选框的情况下，是否严格的遵循父子不互相关联的做法
+              default-expanded-keys：默认展开的节点的 key 的数组
+              default-checked-keys：默认选中的节点的 key 的数组
+              -->
               <el-tree-select
                   v-model="editForm.deptId"
                   :data="deptTreeSelectData"
