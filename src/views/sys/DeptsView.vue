@@ -68,7 +68,6 @@
               <el-tree-select
                   v-model="editForm.parentId"
                   :data="deptTreeSelectData"
-                  :render-after-expand="false"
                   :props="{label: 'name', value: 'id'}"
                   check-strictly
                   style="width: 100% !important"
@@ -93,10 +92,8 @@
         </el-row>
       </el-form>
       <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmEdit(editFormRef)">确认</el-button>
-        </div>
+        <el-button @click="editDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmEdit(editFormRef)">确认</el-button>
       </template>
     </el-dialog>
   </div>

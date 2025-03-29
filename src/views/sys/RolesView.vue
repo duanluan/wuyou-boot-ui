@@ -106,10 +106,8 @@
         </el-row>
       </el-form>
       <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmEdit(editFormRef)">确认</el-button>
-        </div>
+        <el-button @click="editDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmEdit(editFormRef)">确认</el-button>
       </template>
     </el-dialog>
 
@@ -150,10 +148,8 @@
         </el-row>
       </el-form>
       <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="configMenuDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmConfigMenu(configMenuFormRef,menuTreeRef)">确认</el-button>
-        </div>
+        <el-button @click="configMenuDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmConfigMenu(configMenuFormRef,menuTreeRef)">确认</el-button>
       </template>
     </el-dialog>
 
@@ -223,10 +219,8 @@
         </el-row>
       </el-form>
       <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="configDataScopeDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmConfigDataScope(configDataScopeFormRef, queryDataScopeDeptTreeRef, updateDataScopeDeptTreeRef)">确认</el-button>
-        </div>
+        <el-button @click="configDataScopeDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmConfigDataScope(configDataScopeFormRef, queryDataScopeDeptTreeRef, updateDataScopeDeptTreeRef)">确认</el-button>
       </template>
     </el-dialog>
   </div>
