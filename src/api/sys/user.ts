@@ -17,7 +17,7 @@ interface UserEditForm {
   username: string // 用户名
   password?: string // 密码
   roleIds: string[] // 角色 ID 数组
-  deptId?: string // 部门 ID
+  deptIds?: string[] // 部门 ID
   postIds?: string[] // 岗位 ID 数组
 }
 

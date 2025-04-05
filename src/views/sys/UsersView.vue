@@ -31,7 +31,11 @@
           <el-tag v-for="roleName in row.roleNames" :key="roleName" type="primary" style="margin-right: 5px">{{ roleName }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="deptName" label="部门"/>
+      <el-table-column label="部门">
+        <template #default="{row}">
+          <template v-for="deptName in row.deptNames" :key="deptName" type="info" style="margin-right: 5px">{{ deptName }}</template>
+        </template>
+      </el-table-column>
       <el-table-column label="岗位">
         <template #default="{row}">
           <el-tag v-for="postName in row.postNames" :key="postName" type="info" style="margin-right: 5px">{{ postName }}</el-tag>
@@ -96,7 +100,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item prop="deptId" label="部门">
+            <el-form-item prop="deptIds" label="部门">
               <!--
               render-after-expand：是否在第一次展开某个树节点后才渲染其子节点
               props：节点属性值
@@ -105,9 +109,10 @@
               default-checked-keys：默认选中的节点的 key 的数组
               -->
               <el-tree-select
-                  v-model="editForm.deptId"
+                  v-model="editForm.deptIds"
                   :data="deptTreeSelectData"
                   :props="{label: 'name', value: 'id'}"
+                  :multiple="true"
                   check-strictly
                   style="width: 100% !important"
               />
@@ -202,6 +207,16 @@ const editFormRules = reactive<FormRules<UserEditForm>>({
   nickName: [{required: true, message: '请输入昵称', trigger: 'blur'}],
   password: [{required: true, message: '请输入密码', trigger: 'blur'}],
   roleIds: [{required: true, message: '请选择角色', trigger: 'blur'}],
+  deptIds: [{
+    validator: (rule, value, callback) => {
+      if (Array.isArray(value) && value.length > 1) {
+        callback(new Error('只能选择一个部门'));
+      } else {
+        callback();
+      }
+    },
+    trigger: 'change'
+  }]
 })
 // 是否为新增，用于区分新增和编辑的对话框标题、接口调用
 const isAdd = ref(false)
