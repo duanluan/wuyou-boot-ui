@@ -47,7 +47,7 @@ class MenuApi {
    * @param option 请求配置
    */
   static async tree(option?: FetchOptions): Promise<MenuTreeItem[]> {
-    return (await http.get(this.baseUrl + '/tree', option))?.data;
+    return (await http.get(this.baseUrl + '/tree', {}, option))?.data;
   }
 
   /**
