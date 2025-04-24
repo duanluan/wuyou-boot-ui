@@ -15,7 +15,7 @@ export const useUserStore = defineStore('user', () => {
    * @param loginForm 登录表单
    */
   const login = (loginForm: LoginForm) => {
-    UserApi.login(loginForm, {errorMsgOption: {message: '登录失败'}}).then((data: any) => {
+    UserApi.login(loginForm).then((data: any) => {
       if (data) {
         // 保存用户信息
         info.value = data

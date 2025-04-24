@@ -5,7 +5,7 @@ import BaseApi from "@/api/api.ts";
 
 // 登录表单
 interface LoginForm {
-  tenantId: number // 租户 ID
+  tenantId: number | null // 租户 ID
   username: string // 用户名
   password: string // 密码
   remember: boolean // 记住我
@@ -19,6 +19,7 @@ interface UserEditForm {
   roleIds: string[] // 角色 ID 数组
   deptIds?: string[] // 部门 ID
   postIds?: string[] // 岗位 ID 数组
+  tenantIds?: string[] // 租户 ID 数组
 }
 
 class UserApi {

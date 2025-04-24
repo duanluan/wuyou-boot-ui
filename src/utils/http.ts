@@ -122,6 +122,9 @@ class Http {
 
     // 处理参数
     if (options.query) {
+      // 去除 null 或 undefined 的参数
+      options.query = cleanParams(options.query);
+
       // GET、DELETE 在 url 后拼接参数
       if (options.method === HttpMethod.GET || options.method === HttpMethod.DELETE) {
         const params = new URLSearchParams(options.query).toString();
@@ -147,6 +150,9 @@ class Http {
 
     // json 传参：POST、PUT、PATCH
     if (options.json && (options.method === HttpMethod.POST || options.method === HttpMethod.PUT || options.method === HttpMethod.PATCH)) {
+      // 去除 null 或 undefined 的参数
+      options.json = cleanParams(options.json);
+
       // 设置 body
       options.body = JSON.stringify(options.json);
       // 设置 headers
@@ -393,6 +399,41 @@ const isValidStrOrStrArr = (input: string | string[]): boolean => {
     }
   }
   return true
+}
+
+/**
+ * 递归移除对象中值为 null 或 undefined 的字段
+ * @param obj 要处理的对象或数组
+ * @returns 处理后的对象或数组
+ */
+function cleanParams<T>(obj: T): T {
+  // 如果输入为 null 或 undefined，直接返回
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  // 如果不是对象类型（包括数组），直接返回
+  if (typeof obj !== 'object') {
+    return obj;
+  }
+  // 处理数组类型
+  if (Array.isArray(obj)) {
+    return obj.map(item => cleanParams(item)) as any;
+  }
+
+  // 处理对象类型
+  const result = {} as T;
+  for (const key in obj) {
+    // 只处理对象自身的属性，不处理继承属性
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const value = obj[key];
+      // 如果值不是 null 或 undefined，则保留该属性
+      if (value !== null && value !== undefined) {
+        // 递归处理值
+        result[key] = cleanParams(value);
+      }
+    }
+  }
+  return result;
 }
 
 export default http;

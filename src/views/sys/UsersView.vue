@@ -41,6 +41,11 @@
           <el-tag v-for="postName in row.postNames" :key="postName" type="info" style="margin-right: 5px">{{ postName }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="租户" v-if="useUserStore().info.isSuperAdmin">
+        <template #default="{row}">
+          <template v-for="tenantName in row.tenantNames" :key="tenantName" type="info" style="margin-right: 5px">{{ tenantName }}</template>
+        </template>
+      </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
       <el-table-column fixed="right" label="操作" min-width="120">
         <template #default="{row}">
@@ -94,7 +99,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item prop="roleIds" label="角色">
-              <el-select v-model="editForm.roleIds" multiple placeholder="请选择角色">
+              <el-select v-model="editForm.roleIds" multiple placeholder="请选择角色" @change="changeRole">
                 <el-option v-for="item in roles" :key="item.id" :label="item.name" :value="item.id"/>
               </el-select>
             </el-form-item>
@@ -102,11 +107,8 @@
           <el-col :span="12">
             <el-form-item prop="deptIds" label="部门">
               <!--
-              render-after-expand：是否在第一次展开某个树节点后才渲染其子节点
               props：节点属性值
               check-strictly：在显示复选框的情况下，是否严格的遵循父子不互相关联的做法
-              default-expanded-keys：默认展开的节点的 key 的数组
-              default-checked-keys：默认选中的节点的 key 的数组
               -->
               <el-tree-select
                   v-model="editForm.deptIds"
@@ -126,6 +128,15 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row v-if="useUserStore().info.isSuperAdmin">
+          <el-col :span="24">
+            <el-form-item prop="tenantIds" label="租户">
+              <el-select v-model="editForm.tenantIds" multiple placeholder="请选择租户">
+                <el-option v-for="item in tenants" :key="item.id" :label="item.name" :value="item.id"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <template #footer>
         <el-button @click="editDialogVisible = false">取消</el-button>
@@ -141,6 +152,8 @@ import {FormInstance} from "element-plus";
 import RoleApi from "@/api/sys/role.ts";
 import PostApi from "@/api/sys/post.ts";
 import DeptApi from "@/api/sys/dept.ts";
+import {useUserStore} from "@/store/user.ts";
+import TenantApi from "@/api/sys/tenant.ts";
 
 const tableRef = ref()
 const tableData = ref([])
@@ -155,6 +168,7 @@ onMounted(async () => {
   getRoles();
   getPosts();
   deptTreeSelectData.value = await DeptApi.tree({}, {showLoading: false, enableDebounce: false})
+  getTenants();
 })
 
 interface SearchForm {
@@ -272,6 +286,22 @@ const posts = ref([])
 // 获取岗位列表
 const getPosts = async () => {
   posts.value = await PostApi.list()
+}
+// 租户列表
+const tenants = ref([])
+// 获取租户列表
+const getTenants = async () => {
+  tenants.value = await TenantApi.list()
+}
+
+const changeRole = (val) => {
+  // 仅选择一个超级管理员时隐藏租户，清空租户 ID
+  debugger
+  if (val.length === 1 && val[0] === '1') {
+    editForm.tenantIds = []
+    editForm.tenantIds = ['']
+    editForm.tenantIds = []
+  }
 }
 </script>
 

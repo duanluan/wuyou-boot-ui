@@ -139,7 +139,7 @@ const getDeptTreeSelectData = async (data) => {
     deptTreeSelectData.value = await DeptApi.tree({}, {showLoading: false, enableDebounce: false})
   }
   // 添加根部门，值为 0
-  if (deptTreeSelectData.value.length > 0 && deptTreeSelectData.value[0].id !== '0') {
+  if ((deptTreeSelectData.value.length > 0 && deptTreeSelectData.value[0].id !== '0') || deptTreeSelectData.value.length == 0) {
     deptTreeSelectData.value.unshift({id: '0', name: '根部门'})
   }
 }
