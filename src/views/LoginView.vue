@@ -21,6 +21,7 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
+              <el-dropdown-item @click="loginForm.tenantId = null; selectedTenantName = null">请选择租户</el-dropdown-item>
               <el-dropdown-item v-for="item in tenants" :key="item.id" :value="item.id" @click="loginForm.tenantId = item.id; selectedTenantName = item.name">{{ item.name }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -56,23 +57,23 @@ const tenants = ref([])
 // 获取租户列表
 const getTenants = async () => {
   tenants.value = await TenantApi.list()
-  loginForm.tenantId = tenants.value[0].id
-  selectedTenantName.value = tenants.value[0].name
+  // loginForm.tenantId = tenants.value[0].id
+  // selectedTenantName.value = tenants.value[0].name
 }
-const selectedTenantName = ref('');
+// 选中的租户名称，用于在下拉菜单顶部显示
+const selectedTenantName = ref();
 
 // 登录表单 ref
 const loginFormRef = ref<FormInstance>()
 // 登录表单数据
 const loginForm = reactive<LoginForm>({
-  tenantId: 0,
+  tenantId: null,
   username: '',
   password: '',
   remember: false
 })
 // 登录表单校验规则
 const loginFormRules = reactive<FormRules<LoginForm>>({
-  tenantId: [{required: true, message: '请选择租户', trigger: 'blur'}],
   username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
   password: [{required: true, message: '请输入密码', trigger: 'blur'}]
 })
