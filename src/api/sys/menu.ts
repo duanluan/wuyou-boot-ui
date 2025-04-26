@@ -6,8 +6,8 @@ interface MenuSearchForm {
   status?: number // 状态
 
   types?: number[] | string // 多个类型
-  roleCodes?: string[] | string // 角色编码列表
-  isAllAndChecked?: boolean // 是否获取全部和选中
+  checkedRoleCodes?: string[] | string // 列表中角色编码拥有的菜单要选中
+  isAllAndChecked?: boolean // 是否获取全部和选中，false只获取选中
 }
 
 // 菜单树项

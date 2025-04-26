@@ -358,7 +358,7 @@ const configMenu = async (row: any) => {
   configMenuDialogVisible.value = true
   Object.assign(configMenuForm, row)
   // 获取菜单树
-  menuTreeData.value = await MenuApi.treeTable({roleCodes: [row.code], isAllAndChecked: true});
+  menuTreeData.value = await MenuApi.treeTable({checkedRoleCodes: [row.code], isAllAndChecked: true});
   // 禁用勾选仪表盘
   menuTreeData.value.forEach(item => {
     if (item.path === dashboardPath) {
@@ -419,7 +419,7 @@ const configDataScope = async (row: any) => {
   configDataScopeDialogVisible.value = true
   Object.assign(configDataScopeForm, row)
   // 获取部门树
-  const query = {roleCodes: [row.code], isAllAndChecked: true}
+  const query = {checkedRoleCodes: [row.code], isAllAndChecked: true}
   queryDataScopeDeptTreeData.value = await DeptApi.tree({...query, dataScopeActionType: DataScopeActionType.QUERY});
   updateDataScopeDeptTreeData.value = await DeptApi.tree({...query, dataScopeActionType: DataScopeActionType.UPDATE});
 }
