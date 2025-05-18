@@ -36,10 +36,10 @@ export const useUserStore = defineStore('user', () => {
    */
   const logout = async () => {
     if (await UserApi.logout()) {
-      router.push({name: 'LoginView'});
       clean()
       menuStore.clean()
       tabStore.clean()
+      router.push({name: 'LoginView'});
     }
   }
 

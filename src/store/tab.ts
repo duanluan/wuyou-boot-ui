@@ -11,9 +11,9 @@ interface TabItem {
 export const useTabStore = defineStore('tab', () => {
   // 默认标签页列表
   const defaultTabs: TabItem[] = [dashboardTab]
-  // 标签页列表
+  // 标签页列表，用于展示标签
   const tabs = ref<TabItem[]>(defaultTabs)
-  // 缓存的组件名
+  // 缓存的组件名，用于 keep-alive 标签页对应的组件
   const cachedComponentNames = ref<RouteRecordNameGeneric[]>([])
   // 默认激活标签页名称
   const defaultActiveTabName = dashboardPath
@@ -102,8 +102,11 @@ export const useTabStore = defineStore('tab', () => {
    * 清空
    */
   const clean = () => {
+    // 标签页列表还原为默认
     tabs.value = defaultTabs
+    // 清空缓存的组件名
     cachedComponentNames.value = []
+    // 激活默认标签页
     activeTabName.value = defaultActiveTabName
   }
 
