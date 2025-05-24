@@ -101,7 +101,6 @@
 
 <script setup lang="ts">
 import DeptApi, {DeptSearchForm, DeptEditForm} from "@/api/sys/dept.ts"
-import {FormInstance} from "element-plus"
 import {CommonStatus} from "@/enums/common.ts"
 
 const tableRef = ref()

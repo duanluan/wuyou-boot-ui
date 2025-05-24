@@ -1,4 +1,4 @@
-import {defineConfig, loadEnv} from 'vite'
+import {ConfigEnv, defineConfig, loadEnv} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
@@ -7,7 +7,7 @@ import Icons from "unplugin-icons/vite"
 import IconsResolver from 'unplugin-icons/resolver'
 import {resolve} from 'path'
 
-export default ({mode}) => defineConfig({
+export default ({mode}: ConfigEnv) => defineConfig({
   // 服务器选项：https://cn.vitejs.dev/config/server-options.html
   server: {
     // 自定义代理规则：https://cn.vitejs.dev/config/server-options.html#server-proxy
@@ -29,9 +29,39 @@ export default ({mode}) => defineConfig({
   },
   plugins: [
     vue(),
+    // 按需自动导入 API：https://github.com/unplugin/unplugin-auto-import
     AutoImport({
-      // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
-      imports: ['vue'],
+      // TypeScript 需配置：https://github.com/unplugin/unplugin-auto-import?tab=readme-ov-file#typescript
+      dts: true,
+      imports: [
+        'vue',
+        'vue-router', {
+          'vue-router': [
+            'createRouter', 'createWebHistory'
+          ]
+        }, {
+          from: 'vue-router',
+          imports: [
+            'RouteRecordRaw', 'Router', 'RouteRecordNameGeneric'
+          ],
+          type: true
+        },
+        'pinia',
+        {
+          'element-plus': [
+            'ElLoading',
+            'ElMessage', 'ElMessageBox'
+          ]
+        }, {
+          from: 'element-plus',
+          imports: [
+            'FormInstance', 'FormRules',
+            'TreeInstance',
+            'TabPaneName', 'TabsPaneContext'
+          ],
+          type: true,
+        }
+      ],
       resolvers: [
         // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox...（带样式）
         ElementPlusResolver(),
@@ -39,7 +69,7 @@ export default ({mode}) => defineConfig({
         IconsResolver({
           prefix: 'Icon',
         }),
-      ],
+      ]
     }),
     Components({
       resolvers: [
@@ -54,7 +84,7 @@ export default ({mode}) => defineConfig({
     }),
     Icons({
       autoInstall: true,
-    }),
+    })
   ],
   css: {
     // 传递给 CSS 预处理器的选项：https://cn.vitejs.dev/config/shared-options#css-preprocessoroptions

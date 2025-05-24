@@ -109,7 +109,6 @@
 
 <script setup lang="ts">
 import PostApi, {PostEditForm} from "@/api/sys/post.ts"
-import {FormInstance} from "element-plus"
 import {CommonStatus} from "@/enums/common.ts"
 
 const tableRef = ref()

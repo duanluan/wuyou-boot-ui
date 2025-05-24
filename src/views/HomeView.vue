@@ -86,7 +86,6 @@
 </template>
 
 <script setup lang="ts">
-import {useRouter} from "vue-router";
 import Iconify from "@/components/Iconify.vue";
 import RecursiveMenuItem from "@/components/RecursiveMenuItem.vue";
 import {MenuTreeItem} from "@/api/sys/menu.ts";

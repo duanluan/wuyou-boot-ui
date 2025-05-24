@@ -230,7 +230,6 @@
 import RoleApi, {RoleEditForm} from "@/api/sys/role.ts"
 import {DataScopeActionType, DataScopeType, RoleCode} from "@/enums/role.ts";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
-import {FormInstance, TreeInstance} from "element-plus";
 import {dashboardPath} from "@/router";
 import {CommonStatus} from "@/enums/common.ts";
 import DeptApi from "@/api/sys/dept.ts";

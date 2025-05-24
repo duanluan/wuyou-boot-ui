@@ -30,7 +30,7 @@
     </div>
     <el-table ref="tableRef" :data="tableData" row-key="id" default-expand-all style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
       <el-table-column type="selection" width="55"/>
-      <el-table-column fixed prop="name" label="名称" width="180">
+      <el-table-column fixed prop="name" label="名称" width="250">
         <template #default="{row}">
           <Iconify :icon="row.icon" v-if="row.icon"/>&nbsp;
           <span>{{ row.name }}</span>
@@ -145,7 +145,6 @@
 import {useMenuStore} from "@/store/menu.ts";
 import {CommonStatus} from "@/enums/common.ts";
 import MenuApi, {MenuSearchForm, MenuEditForm} from "@/api/sys/menu.ts";
-import {FormInstance} from "element-plus";
 import {MenuMethod, MenuType} from "@/enums/menu.ts";
 import Iconify from "@/components/Iconify.vue";
 

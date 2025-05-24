@@ -100,7 +100,6 @@
 
 <script setup lang="ts">
 import TenantApi, {TenantEditForm} from "@/api/sys/tenant.ts"
-import {FormInstance} from "element-plus"
 import {CommonStatus} from "@/enums/common.ts"
 
 const tableRef = ref()

@@ -1,5 +1,3 @@
-import {createRouter, createWebHistory, RouteRecordRaw} from "vue-router"
-
 const dashboardPath = "/dashboard", dashboardTab = {label: '仪表盘', name: dashboardPath}
 const profilePath = "/profile", profileTab = {label: '个人中心', name: profilePath}
 

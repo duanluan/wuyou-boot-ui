@@ -1,8 +1,6 @@
-import { createApp } from 'vue'
 import '@/style/style.css'
 import App from '@/App.vue'
 import router from '@/router';
-import { createPinia } from 'pinia'
 import piniaPersistedstate from 'pinia-plugin-persistedstate'
 
 // 创建 pinia 实例（根 store）：https://pinia.vuejs.org/zh/api/modules/pinia.html#createpinia

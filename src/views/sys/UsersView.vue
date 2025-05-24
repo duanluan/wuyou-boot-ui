@@ -148,7 +148,6 @@
 
 <script setup lang="ts">
 import UserApi, {UserEditForm} from "@/api/sys/user.ts";
-import {FormInstance} from "element-plus";
 import RoleApi from "@/api/sys/role.ts";
 import PostApi from "@/api/sys/post.ts";
 import DeptApi from "@/api/sys/dept.ts";

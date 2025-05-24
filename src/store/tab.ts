@@ -1,11 +1,10 @@
-import {defineStore} from 'pinia';
-import {Router, RouteRecordNameGeneric} from "vue-router";
 import {dashboardPath, dashboardTab} from "@/router";
 
 interface TabItem {
   label: string;
   name: string;
-  componentName?: RouteRecordNameGeneric;
+  // componentName?: RouteRecordNameGeneric;
+  componentName?: string | symbol | undefined;
 }
 
 export const useTabStore = defineStore('tab', () => {
