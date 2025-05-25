@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import {ElementPlusResolver} from 'unplugin-vue-components/resolvers'
+import ElementPlus from 'unplugin-element-plus/vite'
 import Icons from "unplugin-icons/vite"
 import IconsResolver from 'unplugin-icons/resolver'
 import {resolve} from 'path'
@@ -84,7 +85,8 @@ export default ({mode}: ConfigEnv) => defineConfig({
     }),
     Icons({
       autoInstall: true,
-    })
+    }),
+    ElementPlus({})
   ],
   css: {
     // 传递给 CSS 预处理器的选项：https://cn.vitejs.dev/config/shared-options#css-preprocessoroptions
