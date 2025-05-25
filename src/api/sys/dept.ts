@@ -22,7 +22,7 @@ class DeptApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static async tree(query: DeptSearchForm, option?: FetchOptions) {
+  static async tree(query: Partial<DeptSearchForm>, option?: FetchOptions) {
     return (await http.get(this.baseUrl + '/tree', query, option))?.data;
   }
 

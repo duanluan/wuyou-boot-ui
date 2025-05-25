@@ -1,13 +1,13 @@
 import http, {FetchOptions} from "@/utils/http.ts";
 
 interface MenuSearchForm {
-  notBuildTree?: boolean // 是否不构建树
-  name?: string // 名称
-  status?: number // 状态
+  notBuildTree: boolean // 是否不构建树
+  name: string // 名称
+  status: number // 状态
 
-  types?: number[] | string // 多个类型
-  checkedRoleCodes?: string[] | string // 列表中角色编码拥有的菜单要选中
-  isAllAndChecked?: boolean // 是否获取全部和选中，false只获取选中
+  types: number[] | string // 多个类型
+  checkedRoleCodes: string[] | string // 列表中角色编码拥有的菜单要选中
+  isAllAndChecked: boolean // 是否获取全部和选中，false只获取选中
 }
 
 // 菜单树项

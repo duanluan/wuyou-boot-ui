@@ -128,7 +128,7 @@ interface SearchForm {
   status: number // 状态
 }
 
-const searchForm = ref<SearchForm>({})
+const searchForm = ref<Partial<SearchForm>>({})
 
 // 搜索
 const search = async () => {

@@ -11,6 +11,7 @@ interface RoleEditForm {
   sort: number, // 顺序
   status: number, // 状态
   description: string // 描述
+  tenantId?: number // 租户 ID
 }
 
 class RoleApi {

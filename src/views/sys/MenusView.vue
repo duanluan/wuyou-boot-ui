@@ -158,7 +158,7 @@ onMounted(async () => {
   getMenuTreeSelectData(tableData.value)
 })
 
-const searchForm = ref<MenuSearchForm>({})
+const searchForm = ref<Partial<MenuSearchForm>>({})
 
 // 搜索
 const search = async () => {

@@ -11,7 +11,7 @@ interface LoginForm {
 class AuthApi {
 
   /**
-   * 当前用户信息
+   * 登录用户信息
    * @param option 请求配置
    */
   static async profile(option?: FetchOptions) {

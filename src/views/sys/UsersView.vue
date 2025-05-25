@@ -100,7 +100,7 @@
           <el-col :span="12">
             <el-form-item prop="roleIds" label="角色">
               <el-select v-model="editForm.roleIds" multiple placeholder="请选择角色" @change="changeRole">
-                <el-option v-for="item in roles" :key="item.id" :label="item.name" :value="item.id"/>
+                <el-option v-for="item in roles" :key="item.id ?? ''" :label="item.name" :value="item.id ?? ''"/>
               </el-select>
             </el-form-item>
           </el-col>
@@ -127,9 +127,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row v-if="useUserStore().info.isShowTenant">
-          <el-col :span="24">
+          <el-col :span="12" v-if="useUserStore().info.isShowTenant">
             <el-form-item prop="tenantIds" label="租户">
               <el-select v-model="editForm.tenantIds" multiple placeholder="请选择租户">
                 <el-option v-for="item in tenants" :key="item.id" :label="item.name" :value="item.id"/>
@@ -148,11 +146,11 @@
 
 <script setup lang="ts">
 import UserApi, {UserEditForm} from "@/api/sys/user.ts";
-import RoleApi from "@/api/sys/role.ts";
-import PostApi from "@/api/sys/post.ts";
+import RoleApi, {RoleEditForm} from "@/api/sys/role.ts";
+import PostApi, {PostEditForm} from "@/api/sys/post.ts";
 import DeptApi from "@/api/sys/dept.ts";
 import {useUserStore} from "@/store/user.ts";
-import TenantApi from "@/api/sys/tenant.ts";
+import TenantApi, {TenantEditForm} from "@/api/sys/tenant.ts";
 
 const tableRef = ref()
 const tableData = ref([])
@@ -175,7 +173,7 @@ interface SearchForm {
   username: string // 用户名
 }
 
-const searchForm = ref<SearchForm>({})
+const searchForm = ref<Partial<SearchForm>>({})
 
 // 搜索
 const search = async () => {
@@ -275,19 +273,19 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
 }
 
 // 角色列表
-const roles = ref([])
+const roles = ref<RoleEditForm[]>([])
 // 获取角色列表
 const getRoles = async () => {
   roles.value = await RoleApi.list()
 }
 // 岗位列表
-const posts = ref([])
+const posts = ref<PostEditForm[]>([])
 // 获取岗位列表
 const getPosts = async () => {
   posts.value = await PostApi.list()
 }
 // 租户列表
-const tenants = ref([])
+const tenants = ref<TenantEditForm[]>([])
 // 获取租户列表
 const getTenants = async () => {
   tenants.value = await TenantApi.list()
@@ -296,8 +294,6 @@ const getTenants = async () => {
 const changeRole = (val) => {
   // 仅选择一个超级管理员时隐藏租户，清空租户 ID
   if (val.length === 1 && val[0] === '1') {
-    editForm.tenantIds = []
-    editForm.tenantIds = ['']
     editForm.tenantIds = []
   }
 }

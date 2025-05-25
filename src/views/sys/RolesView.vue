@@ -27,12 +27,13 @@
       <el-table-column fixed prop="name" label="名称" width="180"/>
       <el-table-column prop="code" label="编码" width="180"/>
       <el-table-column prop="description" label="描述"/>
-      <el-table-column prop="sort" label="顺序" align="center"width="100"/>
+      <el-table-column prop="sort" label="顺序" align="center" width="100"/>
       <el-table-column label="启用状态" align="center" width="100">
         <template #default="scope">
           <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="scope.row.status" @change="changeStatus(scope.row)" :disabled="scope.row.code === RoleCode.SUPER_ADMIN"/>
         </template>
       </el-table-column>
+      <el-table-column prop="tenantName" label="租户" width="180" v-if="useUserStore().info.isShowTenant"/>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
       <el-table-column fixed="right" label="操作" min-width="120">
         <!-- 解构赋值当前行 -->
@@ -96,6 +97,13 @@
           <el-col :span="12">
             <el-form-item prop="sort" label="顺序">
               <el-input-number v-model="editForm.sort" controls-position="right"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item prop="tenantIds" label="租户">
+              <el-select v-model="editForm.tenantId" placeholder="请选择租户">
+                <el-option v-for="item in tenants" :key="item.id" :label="item.name" :value="item.id"/>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -233,6 +241,8 @@ import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 import {dashboardPath} from "@/router";
 import {CommonStatus} from "@/enums/common.ts";
 import DeptApi from "@/api/sys/dept.ts";
+import {useUserStore} from "@/store/user.ts";
+import TenantApi, {TenantEditForm} from "@/api/sys/tenant.ts";
 
 const tableRef = ref()
 const tableData = ref([])
@@ -243,6 +253,7 @@ const pageTotal = ref(0)
 // 页面加载时
 onMounted(() => {
   search();
+  getTenants()
 })
 
 interface SearchForm {
@@ -250,7 +261,7 @@ interface SearchForm {
   code: string // 编码
 }
 
-const searchForm = ref<SearchForm>({})
+const searchForm = ref<Partial<SearchForm>>({})
 
 // 搜索
 const search = async () => {
@@ -339,6 +350,13 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
   })
 }
 
+// 租户列表
+const tenants = ref<TenantEditForm[]>([])
+// 获取租户列表
+const getTenants = async () => {
+  tenants.value = await TenantApi.list()
+}
+
 // 修改状态
 const changeStatus = async (row: any) => {
   if (!await RoleApi.updateStatus(row.id, row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
@@ -348,9 +366,9 @@ const changeStatus = async (row: any) => {
 
 const configMenuDialogVisible = ref(false)
 const configMenuFormRef = ref<FormInstance>()
-const configMenuForm = reactive<RoleEditForm>({})
+const configMenuForm = reactive<Partial<RoleEditForm>>({})
 const menuTreeRef = ref<TreeInstance>()
-const menuTreeData = ref<MenuTreeItem>([])
+const menuTreeData = ref<MenuTreeItem[]>([])
 
 // 配置菜单权限
 const configMenu = async (row: any) => {
@@ -402,7 +420,7 @@ const confirmConfigMenu = async (configMenuFormEl, menuTreeEl: TreeInstance) => 
 
 const configDataScopeDialogVisible = ref(false)
 const configDataScopeFormRef = ref<FormInstance>()
-const configDataScopeForm = reactive<RoleEditForm>({})
+const configDataScopeForm = reactive<Partial<RoleEditForm>>({})
 const configDataScopeFormRules = reactive<FormRules<RoleEditForm>>({
   queryDataScope: [{required: true, message: '请选择查询数据权限', trigger: 'blur'}],
   updateDataScope: [{required: true, message: '请选择增删改数据权限', trigger: 'blur'}],

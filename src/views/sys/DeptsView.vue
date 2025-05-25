@@ -113,7 +113,7 @@ onMounted(async () => {
   getDeptTreeSelectData(tableData.value)
 })
 
-const searchForm = ref<DeptSearchForm>({})
+const searchForm = ref<Partial<DeptSearchForm>>({})
 
 // 搜索
 const search = async () => {

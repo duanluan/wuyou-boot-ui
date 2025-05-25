@@ -2,16 +2,17 @@ import router, {dashboardPath, loginPath} from "@/router";
 import {useMenuStore} from "@/store/menu.ts";
 import {useTabStore} from "@/store/tab.ts";
 import AuthApi, {LoginForm} from "@/api/sys/auth.ts";
+import {UserDetail} from "@/api/sys/user.ts";
 
 // 创建一个 useStore 函数，检索 store 实例：https://pinia.vuejs.org/zh/api/modules/pinia.html#definestore
 export const useUserStore = defineStore('user', () => {
   /**
    * 用户信息
    */
-  const info = ref({});
+  const info = ref<Partial<UserDetail>>({});
 
   /**
-   * 是否登录，会获取当前用户信息，401 也会跳转登录页
+   * 是否登录，会获取登录用户信息，401 也会跳转登录页
    */
   const loggedIn = async () => {
     if (Object.keys(info.value).length === 0) {
@@ -26,7 +27,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
-   * 当前用户信息
+   * 登录用户信息
    */
   const profile = async () => {
     // 保存用户信息

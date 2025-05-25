@@ -22,6 +22,10 @@ interface UserEditForm {
   tenantIds?: string[] // 租户 ID 数组
 }
 
+interface UserDetail extends UserEditForm{
+  isShowTenant: boolean
+}
+
 class UserApi {
   static baseUrl = '/sys/users';
 
@@ -81,4 +85,4 @@ class UserApi {
 }
 
 export default UserApi;
-export type {LoginForm, UserEditForm};
+export type {LoginForm, UserEditForm, UserDetail};
