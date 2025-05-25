@@ -50,13 +50,13 @@
                 <div>
                   <!--<i-mdi-account-box style="color: #5a5e66; font-size: 40px"/>-->
                   <!--<i-mdi-arrow-down-drop style="position: relative; top: 11px; left: -3px"/>-->
-                  <span>{{ useUserStore().info.nickName }}</span>
+                  <span>{{ userStore.info.nickName }}</span>
                   <i-mdi-arrow-down-drop/>
                 </div>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item @click="useTabStore().addTab(profileTab, $router)">个人中心</el-dropdown-item>
-                    <el-dropdown-item @click="useUserStore().logout()">退出登录</el-dropdown-item>
+                    <el-dropdown-item @click="tabStore.addTab(profileTab, $router)">个人中心</el-dropdown-item>
+                    <el-dropdown-item @click="userStore.logout()">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
@@ -95,7 +95,9 @@ import Tabs from "@/components/Tabs.vue";
 import {useTabStore} from "@/store/tab.ts";
 import {dashboardPath, dashboardTab, profileTab} from "@/router";
 
-const router = useRouter()
+const router = useRouter();
+// 用户 store
+const userStore = useUserStore();
 // 菜单 store
 const menuStore = useMenuStore();
 // 菜单是否折叠

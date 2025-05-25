@@ -1,4 +1,4 @@
-import router from "@/router";
+import router, {loginPath} from "@/router";
 import {LoadingOptions, MessageOptions} from "element-plus";
 
 type HttpVerb = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'CONNECT' | 'TRACE';
@@ -203,7 +203,7 @@ class Http {
         if (response.status === 401) {
           ElMessage.error("请先登录");
           // 重定向到登录页
-          router.push({name: 'LoginView'});
+          router.push({path: loginPath});
         } else if (response.status === 403) {
           ElMessage.error("无权限");
         } else {

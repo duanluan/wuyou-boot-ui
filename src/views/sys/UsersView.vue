@@ -41,7 +41,7 @@
           <el-tag v-for="postName in row.postNames" :key="postName" type="info" style="margin-right: 5px">{{ postName }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="租户" v-if="useUserStore().info.isSuperAdmin">
+      <el-table-column label="租户" v-if="useUserStore().info.isShowTenant">
         <template #default="{row}">
           <template v-for="tenantName in row.tenantNames" :key="tenantName" type="info" style="margin-right: 5px">{{ tenantName }}</template>
         </template>
@@ -128,7 +128,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row v-if="useUserStore().info.isSuperAdmin">
+        <el-row v-if="useUserStore().info.isShowTenant">
           <el-col :span="24">
             <el-form-item prop="tenantIds" label="租户">
               <el-select v-model="editForm.tenantIds" multiple placeholder="请选择租户">
@@ -295,7 +295,6 @@ const getTenants = async () => {
 
 const changeRole = (val) => {
   // 仅选择一个超级管理员时隐藏租户，清空租户 ID
-  debugger
   if (val.length === 1 && val[0] === '1') {
     editForm.tenantIds = []
     editForm.tenantIds = ['']

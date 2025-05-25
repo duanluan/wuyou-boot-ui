@@ -1,3 +1,6 @@
+import {useUserStore} from "@/store/user.ts";
+
+const loginPath = "/login"
 const dashboardPath = "/dashboard", dashboardTab = {label: '仪表盘', name: dashboardPath}
 const profilePath = "/profile", profileTab = {label: '个人中心', name: profilePath}
 
@@ -8,14 +11,32 @@ const routes: RouteRecordRaw[] = [
   {
     // 登录页
     name: "LoginView",
-    path: "/login",
-    component: () => import("@/views/LoginView.vue")
+    path: loginPath,
+    component: () => import("@/views/LoginView.vue"),
+    beforeEnter: async (to, from, next) => {
+      // 已登录
+      if (await useUserStore().loggedIn()) {
+        // 跳转到首页
+        next({path: dashboardPath})
+      } else {
+        next()
+      }
+    }
   },
   {
     // 首页
     path: "/",
     component: () => import("@/views/HomeView.vue"),
     redirect: dashboardPath,
+    beforeEnter: async (to, from, next) => {
+      // 未登录
+      if (!(await useUserStore().loggedIn())) {
+        // 跳转到登录页
+        next({path: loginPath})
+      } else {
+        next()
+      }
+    },
     children: [
       {
         // 仪表盘
@@ -93,4 +114,4 @@ const router = createRouter({
 })
 
 export default router
-export {dashboardPath, dashboardTab, profileTab}
+export {loginPath, dashboardPath, dashboardTab, profileTab}
