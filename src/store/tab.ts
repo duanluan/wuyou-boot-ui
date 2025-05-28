@@ -31,10 +31,11 @@ export const useTabStore = defineStore('tab', () => {
         throw new TypeError('nameOrIndex is number, but tab not found')
       }
     }
-    // 设置激活标签
-    activeTabName.value = nameOrIndex;
     // 路由跳转
-    router.push({path: nameOrIndex})
+    router.push({path: nameOrIndex}).then(() => {
+      // 设置激活标签
+      activeTabName.value = nameOrIndex;
+    })
   }
 
   /**
