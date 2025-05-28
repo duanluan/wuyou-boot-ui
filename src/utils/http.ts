@@ -68,6 +68,10 @@ interface FetchOptions extends RequestInit {
    * 是否启用防抖
    */
   enableDebounce?: boolean;
+  /**
+   * 是否处理 401 错误
+   */
+  handle401?: boolean;
 }
 
 interface R<T> {
@@ -200,7 +204,7 @@ class Http {
         // 返回响应
         resolve(r);
       } else {
-        if (response.status === 401) {
+        if (response.status === 401 && options.handle401) {
           ElMessage.error("请先登录");
           // 重定向到登录页
           router.push({path: loginPath});

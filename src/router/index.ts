@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/LoginView.vue"),
     beforeEnter: async (to, from, next) => {
       // 已登录
-      if (await useUserStore().loggedIn()) {
+      if (await useUserStore().loggedIn(false)) {
         // 跳转到首页
         next({path: dashboardPath})
       } else {
@@ -30,7 +30,7 @@ const routes: RouteRecordRaw[] = [
     redirect: dashboardPath,
     beforeEnter: async (to, from, next) => {
       // 未登录
-      if (!(await useUserStore().loggedIn())) {
+      if (!(await useUserStore().loggedIn(true))) {
         // 跳转到登录页
         next({path: loginPath})
       } else {

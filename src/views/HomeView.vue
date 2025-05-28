@@ -50,7 +50,7 @@
                 <div>
                   <!--<i-mdi-account-box style="color: #5a5e66; font-size: 40px"/>-->
                   <!--<i-mdi-arrow-down-drop style="position: relative; top: 11px; left: -3px"/>-->
-                  <span>{{ userStore.info.nickName }}</span>
+                  <span>{{ userStore.info?.nickName }}</span>
                   <i-mdi-arrow-down-drop/>
                 </div>
                 <template #dropdown>
