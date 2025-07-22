@@ -28,7 +28,7 @@
                 class="collapse-menu-icon"
             />
             <el-breadcrumb separator="/" class="header-breadcrumb">
-              <el-breadcrumb-item :to="{path: dashboardPath}">首页</el-breadcrumb-item>
+              <el-breadcrumb-item :to="{path: ''}" @click="tabStore.activeTab(0, router)">首页</el-breadcrumb-item>
               <el-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="index">
                 <template v-if="item.path">
                   <router-link :to="item.path">{{ item.name }}</router-link>
