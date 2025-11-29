@@ -104,9 +104,16 @@
               </el-select>
             </el-form-item>
           </el-col>
+
+          <el-col :span="12">
+            <el-form-item prop="icon" label="图标">
+              <IconSelector v-model="editForm.icon" />
+            </el-form-item>
+          </el-col>
+
           <el-col :span="12">
             <el-form-item prop="method" label="请求方法">
-              <el-select v-model="editForm.method" placeholder="请选择请求方法">
+              <el-select v-model="editForm.method" placeholder="请选择请求方法" clearable>
                 <el-option v-for="item in MenuMethod.getOptions()" :label="item.value" :value="item.value"/>
               </el-select>
             </el-form-item>
@@ -147,6 +154,7 @@ import {CommonStatus} from "@/enums/common.ts";
 import MenuApi, {MenuSearchForm, MenuEditForm} from "@/api/sys/menu.ts";
 import {MenuMethod, MenuType} from "@/enums/menu.ts";
 import Iconify from "@/components/Iconify.vue";
+import IconSelector from "@/components/IconSelector.vue"; // 引入新组件
 
 const tableRef = ref()
 const tableData = ref<any>()
@@ -216,6 +224,7 @@ const editFormRef = ref<FormInstance>()
 const editForm = reactive<MenuEditForm>({
   sort: 1,
   status: CommonStatus.ENABLE.value,
+  icon: ''
 })
 // 编辑表单校验规则
 const editFormRules = reactive<FormRules<MenuEditForm>>({

@@ -36,7 +36,8 @@ interface MenuEditForm {
   path: string
   permission: string
   sort: number
-  status: number,
+  status: number
+  icon: string
 }
 
 class MenuApi {
