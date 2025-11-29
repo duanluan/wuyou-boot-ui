@@ -33,8 +33,11 @@ export const useTabStore = defineStore('tab', () => {
     }
     // 路由跳转
     router.push({path: nameOrIndex}).then(() => {
-      // 设置激活标签
+      // 设置激活标签（作为兜底，主要依赖 watch）
       activeTabName.value = nameOrIndex;
+    }).catch(err => {
+      // 捕获路由跳转异常（如重复导航 NavigationDuplicated）
+      console.warn('Tab navigation failed:', err);
     })
   }
 
