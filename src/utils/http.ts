@@ -232,7 +232,8 @@ class Http {
     })
   }
 
-  fetch(url: string, options?: FetchOptions): Promise<R<any>> {
+  // 泛型支持 <T>
+  fetch<T = any>(url: string, options?: FetchOptions): Promise<R<T>> {
     return new Promise((resolve) => {
       // 启用防抖
       if (options?.enableDebounce ?? this.config.enableDebounce) {
@@ -266,10 +267,10 @@ class Http {
    * @param query 参数
    * @param option 请求选项
    */
-  get(url: string, query?: {}, option: FetchOptions = {query: {}}) {
+  get<T = any>(url: string, query?: {}, option: FetchOptions = {query: {}}) {
     // 参数合并
     option.query = {...query, ...option.query};
-    return this.fetch(url, {...option, method: 'GET'});
+    return this.fetch<T>(url, {...option, method: 'GET'});
   }
 
   /**
@@ -277,8 +278,8 @@ class Http {
    * @param url URL
    * @param option 请求选项
    */
-  post(url: string, option?: FetchOptions) {
-    return this.fetch(url, {...option, method: 'POST'});
+  post<T = any>(url: string, option?: FetchOptions) {
+    return this.fetch<T>(url, {...option, method: 'POST'});
   }
 
   /**
@@ -287,10 +288,10 @@ class Http {
    * @param query 参数
    * @param option 请求选项
    */
-  postByQuery(url: string, query: {}, option: FetchOptions = {query: {}}) {
+  postByQuery<T = any>(url: string, query: {}, option: FetchOptions = {query: {}}) {
     // 参数合并
     option.query = {...query, ...option.query};
-    return this.fetch(url, {...option, method: 'POST'});
+    return this.fetch<T>(url, {...option, method: 'POST'});
   }
 
   /**
@@ -299,10 +300,10 @@ class Http {
    * @param json body json 参数
    * @param option 请求选项
    */
-  postByJson(url: string, json: {}, option: FetchOptions = {json: {}}) {
+  postByJson<T = any>(url: string, json: {}, option: FetchOptions = {json: {}}) {
     // 参数合并
     option.json = {...json, ...option.json};
-    return this.fetch(url, {...option, method: 'POST'});
+    return this.fetch<T>(url, {...option, method: 'POST'});
   }
 
   /**
@@ -311,10 +312,10 @@ class Http {
    * @param json body json 参数
    * @param option 请求选项
    */
-  putByJson(url: string, json: {}, option: FetchOptions = {json: {}}) {
+  putByJson<T = any>(url: string, json: {}, option: FetchOptions = {json: {}}) {
     // 参数合并
     option.json = {...json, ...option.json};
-    return this.fetch(url, {...option, method: 'PUT'});
+    return this.fetch<T>(url, {...option, method: 'PUT'});
   }
 
   /**
@@ -323,10 +324,10 @@ class Http {
    * @param json body json 参数
    * @param option 请求选项
    */
-  patchByJson(url: string, json: {}, option: FetchOptions = {json: {}}) {
+  patchByJson<T = any>(url: string, json: {}, option: FetchOptions = {json: {}}) {
     // 参数合并
     option.json = {...json, ...option.json};
-    return this.fetch(url, {...option, method: 'PATCH'});
+    return this.fetch<T>(url, {...option, method: 'PATCH'});
   }
 
   /**
@@ -334,8 +335,8 @@ class Http {
    * @param url URL
    * @param option 请求选项
    */
-  delete(url: string, option?: FetchOptions) {
-    return this.fetch(url, {...option, method: 'DELETE'});
+  delete<T = any>(url: string, option?: FetchOptions) {
+    return this.fetch<T>(url, {...option, method: 'DELETE'});
   }
 
   /**
@@ -344,7 +345,7 @@ class Http {
    * @param ids ID 字符串、字符串/数字数组、数字
    * @param option 请求选项
    */
-  deleteByIds(url: string, ids: string[] | string, option?: FetchOptions) {
+  deleteByIds<T = any>(url: string, ids: string[] | string, option?: FetchOptions) {
     if (!isValidStrOrStrArr(ids)) {
       return
     }
@@ -352,7 +353,7 @@ class Http {
       ids = ids.join(',')
     }
     url = url.replace('{}', ids);
-    return this.fetch(url, {...option, method: 'DELETE'});
+    return this.fetch<T>(url, {...option, method: 'DELETE'});
   }
 }
 
