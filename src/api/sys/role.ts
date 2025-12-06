@@ -37,6 +37,17 @@ class RoleApi {
   }
 
   /**
+   * 获取详情
+   * @param id ID
+   * @param option 请求配置
+   */
+  static async get(id: string, option?: FetchOptions) {
+    // 使用泛型指定返回类型，并解包 data
+    const res = await http.get<RoleEditForm>(`${this.baseUrl}/${id}`, {}, option);
+    return res.data;
+  }
+
+  /**
    * 删除
    * @param ids ID 数组
    * @param option 请求配置

@@ -312,13 +312,17 @@ const editFormRules = reactive<FormRules<RoleEditForm>>({
 const isAdd = ref(false)
 
 // 编辑
-const edit = (row: any) => {
+const edit = async (row: any) => {
+  // 打开弹窗
   editDialogVisible.value = true
+  isAdd.value = false
+
+  // 获取角色详情
+  const res = await RoleApi.get(row.id, {loadingOption: {target: '.el-dialog'}})
   // 第一次表单赋值要放在表单显示后和下一个 DOM 更新循环之后，否则后续执行表单初始化一直是第一次赋值的值：https://segmentfault.com/a/1190000043401023#item-4
   nextTick(() => {
-    Object.assign(editForm, row)
+    Object.assign(editForm, res)
   })
-  isAdd.value = false
 }
 
 // 新增
