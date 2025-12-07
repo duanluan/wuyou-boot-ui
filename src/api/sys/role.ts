@@ -14,6 +14,17 @@ interface RoleEditForm {
   tenantId?: number // 租户 ID
 }
 
+// 角色数据权限详情
+interface RoleDataScopeVO {
+  id: string
+  name: string
+  code: string
+  queryDataScope: DataScopeType
+  updateDataScope: DataScopeType
+  queryDataScopeDeptIds: string[]
+  updateDataScopeDeptIds: string[]
+}
+
 class RoleApi {
   static baseUrl = '/sys/roles'
 
@@ -44,6 +55,16 @@ class RoleApi {
   static async get(id: string, option?: FetchOptions) {
     // 使用泛型指定返回类型，并解包 data
     const res = await http.get<RoleEditForm>(`${this.baseUrl}/${id}`, {}, option);
+    return res.data;
+  }
+
+  /**
+   * 获取数据权限详情
+   * @param id ID
+   * @param option 请求配置
+   */
+  static async getDataScope(id: string, option?: FetchOptions) {
+    const res = await http.get<RoleDataScopeVO>(`${this.baseUrl}/${id}/dataScope`, {}, option);
     return res.data;
   }
 
@@ -112,4 +133,4 @@ class RoleApi {
 }
 
 export default RoleApi
-export type {RoleEditForm}
+export type {RoleEditForm, RoleDataScopeVO}

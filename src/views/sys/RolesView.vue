@@ -101,7 +101,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item prop="tenantIds" label="租户">
-              <el-select v-model="editForm.tenantId" placeholder="请选择租户">
+              <el-select v-model="editForm.tenantId" placeholder="请选择租户" clearable>
                 <el-option v-for="item in tenants" :key="item.id" :label="item.name" :value="item.id"/>
               </el-select>
             </el-form-item>
@@ -195,10 +195,8 @@
                     :props="{label: 'name', children: 'children'}"
                     :data="queryDataScopeDeptTreeData"
                     node-key="id"
-                    :default-checked-keys="getTreeCheckedKeys(queryDataScopeDeptTreeData)"
                     :default-expanded-keys="queryDataScopeDeptTreeData.map(item => item.id)"
                     show-checkbox
-                    check-strictly
                 />
               </el-col>
             </el-form-item>
@@ -216,10 +214,8 @@
                     :props="{label: 'name', children: 'children'}"
                     :data="updateDataScopeDeptTreeData"
                     node-key="id"
-                    :default-checked-keys="getTreeCheckedKeys(updateDataScopeDeptTreeData)"
                     :default-expanded-keys="updateDataScopeDeptTreeData.map(item => item.id)"
                     show-checkbox
-                    check-strictly
                 />
               </el-col>
             </el-form-item>
@@ -235,7 +231,7 @@
 </template>
 
 <script setup lang="ts">
-import RoleApi, {RoleEditForm} from "@/api/sys/role.ts"
+import RoleApi, {RoleDataScopeVO, RoleEditForm} from "@/api/sys/role.ts"
 import {DataScopeActionType, DataScopeType, RoleCode} from "@/enums/role.ts";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 import {dashboardPath} from "@/router";
@@ -424,7 +420,7 @@ const confirmConfigMenu = async (configMenuFormEl, menuTreeEl: TreeInstance) => 
 
 const configDataScopeDialogVisible = ref(false)
 const configDataScopeFormRef = ref<FormInstance>()
-const configDataScopeForm = reactive<Partial<RoleEditForm>>({})
+const configDataScopeForm = reactive<Partial<RoleDataScopeVO>>({})
 const configDataScopeFormRules = reactive<FormRules<RoleEditForm>>({
   queryDataScope: [{required: true, message: '请选择查询数据权限', trigger: 'blur'}],
   updateDataScope: [{required: true, message: '请选择增删改数据权限', trigger: 'blur'}],
@@ -438,11 +434,43 @@ const updateDataScopeDeptTreeData = ref([])
 // 配置数据权限
 const configDataScope = async (row: any) => {
   configDataScopeDialogVisible.value = true
-  Object.assign(configDataScopeForm, row)
-  // 获取部门树
-  const query = {checkedRoleCodes: [row.code], isAllAndChecked: true}
-  queryDataScopeDeptTreeData.value = await DeptApi.tree({...query, dataScopeActionType: DataScopeActionType.QUERY});
-  updateDataScopeDeptTreeData.value = await DeptApi.tree({...query, dataScopeActionType: DataScopeActionType.UPDATE});
+
+  // 1. 等待 DOM 更新，确保 Dialog 已经渲染，以便 Loading 能挂载到 DOM 上
+  await nextTick()
+
+  // 2. 手动开启统一的 Loading，覆盖在 Dialog 上
+  const loading = ElLoading.service({
+    target: '.el-dialog',
+    lock: true,
+    text: '加载中...'
+  })
+
+  try {
+    // 3. 使用 Promise.all 并行请求，并传入 { showLoading: false } 禁用接口自带的 Loading
+    const [data, queryTree, updateTree] = await Promise.all([
+      RoleApi.getDataScope(row.id, { showLoading: false }),
+      // 假设 DeptApi.tree 支持第二个 option 参数，如果您的 DeptApi 不支持，请先修改 DeptApi
+      DeptApi.tree({ dataScopeActionType: DataScopeActionType.QUERY }, { showLoading: false }),
+      DeptApi.tree({ dataScopeActionType: DataScopeActionType.UPDATE }, { showLoading: false })
+    ])
+
+    // 4. 统一赋值
+    Object.assign(configDataScopeForm, data)
+    queryDataScopeDeptTreeData.value = queryTree
+    updateDataScopeDeptTreeData.value = updateTree
+
+    // 5. 设置勾选状态 (再次 nextTick 确保树组件已渲染数据)
+    await nextTick()
+    queryDataScopeDeptTreeRef.value?.setCheckedKeys(data.queryDataScopeDeptIds || [])
+    updateDataScopeDeptTreeRef.value?.setCheckedKeys(data.updateDataScopeDeptIds || [])
+
+  } catch (error) {
+    console.error(error)
+    ElMessage.error('加载数据权限失败')
+  } finally {
+    // 6. 统一关闭 Loading
+    loading.close()
+  }
 }
 
 // 确认配置数据权限
