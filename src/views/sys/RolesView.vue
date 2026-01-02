@@ -99,7 +99,7 @@
               <el-input-number v-model="editForm.sort" controls-position="right"/>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="12"v-if="useUserStore().info.isShowTenant">
             <el-form-item prop="tenantIds" label="租户">
               <el-select v-model="editForm.tenantId" placeholder="请选择租户" clearable>
                 <el-option v-for="item in tenants" :key="item.id" :label="item.name" :value="item.id"/>
