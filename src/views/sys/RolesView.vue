@@ -30,7 +30,13 @@
       <el-table-column prop="sort" label="顺序" align="center" width="100"/>
       <el-table-column label="启用状态" align="center" width="100">
         <template #default="scope">
-          <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="scope.row.status" @change="changeStatus(scope.row)" :disabled="scope.row.code === RoleCode.SUPER_ADMIN"/>
+          <el-switch
+              :active-value="CommonStatus.ENABLE.value"
+              :inactive-value="CommonStatus.DISABLE.value"
+              v-model="scope.row.status"
+              @change="changeStatus(scope.row)"
+              :disabled="scope.row.code === RoleCode.SUPER_ADMIN || !canOperate(scope.row)"
+          />
         </template>
       </el-table-column>
       <el-table-column prop="tenantName" label="租户" width="180" v-if="useUserStore().info.isShowTenant"/>
@@ -40,17 +46,17 @@
         <template #default="{row}">
           <el-button link type="primary" size="small" @click="edit(row)">
             <i-ep-edit style="margin-right: 2px"/>
-            修改
+            {{ !canOperate(row) ? '详情' : '修改' }}
           </el-button>
-          <el-button link type="primary" size="small" @click="remove(row)" v-if="row.code !==  RoleCode.SUPER_ADMIN">
+          <el-button link type="primary" size="small" @click="remove(row)" v-if="row.code !==  RoleCode.SUPER_ADMIN && canOperate(row)">
             <i-ep-delete style="margin-right: 2px"/>
             删除
           </el-button>
-          <el-button link type="primary" size="small" @click="configMenu(row)" v-if="row.code !==  RoleCode.SUPER_ADMIN">
+          <el-button link type="primary" size="small" @click="configMenu(row)" v-if="row.code !==  RoleCode.SUPER_ADMIN && canOperate(row)">
             <i-mdi-file-tree-outline style="margin-right: 2px"/>
             菜单权限
           </el-button>
-          <el-button link type="primary" size="small" @click="configDataScope(row)" v-if="row.code !==  RoleCode.SUPER_ADMIN">
+          <el-button link type="primary" size="small" @click="configDataScope(row)" v-if="row.code !==  RoleCode.SUPER_ADMIN && canOperate(row)">
             <i-mdi-database-settings style="margin-right: 2px"/>
             数据权限
           </el-button>
@@ -68,12 +74,13 @@
         style="justify-content: right"
     />
 
-    <el-dialog v-model="editDialogVisible" @close="editFormRef?.resetFields()" :title="isAdd ? '新增' : '修改'" draggable width="600">
+    <el-dialog v-model="editDialogVisible" @close="editFormRef?.resetFields()" :title="isReadOnly ? '角色详情' : (isAdd ? '新增' : '修改')" draggable width="600">
       <el-form
           ref="editFormRef"
           :model="editForm"
           :rules="editFormRules"
           label-width="80px"
+          :disabled="isReadOnly"
       >
         <el-form-item prop="id" label="ID" style="display: none">
           <el-input v-model="editForm.id"/>
@@ -115,7 +122,7 @@
       </el-form>
       <template #footer>
         <el-button @click="editDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="confirmEdit(editFormRef)">确认</el-button>
+        <el-button type="primary" @click="confirmEdit(editFormRef)" v-if="!isReadOnly">确认</el-button>
       </template>
     </el-dialog>
 
@@ -268,6 +275,19 @@ const search = async () => {
   tableData.value = response.data
 }
 
+// 判断角色是否可编辑/操作
+// 逻辑：如果是超级管理员(isShowTenant=true) 或者 该角色属于当前租户(tenantId有值)，则允许操作
+// 反之，如果是普通租户管理员 且 角色是公共的(tenantId为空)，则禁止操作
+const canOperate = (row: any) => {
+  // isShowTenant 在后端被赋值为 isSuperAdmin，可以作为超管判断依据
+  const isSuperAdmin = useUserStore().info.isShowTenant
+  // 注意：row.tenantId 可能为 null (公共角色)
+  return isSuperAdmin || (row.tenantId !== null && row.tenantId !== undefined)
+}
+
+// 定义一个变量控制弹窗是否只读
+const isReadOnly = ref(false)
+
 // 删除
 const remove = (row: any) => {
   ElMessageBox.confirm('是否确认删除', '提示', {
@@ -314,6 +334,8 @@ const edit = async (row: any) => {
   // 打开弹窗
   editDialogVisible.value = true
   isAdd.value = false
+  // 判断是否只读：如果不可操作，则开启只读模式
+  isReadOnly.value = !canOperate(row)
 
   // 获取角色详情
   const res = await RoleApi.get(row.id, {loadingOption: {target: '.el-dialog'}})
@@ -327,6 +349,8 @@ const edit = async (row: any) => {
 const add = () => {
   editDialogVisible.value = true
   isAdd.value = true
+  // 新增必须可编辑
+  isReadOnly.value = false
 }
 
 // 确认编辑
