@@ -197,6 +197,7 @@
                     node-key="id"
                     :default-expanded-keys="queryDataScopeDeptTreeData.map(item => item.id)"
                     show-checkbox
+                    check-strictly
                 />
               </el-col>
             </el-form-item>
@@ -216,6 +217,7 @@
                     node-key="id"
                     :default-expanded-keys="updateDataScopeDeptTreeData.map(item => item.id)"
                     show-checkbox
+                    check-strictly
                 />
               </el-col>
             </el-form-item>
