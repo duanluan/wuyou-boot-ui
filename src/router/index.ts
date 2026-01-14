@@ -102,6 +102,14 @@ const routes: RouteRecordRaw[] = [
         meta: {
           keepAlive: true
         }
+      }, {
+        // 测试数据管理
+        name: "TestDataView",
+        path: "sys/test-data",
+        component: () => import("@/views/sys/TestDataView.vue"),
+        meta: {
+          keepAlive: true
+        }
       }
     ]
   }
