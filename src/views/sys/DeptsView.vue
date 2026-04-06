@@ -100,12 +100,12 @@
 </template>
 
 <script setup lang="ts">
-import DeptApi, {DeptSearchForm, DeptEditForm} from "@/api/sys/dept.ts"
+import DeptApi, {DeptSearchForm, DeptEditForm, DeptTreeItem} from "@/api/sys/dept.ts"
 import {CommonStatus} from "@/enums/common.ts"
 
-const tableRef = ref()
-const tableData = ref([])
-let deptTreeSelectData = ref([])
+const tableRef = ref<{ getSelectionRows: () => DeptTreeItem[] } | null>(null)
+const tableData = ref<DeptTreeItem[]>([])
+const deptTreeSelectData = ref<DeptTreeItem[]>([])
 
 // 页面加载时
 onMounted(async () => {
@@ -129,11 +129,10 @@ const search = async () => {
  * 获取部门树下拉数据，如果有数据则直接使用，否则调用接口获取
  * @param data 部门树数据
  */
-const getDeptTreeSelectData = async (data) => {
-  if (data) {
+const getDeptTreeSelectData = async (data?: DeptTreeItem[]) => {
+  if (data && data.length > 0) {
     // 深拷贝 tableData 以避免修改引用
-    tableData.value = JSON.parse(JSON.stringify(data));
-    deptTreeSelectData.value = data
+    deptTreeSelectData.value = JSON.parse(JSON.stringify(data));
   } else {
     deptTreeSelectData.value = await DeptApi.tree({}, {showLoading: false, enableDebounce: false})
   }
@@ -144,7 +143,7 @@ const getDeptTreeSelectData = async (data) => {
 }
 
 // 删除
-const remove = (row: any) => {
+const remove = (row?: DeptTreeItem) => {
   ElMessageBox.confirm('是否确认删除', '提示', {
     type: 'warning',
     confirmButtonText: '确认',
@@ -154,9 +153,11 @@ const remove = (row: any) => {
     if (row) {
       ids = [row.id]
     } else {
-      ids = tableRef.value.getSelectionRows().map((item: any) => item.id)
+      ids = tableRef.value?.getSelectionRows().map((item) => item.id) ?? []
     }
-    DeptApi.remove(ids, {loadingOption: {target: '.el-main'}, showOkMsg: true}).then(() => {
+    const req = DeptApi.remove(ids, {loadingOption: {target: '.el-main'}, showOkMsg: true})
+    if (!req) return
+    req.then(() => {
       search()
       getDeptTreeSelectData()
     })
@@ -171,6 +172,7 @@ const editFormRef = ref<FormInstance>()
 const editForm = reactive<DeptEditForm>({
   id: '',
   name: '',
+  parentId: '0',
   sort: 1,
   status: CommonStatus.ENABLE.value,
 })
@@ -184,7 +186,7 @@ const editFormRules = reactive<FormRules<DeptEditForm>>({
 const isAdd = ref(false)
 
 // 编辑
-const edit = (row: any) => {
+const edit = (row: DeptTreeItem) => {
   editDialogVisible.value = true
   // 第一次表单赋值要放在表单显示后和下一个 DOM 更新循环之后，否则后续执行表单初始化一直是第一次赋值的值：https://segmentfault.com/a/1190000043401023#item-4
   nextTick(() => {
@@ -194,7 +196,7 @@ const edit = (row: any) => {
 }
 
 // 新增
-const add = (row) => {
+const add = (row?: DeptTreeItem) => {
   editDialogVisible.value = true
   isAdd.value = true
   if (row) {
@@ -205,10 +207,10 @@ const add = (row) => {
 // 确认编辑
 const confirmEdit = async (editFormEl: FormInstance | undefined) => {
   if (!editFormEl) return
-  await editFormEl.validate((isValid, invalidFields) => {
+  await editFormEl.validate((isValid) => {
     if (!isValid) return
 
-    const afterEdit = (response) => {
+    const afterEdit = (response?: { code?: number }) => {
       if (response?.code !== 200) return
 
       // 关闭对话框
@@ -228,7 +230,7 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
 }
 
 // 修改状态
-const changeStatus = async (row: any) => {
+const changeStatus = async (row: DeptTreeItem & { status: number }) => {
   if (!await DeptApi.updateStatus(row.id, row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
     row.status = row.status === 1 ? 0 : 1
   }

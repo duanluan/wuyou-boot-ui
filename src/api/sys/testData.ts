@@ -6,12 +6,15 @@ interface TestDataEditForm {
   id: string | null
   value: string,
   deptId: string | null
+  deptName?: string
+  creatorName?: string
+  createdTime?: string
 }
 
 class TestDataApi {
   static baseUrl = '/sys/testData';
 
-  static page(query: PageQO & { name?: string } | {}, option?: FetchOptions) {
+  static page(query: PageQO & { value?: string } | {}, option?: FetchOptions) {
     return BaseApi.page(this.baseUrl, query, option);
   }
 

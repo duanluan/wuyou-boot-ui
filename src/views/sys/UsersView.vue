@@ -123,14 +123,14 @@
           <el-col :span="12">
             <el-form-item prop="postIds" label="岗位">
               <el-select v-model="editForm.postIds" multiple placeholder="请选择岗位">
-                <el-option v-for="item in posts" :key="item.id" :label="item.name" :value="item.id"/>
+                <el-option v-for="item in posts" :key="item.id ?? ''" :label="item.name" :value="item.id ?? ''"/>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12" v-if="useUserStore().info.isShowTenant">
             <el-form-item prop="tenantIds" label="租户">
               <el-select v-model="editForm.tenantIds" multiple placeholder="请选择租户">
-                <el-option v-for="item in tenants" :key="item.id" :label="item.name" :value="item.id"/>
+                <el-option v-for="item in tenants" :key="item.id ?? ''" :label="item.name" :value="item.id ?? ''"/>
               </el-select>
             </el-form-item>
           </el-col>
@@ -145,19 +145,19 @@
 </template>
 
 <script setup lang="ts">
-import UserApi, {UserEditForm} from "@/api/sys/user.ts";
+import UserApi, {UserDetail, UserEditForm} from "@/api/sys/user.ts";
 import RoleApi, {RoleEditForm} from "@/api/sys/role.ts";
 import PostApi, {PostEditForm} from "@/api/sys/post.ts";
-import DeptApi from "@/api/sys/dept.ts";
+import DeptApi, {DeptTreeItem} from "@/api/sys/dept.ts";
 import {useUserStore} from "@/store/user.ts";
 import TenantApi, {TenantEditForm} from "@/api/sys/tenant.ts";
 
-const tableRef = ref()
-const tableData = ref([])
+const tableRef = ref<{ getSelectionRows: () => UserDetail[] } | null>(null)
+const tableData = ref<UserDetail[]>([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const pageTotal = ref(0)
-let deptTreeSelectData = ref([])
+const deptTreeSelectData = ref<DeptTreeItem[]>([])
 
 // 页面加载时
 onMounted(async () => {
@@ -178,12 +178,12 @@ const searchForm = ref<Partial<SearchForm>>({})
 // 搜索
 const search = async () => {
   const response = await UserApi.page({current: currentPage.value, size: pageSize.value, ...searchForm.value}, {loadingOption: {target: '.el-table'}})
-  pageTotal.value = response.total
-  tableData.value = response.data
+  pageTotal.value = response.total ?? 0
+  tableData.value = response.data ?? []
 }
 
 // 删除
-const remove = (row: any) => {
+const remove = (row?: UserDetail) => {
   ElMessageBox.confirm('是否确认删除', '提示', {
     type: 'warning',
     confirmButtonText: '确认',
@@ -191,11 +191,13 @@ const remove = (row: any) => {
   }).then(() => {
     let ids: string[]
     if (row) {
-      ids = [row.id]
+      ids = [String(row.id)]
     } else {
-      ids = tableRef.value.getSelectionRows().map((item: any) => item.id)
+      ids = tableRef.value?.getSelectionRows().map((item) => String(item.id)) ?? []
     }
-    UserApi.remove(ids, {loadingOption: {target: '.el-main'}, showOkMsg: true}).then(() => {
+    const req = UserApi.remove(ids, {loadingOption: {target: '.el-main'}, showOkMsg: true})
+    if (!req) return
+    req.then(() => {
       search()
     })
   })
@@ -210,7 +212,11 @@ const editForm = reactive<UserEditForm>({
   id: '',
   nickName: '',
   username: '',
+  password: '',
   roleIds: [],
+  deptIds: [],
+  postIds: [],
+  tenantIds: [],
 })
 // 编辑表单校验规则
 const editFormRules = reactive<FormRules<UserEditForm>>({
@@ -220,6 +226,7 @@ const editFormRules = reactive<FormRules<UserEditForm>>({
   roleIds: [{required: true, message: '请选择角色', trigger: 'blur'}],
   deptIds: [{
     validator: (rule, value, callback) => {
+      void rule
       if (Array.isArray(value) && value.length > 1) {
         callback(new Error('只能选择一个部门'));
       } else {
@@ -233,7 +240,7 @@ const editFormRules = reactive<FormRules<UserEditForm>>({
 const isAdd = ref(false)
 
 // 编辑
-const edit = (row: any) => {
+const edit = (row: UserDetail) => {
   editDialogVisible.value = true
   // 第一次表单赋值要放在表单显示后和下一个 DOM 更新循环之后，否则后续执行表单初始化一直是第一次赋值的值：https://segmentfault.com/a/1190000043401023#item-4
   nextTick(() => {
@@ -251,10 +258,10 @@ const add = () => {
 // 确认编辑
 const confirmEdit = async (editFormEl: FormInstance | undefined) => {
   if (!editFormEl) return
-  await editFormEl.validate((isValid, invalidFields) => {
+  await editFormEl.validate((isValid) => {
     if (!isValid) return
 
-    const afterEdit = (response) => {
+    const afterEdit = (response?: { code?: number }) => {
       if (response?.code !== 200) return
 
       // 关闭对话框
@@ -291,9 +298,10 @@ const getTenants = async () => {
   tenants.value = await TenantApi.list()
 }
 
-const changeRole = (val) => {
+const changeRole = (val: string[]) => {
+  const roleIds = val
   // 仅选择一个超级管理员时隐藏租户，清空租户 ID
-  if (val.length === 1 && val[0] === '1') {
+  if (roleIds.length === 1 && roleIds[0] === '1') {
     editForm.tenantIds = []
   }
 }

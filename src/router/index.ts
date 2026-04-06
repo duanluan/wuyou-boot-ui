@@ -13,14 +13,13 @@ const routes: RouteRecordRaw[] = [
     name: "LoginView",
     path: loginPath,
     component: () => import("@/views/LoginView.vue"),
-    beforeEnter: async (to, from, next) => {
+    beforeEnter: async () => {
       // 已登录
       if (await useUserStore().loggedIn(false)) {
         // 跳转到首页
-        next({path: dashboardPath})
-      } else {
-        next()
+        return {path: dashboardPath}
       }
+      return true
     }
   },
   {
@@ -28,14 +27,13 @@ const routes: RouteRecordRaw[] = [
     path: "/",
     component: () => import("@/views/HomeView.vue"),
     redirect: dashboardPath,
-    beforeEnter: async (to, from, next) => {
+    beforeEnter: async () => {
       // 未登录
       if (!(await useUserStore().loggedIn(false))) {
         // 跳转到登录页
-        next({path: loginPath})
-      } else {
-        next()
+        return {path: loginPath}
       }
+      return true
     },
     children: [
       {

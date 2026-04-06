@@ -95,15 +95,15 @@
 import { reactive, ref, onMounted, nextTick } from 'vue'
 import { ElMessageBox, FormInstance, FormRules } from 'element-plus'
 import TestDataApi, { TestDataEditForm } from "@/api/sys/testData.ts"
-import DeptApi from "@/api/sys/dept.ts"
+import DeptApi, {DeptTreeItem} from "@/api/sys/dept.ts"
 
-const tableRef = ref()
-const tableData = ref([])
+const tableRef = ref<{ getSelectionRows: () => TestDataEditForm[] } | null>(null)
+const tableData = ref<TestDataEditForm[]>([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const pageTotal = ref(0)
 const searchForm = ref<{value?: string}>({})
-const deptTreeSelectData = ref([])
+const deptTreeSelectData = ref<DeptTreeItem[]>([])
 
 
 const search = async () => {
@@ -112,8 +112,8 @@ const search = async () => {
     size: pageSize.value,
     ...searchForm.value
   }, {enableDebounce: false})
-  pageTotal.value = response.total
-  tableData.value = response.data
+  pageTotal.value = response.total ?? 0
+  tableData.value = response.data ?? []
 }
 
 onMounted(async () => {
@@ -123,11 +123,13 @@ onMounted(async () => {
 })
 
 // 删除逻辑
-const remove = (row: any) => {
+const remove = (row?: TestDataEditForm) => {
   ElMessageBox.confirm('是否确认删除?', '提示', { type: 'warning' }).then(() => {
-    let ids: string[] = row ? [row.id] : tableRef.value.getSelectionRows().map((item: any) => item.id)
+    const ids: string[] = row ? [String(row.id)] : tableRef.value?.getSelectionRows().map((item) => String(item.id)) ?? []
     if(ids.length === 0) return;
-    TestDataApi.remove(ids, {showOkMsg: true}).then(() => search())
+    const req = TestDataApi.remove(ids, {showOkMsg: true})
+    if (!req) return
+    req.then(() => search())
   })
 }
 
@@ -150,7 +152,7 @@ const add = () => {
   })
 }
 
-const edit = (row: any) => {
+const edit = (row: TestDataEditForm) => {
   isAdd.value = false
   editDialogVisible.value = true
   nextTick(() => Object.assign(editForm, row))

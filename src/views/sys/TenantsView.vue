@@ -102,8 +102,8 @@
 import TenantApi, {TenantEditForm} from "@/api/sys/tenant.ts"
 import {CommonStatus} from "@/enums/common.ts"
 
-const tableRef = ref()
-const tableData = ref([])
+const tableRef = ref<{ getSelectionRows: () => TenantEditForm[] } | null>(null)
+const tableData = ref<TenantEditForm[]>([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const pageTotal = ref(0)
@@ -123,12 +123,12 @@ const searchForm = ref<Partial<SearchForm>>({})
 // 搜索
 const search = async () => {
   const response = await TenantApi.page({current: currentPage.value, size: pageSize.value, ...searchForm.value}, {loadingOption: {target: '.el-table'}, enableDebounce: false})
-  pageTotal.value = response.total
-  tableData.value = response.data
+  pageTotal.value = response.total ?? 0
+  tableData.value = response.data ?? []
 }
 
 // 删除
-const remove = (row: any) => {
+const remove = (row?: TenantEditForm) => {
   ElMessageBox.confirm('是否确认删除', '提示', {
     type: 'warning',
     confirmButtonText: '确认',
@@ -136,11 +136,13 @@ const remove = (row: any) => {
   }).then(() => {
     let ids: string[]
     if (row) {
-      ids = [row.id]
+      ids = [String(row.id)]
     } else {
-      ids = tableRef.value.getSelectionRows().map((item: any) => item.id)
+      ids = tableRef.value?.getSelectionRows().map((item) => String(item.id)) ?? []
     }
-    TenantApi.remove(ids, {loadingOption: {target: '.el-main'}, showOkMsg: true}).then(() => {
+    const req = TenantApi.remove(ids, {loadingOption: {target: '.el-main'}, showOkMsg: true})
+    if (!req) return
+    req.then(() => {
       search()
     })
   })
@@ -154,7 +156,6 @@ const editFormRef = ref<FormInstance>()
 const editForm = reactive<TenantEditForm>({
   id: '',
   name: '',
-  code: '',
   sort: 1,
   status: CommonStatus.ENABLE.value,
 })
@@ -167,7 +168,7 @@ const editFormRules = reactive<FormRules<TenantEditForm>>({
 const isAdd = ref(false)
 
 // 编辑
-const edit = (row: any) => {
+const edit = (row: TenantEditForm) => {
   editDialogVisible.value = true
   // 第一次表单赋值要放在表单显示后和下一个 DOM 更新循环之后，否则后续执行表单初始化一直是第一次赋值的值：https://segmentfault.com/a/1190000043401023#item-4
   nextTick(() => {
@@ -177,21 +178,19 @@ const edit = (row: any) => {
 }
 
 // 新增
-const add = (row) => {
+const add = (row?: TenantEditForm) => {
+  void row
   editDialogVisible.value = true
   isAdd.value = true
-  if (row) {
-    editForm.parentId = row.id
-  }
 }
 
 // 确认编辑
 const confirmEdit = async (editFormEl: FormInstance | undefined) => {
   if (!editFormEl) return
-  await editFormEl.validate((isValid, invalidFields) => {
+  await editFormEl.validate((isValid) => {
     if (!isValid) return
 
-    const afterEdit = (response) => {
+    const afterEdit = (response?: { code?: number }) => {
       if (response?.code !== 200) return
 
       // 关闭对话框
@@ -210,8 +209,8 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
 }
 
 // 修改状态
-const changeStatus = async (row: any) => {
-  if (!await TenantApi.updateStatus(row.id, row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
+const changeStatus = async (row: TenantEditForm) => {
+  if (!row.id || !await TenantApi.updateStatus(String(row.id), row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
     row.status = row.status === 1 ? 0 : 1
   }
 }

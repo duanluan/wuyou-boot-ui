@@ -118,8 +118,15 @@ import {useUserStore} from "@/store/user.ts";
 import Iconify from "@/components/Iconify.vue";
 import UserApi from "@/api/sys/user.ts";
 
+interface ProfileTableRow {
+  icon: string
+  prop: string
+  name: string
+  value?: string | string[]
+}
+
 const userStore = useUserStore()
-const tableData = ref()
+const tableData = ref<ProfileTableRow[]>([])
 
 onMounted(() => {
   loadTableData()
@@ -144,8 +151,8 @@ const editFormRef = ref<FormInstance>()
 const userInfo = userStore.info
 // 编辑表单数据
 const editForm = reactive({
-  id: userInfo.id,
-  nickName: userInfo.nickName
+  id: userInfo.id ?? '',
+  nickName: userInfo.nickName ?? ''
 })
 // 编辑表单校验规则
 const editFormRules = reactive<FormRules>({
@@ -154,7 +161,7 @@ const editFormRules = reactive<FormRules>({
 // 确认编辑
 const confirmEdit = async (editFormEl: FormInstance | undefined) => {
   if (!editFormEl) return
-  await editFormEl.validate((isValid, invalidFields) => {
+  await editFormEl.validate((isValid) => {
     if (!isValid) return
 
     UserApi.updateProfile(editForm, {loadingOption: {target: '#editForm'}, showOkMsg: true}).then((response) => {
@@ -169,7 +176,7 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
 
 const editPwdFormRef = ref<FormInstance>()
 const editPwdForm = reactive({
-  id: userInfo.id,
+  id: userInfo.id ?? '',
   oldPassword: '',
   newPassword: '',
   confirmPassword: ''
@@ -181,6 +188,7 @@ const editPwdFormRules = reactive<FormRules>({
     {required: true, message: '请输入确认密码', trigger: 'blur'},
     {
       validator: (rule, value, callback) => {
+        void rule
         if (value !== editPwdForm.newPassword) {
           callback(new Error('新密码和确认密码不一致'));
         } else {
@@ -193,7 +201,7 @@ const editPwdFormRules = reactive<FormRules>({
 })
 const confirmEditPwd = async (editPwdFormEl: FormInstance | undefined) => {
   if (!editPwdFormEl) return
-  await editPwdFormEl.validate((isValid, invalidFields) => {
+  await editPwdFormEl.validate((isValid) => {
     if (!isValid) return
 
     UserApi.updatePwd(editPwdForm, {loadingOption: {target: '#editPwdForm'}, showOkMsg: true}).then((response) => {

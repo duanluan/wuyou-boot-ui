@@ -2,7 +2,7 @@ import http, {FetchOptions} from "@/utils/http.ts";
 
 // 登录表单
 interface LoginForm {
-  tenantId: number | null // 租户 ID
+  tenantId: string | number | null // 租户 ID
   username: string // 用户名
   password: string // 密码
   remember: boolean // 记住我

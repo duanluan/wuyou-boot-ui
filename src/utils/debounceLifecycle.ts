@@ -1,6 +1,6 @@
 import * as CryptoJS from 'crypto-js';
 
-const debounceMap: Map<string, number> = new Map();
+const debounceMap: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
 const debounceExecution = (callback: any, delay = 300) => {
   // 生成请求的唯一标识

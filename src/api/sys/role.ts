@@ -1,6 +1,5 @@
 import {PageQO} from "@/types/common.ts"
 import http, {FetchOptions} from "@/utils/http.ts"
-import {DataScopeType} from "@/enums/role.ts"
 import BaseApi from "@/api/api.ts";
 
 // 角色编辑表单
@@ -11,7 +10,9 @@ interface RoleEditForm {
   sort: number, // 顺序
   status: number, // 状态
   description: string // 描述
-  tenantId?: number // 租户 ID
+  tenantId?: string | number // 租户 ID
+  tenantName?: string
+  createdTime?: string
 }
 
 // 角色数据权限详情
@@ -19,8 +20,8 @@ interface RoleDataScopeVO {
   id: string
   name: string
   code: string
-  queryDataScope: DataScopeType
-  updateDataScope: DataScopeType
+  queryDataScope: number
+  updateDataScope: number
   queryDataScopeDeptIds: string[]
   updateDataScopeDeptIds: string[]
 }
@@ -33,7 +34,7 @@ class RoleApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static page(query: PageQO & {} | {}, option?: FetchOptions) {
+  static page(query: PageQO | Record<string, any>, option?: FetchOptions) {
     return BaseApi.page(this.baseUrl, query, option);
   }
 
@@ -126,7 +127,7 @@ class RoleApi {
    * @param updateDataScopeDeptIds 更新数据权限自定义部门 ID 数组
    * @param option
    */
-  static async updateDataScope(id: string, queryDataScope: DataScopeType, updateDataScope: DataScopeType, queryDataScopeDeptIds: string[], updateDataScopeDeptIds: string[], option?: FetchOptions) {
+  static async updateDataScope(id: string, queryDataScope: number, updateDataScope: number, queryDataScopeDeptIds: string[], updateDataScopeDeptIds: string[], option?: FetchOptions) {
     const responseJson = await http.patchByJson(`${this.baseUrl}/${id}/dataScope`, {id, queryDataScope, updateDataScope, queryDataScopeDeptIds, updateDataScopeDeptIds}, option)
     return responseJson && responseJson.code === 200
   }

@@ -3,17 +3,16 @@ import {dashboardPath, dashboardTab} from "@/router";
 interface TabItem {
   label: string;
   name: string;
-  // componentName?: RouteRecordNameGeneric;
-  componentName?: string | symbol | undefined;
+  componentName?: string;
 }
 
 export const useTabStore = defineStore('tab', () => {
   // 默认标签页列表
   const defaultTabs: TabItem[] = [dashboardTab]
   // 标签页列表，用于展示标签
-  const tabs = ref<TabItem[]>(defaultTabs)
+  const tabs = ref<TabItem[]>([...defaultTabs])
   // 缓存的组件名，用于 keep-alive 标签页对应的组件
-  const cachedComponentNames = ref<RouteRecordNameGeneric[]>([])
+  const cachedComponentNames = ref<string[]>([])
   // 默认激活标签页名称
   const defaultActiveTabName = dashboardPath
   // 激活标签页名称
@@ -57,11 +56,11 @@ export const useTabStore = defineStore('tab', () => {
     if (!tabs.value.some(item => item.name === tabOrIndex.name)) {
       const routeByPath = router.getRoutes().find(item => item.path === tabOrIndex.name)
       const componentName = routeByPath?.name
-      if (componentName) {
+      if (typeof componentName === 'string') {
         // 将组件名添加到标签页
         tabOrIndex.componentName = componentName
         // 缓存标签页
-        if (routeByPath.meta.keepAlive) {
+        if (routeByPath?.meta.keepAlive) {
           addComponentName(componentName)
         }
       }
@@ -71,7 +70,7 @@ export const useTabStore = defineStore('tab', () => {
     activeTab(tabOrIndex.name, router)
   }
 
-  const addComponentName = (tabName: RouteRecordNameGeneric) => {
+  const addComponentName = (tabName: string) => {
     // 添加的标签页未缓存时
     if (!cachedComponentNames.value.some(item => item === tabName)) {
       // 添加组件名到缓存
@@ -84,20 +83,23 @@ export const useTabStore = defineStore('tab', () => {
    * @param name 标签页名称
    * @param router 路由
    */
-  const removeTab = (name: string, router: Router) => {
+  const removeTab = (name: string | number, router: Router) => {
+    const tabName = String(name)
     // 移除组件名缓存
-    const tab = tabs.value.find(item => item.name === name)
+    const tab = tabs.value.find(item => item.name === tabName)
     cachedComponentNames.value = cachedComponentNames.value.filter(item => item !== tab?.componentName)
 
-    const index = tabs.value.findIndex(item => item.name === name)
+    const index = tabs.value.findIndex(item => item.name === tabName)
     tabs.value.splice(index, 1)
     // 当前激活标签页为被移除标签页时
-    if (activeTabName.value === name) {
+    if (activeTabName.value === tabName) {
       // 移除标签页后，激活被移除标签页的前一个标签页，如果前一个标签页是第一个标签页，则激活后一个标签页，如果没有后一个标签页，则激活第一个标签页
       const prevTab = tabs.value[index - 1]
       const nextTab = tabs.value[index + 1]
-
-      activeTab((prevTab ? prevTab.name : nextTab ? nextTab.name : tabs.value[0].name), router)
+      const nextActiveTabName = prevTab ? prevTab.name : nextTab ? nextTab.name : tabs.value[0]?.name
+      if (nextActiveTabName) {
+        activeTab(nextActiveTabName, router)
+      }
     }
   }
 
@@ -106,7 +108,7 @@ export const useTabStore = defineStore('tab', () => {
    */
   const clean = () => {
     // 标签页列表还原为默认
-    tabs.value = defaultTabs
+    tabs.value = [...defaultTabs]
     // 清空缓存的组件名
     cachedComponentNames.value = []
     // 激活默认标签页

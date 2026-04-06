@@ -17,6 +17,7 @@ interface MenuTreeItem {
   parentId: string,
   children?: MenuTreeItem[],
   checked?: boolean,
+  disabled?: boolean,
   icon?: string,
   name: string,
   type: number,
@@ -24,20 +25,21 @@ interface MenuTreeItem {
   path?: string,
   permission?: string,
   status: number,
-  createTime: string
+  createTime?: string
+  createdTime?: string
 }
 
 interface MenuEditForm {
   id: string | null
-  parentId: string | null
+  parentId: string | number | null
   name: string
   type: number
-  method: string
-  path: string
-  permission: string
+  method?: string
+  path?: string
+  permission?: string
   sort: number
   status: number
-  icon: string
+  icon?: string
 }
 
 class MenuApi {
@@ -48,7 +50,7 @@ class MenuApi {
    * @param option 请求配置
    */
   static async tree(option?: FetchOptions): Promise<MenuTreeItem[]> {
-    return (await http.get(this.baseUrl + '/tree', {}, option))?.data;
+    return (await http.get(this.baseUrl + '/tree', {}, option))?.data ?? [];
   }
 
   /**
@@ -65,8 +67,8 @@ class MenuApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static async treeTable(query: MenuSearchForm, option?: FetchOptions): Promise<MenuTreeItem[]> {
-    return (await http.get(this.baseUrl + '/treeTable', query, option))?.data;
+  static async treeTable(query: Partial<MenuSearchForm> = {}, option?: FetchOptions): Promise<MenuTreeItem[]> {
+    return (await http.get(this.baseUrl + '/treeTable', query, option))?.data ?? [];
   }
 
 

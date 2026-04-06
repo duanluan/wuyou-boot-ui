@@ -47,8 +47,11 @@ onMounted(async () => {
 })
 
 // 标签点击触发
-const clickTab = (pane: TabsPaneContext, ev: Event) => {
-  let name = pane.props.name;
+const clickTab = (pane: TabsPaneContext) => {
+  const name = pane.props.name
+  if (name === undefined) {
+    return
+  }
   // 这里只负责触发路由跳转，不直接修改 activeTabName，状态更新交给 watch
   tabStore.activeTab(name, router)
 }

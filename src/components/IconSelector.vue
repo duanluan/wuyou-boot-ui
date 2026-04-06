@@ -79,7 +79,7 @@ import epData from '@iconify-json/ep/icons.json'
 import mdiData from '@iconify-json/mdi/icons.json'
 import Iconify from "@/components/Iconify.vue";
 
-const props = defineProps({
+defineProps({
   modelValue: {
     type: String,
     default: ''

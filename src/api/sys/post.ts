@@ -8,6 +8,7 @@ interface PostEditForm {
   name: string // 名称
   sort: number // 排序
   status: number, // 状态
+  createdTime?: string
 }
 
 class PostApi {
@@ -18,7 +19,7 @@ class PostApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static page(query: PageQO & {} | {}, option?: FetchOptions) {
+  static page(query: PageQO | Record<string, any>, option?: FetchOptions) {
     return BaseApi.page(this.baseUrl, query, option);
   }
 
@@ -27,9 +28,9 @@ class PostApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static async list(query: {} = {}, option?: FetchOptions) {
+  static async list(query: Record<string, any> = {}, option?: FetchOptions): Promise<PostEditForm[]> {
     const response = await this.page(query, option)
-    return response && response.data
+    return response?.data ?? []
   }
 
   /**

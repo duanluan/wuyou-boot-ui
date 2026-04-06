@@ -22,7 +22,7 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item @click="loginForm.tenantId = null; selectedTenantName = null">请选择租户</el-dropdown-item>
-              <el-dropdown-item v-for="item in tenants" :key="item.id" :value="item.id" @click="loginForm.tenantId = item.id; selectedTenantName = item.name">{{ item.name }}</el-dropdown-item>
+              <el-dropdown-item v-for="item in tenants" :key="item.id ?? ''" :value="item.id ?? ''" @click="loginForm.tenantId = item.id; selectedTenantName = item.name">{{ item.name }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -46,14 +46,14 @@
 <script setup lang="ts">
 import {LoginForm} from "@/api/sys/user.ts";
 import {useUserStore} from "@/store/user.ts";
-import TenantApi from "@/api/sys/tenant.ts";
+import TenantApi, {TenantEditForm} from "@/api/sys/tenant.ts";
 
 // 页面加载时
 onMounted(() => {
   getTenants()
 })
 
-const tenants = ref([])
+const tenants = ref<TenantEditForm[]>([])
 // 获取租户列表
 const getTenants = async () => {
   tenants.value = await TenantApi.list()
@@ -61,7 +61,7 @@ const getTenants = async () => {
   // selectedTenantName.value = tenants.value[0].name
 }
 // 选中的租户名称，用于在下拉菜单顶部显示
-const selectedTenantName = ref();
+const selectedTenantName = ref<string | null>(null);
 
 // 登录表单 ref
 const loginFormRef = ref<FormInstance>()
@@ -83,7 +83,7 @@ const loginFormRules = reactive<FormRules<LoginForm>>({
  */
 const login = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
-  await formEl.validate((isValid, invalidFields) => {
+  await formEl.validate((isValid) => {
     if (isValid) {
       useUserStore().login(loginForm);
     }

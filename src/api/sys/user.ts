@@ -1,11 +1,10 @@
 import http, {FetchOptions} from "@/utils/http.ts";
 import {PageQO} from "@/types/common.ts";
-import {RoleEditForm} from "@/api/sys/role.ts";
 import BaseApi from "@/api/api.ts";
 
 // 登录表单
 interface LoginForm {
-  tenantId: number | null // 租户 ID
+  tenantId: string | number | null // 租户 ID
   username: string // 用户名
   password: string // 密码
   remember: boolean // 记住我
@@ -24,6 +23,12 @@ interface UserEditForm {
 
 interface UserDetail extends UserEditForm{
   isShowTenant: boolean
+  roleNames?: string[]
+  deptName?: string
+  deptNames?: string[]
+  postNames?: string[]
+  tenantNames?: string[]
+  createdTime?: string
 }
 
 class UserApi {
@@ -34,7 +39,7 @@ class UserApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static page(query: PageQO & {} | {}, option?: FetchOptions) {
+  static page(query: PageQO | Record<string, any>, option?: FetchOptions) {
     return BaseApi.page(this.baseUrl, query, option);
   }
 
@@ -52,7 +57,7 @@ class UserApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static save(query: RoleEditForm, option?: FetchOptions) {
+  static save(query: UserEditForm, option?: FetchOptions) {
     return http.postByJson(this.baseUrl, query, option);
   }
 
@@ -61,7 +66,7 @@ class UserApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static update(query: RoleEditForm, option?: FetchOptions) {
+  static update(query: UserEditForm, option?: FetchOptions) {
     return http.putByJson(`${this.baseUrl}/${query.id}`, query, option);
   }
 
@@ -70,7 +75,7 @@ class UserApi {
    * @param query 编辑表单
    * @param option 请求配置
    */
-  static updateProfile(query: RoleEditForm, option?: FetchOptions) {
+  static updateProfile(query: Pick<UserEditForm, 'id' | 'nickName'>, option?: FetchOptions) {
     return http.putByJson(`${this.baseUrl}/${query.id}/profile`, query, option);
   }
 

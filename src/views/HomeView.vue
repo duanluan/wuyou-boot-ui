@@ -95,6 +95,15 @@ import Tabs from "@/components/Tabs.vue";
 import {useTabStore} from "@/store/tab.ts";
 import {dashboardPath, dashboardTab, profileTab} from "@/router";
 
+interface BreadcrumbItem {
+  name: string
+  path?: string
+}
+
+interface RouteBreadcrumbMeta {
+  breadcrumbs?: BreadcrumbItem[]
+}
+
 const router = useRouter();
 // 用户 store
 const userStore = useUserStore();
@@ -105,7 +114,7 @@ const isCollapseMenu = ref(false)
 // 菜单列表
 let menuList: MenuTreeItem[] = [];
 // 面包屑
-const breadcrumbs = ref<{ name: string, path: string }[]>([]);
+const breadcrumbs = ref<BreadcrumbItem[]>([]);
 // 标签页 store
 const tabStore = useTabStore()
 
@@ -149,13 +158,18 @@ onMounted(async () => {
     } else {
       // 从路由列表中查找是否存在面包屑
       const route = router.getRoutes().find(route => route.path === currentPath);
-      if (route?.meta?.breadcrumbs) {
+      const routeMeta = route?.meta as RouteBreadcrumbMeta | undefined
+      if (routeMeta?.breadcrumbs && routeMeta.breadcrumbs.length > 0) {
         // 打开面包屑最后一项
-        const lastBreadcrumbsItem = route.meta.breadcrumbs[route.meta.breadcrumbs.length - 1];
-        tabStore.addTab({
-          label: lastBreadcrumbsItem.name,
-          name: lastBreadcrumbsItem.path
-        }, router);
+        const lastBreadcrumbsItem = routeMeta.breadcrumbs[routeMeta.breadcrumbs.length - 1];
+        if (lastBreadcrumbsItem.path) {
+          tabStore.addTab({
+            label: lastBreadcrumbsItem.name,
+            name: lastBreadcrumbsItem.path
+          }, router);
+        } else {
+          tabStore.addTab(dashboardTab, router);
+        }
       } else {
         // 打开首页
         tabStore.addTab(dashboardTab, router);
@@ -205,9 +219,10 @@ const loadBreadcrumbs = (itemOrPath: MenuTreeItem | string) => {
   } else {
     // 根据路由从路由列表中获取 meta.breadcrumb
     const route = router.getRoutes().find(route => route.path === itemOrPath);
-    if (route?.meta?.breadcrumbs) {
+    const routeMeta = route?.meta as RouteBreadcrumbMeta | undefined
+    if (routeMeta?.breadcrumbs) {
       // 如果有面包屑，则直接使用
-      breadcrumbs.value = route.meta.breadcrumbs;
+      breadcrumbs.value = routeMeta.breadcrumbs;
     }
   }
 }

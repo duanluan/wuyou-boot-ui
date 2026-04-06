@@ -109,7 +109,7 @@
           <el-col :span="12"v-if="useUserStore().info.isShowTenant">
             <el-form-item prop="tenantIds" label="租户">
               <el-select v-model="editForm.tenantId" placeholder="请选择租户" clearable>
-                <el-option v-for="item in tenants" :key="item.id" :label="item.name" :value="item.id"/>
+                <el-option v-for="item in tenants" :key="item.id ?? ''" :label="item.name" :value="item.id ?? ''"/>
               </el-select>
             </el-form-item>
           </el-col>
@@ -245,12 +245,16 @@ import {DataScopeActionType, DataScopeType, RoleCode} from "@/enums/role.ts";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 import {dashboardPath} from "@/router";
 import {CommonStatus} from "@/enums/common.ts";
-import DeptApi from "@/api/sys/dept.ts";
+import DeptApi, {DeptTreeItem} from "@/api/sys/dept.ts";
 import {useUserStore} from "@/store/user.ts";
 import TenantApi, {TenantEditForm} from "@/api/sys/tenant.ts";
 
-const tableRef = ref()
-const tableData = ref([])
+type RoleTableItem = RoleEditForm & {
+  tenantId?: string | number | null
+}
+
+const tableRef = ref<{ getSelectionRows: () => RoleTableItem[] } | null>(null)
+const tableData = ref<RoleTableItem[]>([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const pageTotal = ref(0)
@@ -271,25 +275,25 @@ const searchForm = ref<Partial<SearchForm>>({})
 // 搜索
 const search = async () => {
   const response = await RoleApi.page({current: currentPage.value, size: pageSize.value, ...searchForm.value}, {loadingOption: {target: '.el-table'}})
-  pageTotal.value = response.total
-  tableData.value = response.data
+  pageTotal.value = response.total ?? 0
+  tableData.value = response.data ?? []
 }
 
 // 判断角色是否可编辑/操作
 // 逻辑：如果是超级管理员(isShowTenant=true) 或者 该角色属于当前租户(tenantId有值)，则允许操作
 // 反之，如果是普通租户管理员 且 角色是公共的(tenantId为空)，则禁止操作
-const canOperate = (row: any) => {
+const canOperate = (row: RoleTableItem) => {
   // isShowTenant 在后端被赋值为 isSuperAdmin，可以作为超管判断依据
-  const isSuperAdmin = useUserStore().info.isShowTenant
+  const isSuperAdmin = !!useUserStore().info.isShowTenant
   // 注意：row.tenantId 可能为 null (公共角色)
-  return isSuperAdmin || (row.tenantId !== null && row.tenantId !== undefined)
+  return isSuperAdmin || (row.tenantId !== null && row.tenantId !== undefined && row.tenantId !== '')
 }
 
 // 定义一个变量控制弹窗是否只读
 const isReadOnly = ref(false)
 
 // 删除
-const remove = (row: any) => {
+const remove = (row?: RoleTableItem) => {
   ElMessageBox.confirm('是否确认删除', '提示', {
     type: 'warning',
     confirmButtonText: '确认',
@@ -297,11 +301,13 @@ const remove = (row: any) => {
   }).then(() => {
     let ids: string[]
     if (row) {
-      ids = [row.id]
+      ids = [String(row.id)]
     } else {
-      ids = tableRef.value.getSelectionRows().map((item: any) => item.id)
+      ids = tableRef.value?.getSelectionRows().map((item) => String(item.id)) ?? []
     }
-    RoleApi.remove(ids, {loadingOption: {target: '.el-main'}, showOkMsg: true}).then(() => {
+    const req = RoleApi.remove(ids, {loadingOption: {target: '.el-main'}, showOkMsg: true})
+    if (!req) return
+    req.then(() => {
       search()
     })
   })
@@ -318,7 +324,8 @@ const editForm = reactive<RoleEditForm>({
   code: '',
   sort: 1,
   status: CommonStatus.ENABLE.value,
-  description: ''
+  description: '',
+  tenantId: undefined
 })
 // 编辑表单校验规则
 const editFormRules = reactive<FormRules<RoleEditForm>>({
@@ -330,18 +337,19 @@ const editFormRules = reactive<FormRules<RoleEditForm>>({
 const isAdd = ref(false)
 
 // 编辑
-const edit = async (row: any) => {
+const edit = async (row: RoleTableItem) => {
   // 打开弹窗
   editDialogVisible.value = true
   isAdd.value = false
   // 判断是否只读：如果不可操作，则开启只读模式
   isReadOnly.value = !canOperate(row)
+  if (!row.id) return
 
   // 获取角色详情
-  const res = await RoleApi.get(row.id, {loadingOption: {target: '.el-dialog'}})
+  const res = await RoleApi.get(String(row.id), {loadingOption: {target: '.el-dialog'}})
   // 第一次表单赋值要放在表单显示后和下一个 DOM 更新循环之后，否则后续执行表单初始化一直是第一次赋值的值：https://segmentfault.com/a/1190000043401023#item-4
   nextTick(() => {
-    Object.assign(editForm, res)
+    Object.assign(editForm, {...res, tenantId: res.tenantId ?? undefined})
   })
 }
 
@@ -356,9 +364,9 @@ const add = () => {
 // 确认编辑
 const confirmEdit = async (editFormEl: FormInstance | undefined) => {
   if (!editFormEl) return
-  await editFormEl.validate((isValid, invalidFields) => {
+  await editFormEl.validate((isValid) => {
     if (!isValid) return
-    const afterEdit = (response) => {
+    const afterEdit = (response?: { code?: number }) => {
       if (response?.code !== 200) return
 
       // 关闭对话框
@@ -384,22 +392,27 @@ const getTenants = async () => {
 }
 
 // 修改状态
-const changeStatus = async (row: any) => {
-  if (!await RoleApi.updateStatus(row.id, row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
+const changeStatus = async (row: RoleTableItem) => {
+  if (!row.id || !await RoleApi.updateStatus(String(row.id), row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
     row.status = row.status === 1 ? 0 : 1
   }
 }
 
 const configMenuDialogVisible = ref(false)
 const configMenuFormRef = ref<FormInstance>()
-const configMenuForm = reactive<Partial<RoleEditForm>>({})
+const configMenuForm = reactive<Pick<RoleEditForm, 'id' | 'name' | 'code'>>({
+  id: '',
+  name: '',
+  code: ''
+})
 const menuTreeRef = ref<TreeInstance>()
 const menuTreeData = ref<MenuTreeItem[]>([])
 
 // 配置菜单权限
-const configMenu = async (row: any) => {
+const configMenu = async (row: RoleTableItem) => {
   configMenuDialogVisible.value = true
-  Object.assign(configMenuForm, row)
+  Object.assign(configMenuForm, {id: row.id, name: row.name, code: row.code})
+  if (!row.code) return
   // 获取菜单树
   menuTreeData.value = await MenuApi.treeTable({checkedRoleCodes: [row.code], isAllAndChecked: true});
   // 禁用勾选仪表盘
@@ -411,10 +424,10 @@ const configMenu = async (row: any) => {
 }
 
 // 获取树的选中项 ID 数组
-const getTreeCheckedKeys = (treeData: [], checkedFn?: (item: any) => boolean) => {
+const getTreeCheckedKeys = (treeData: MenuTreeItem[], checkedFn?: (item: MenuTreeItem) => boolean) => {
   if (!treeData) return []
   const checkedKeys: string[] = []
-  const loop = (data: any[]) => {
+  const loop = (data: MenuTreeItem[]) => {
     for (const item of data) {
       // 判断是否选中的回调函数
       if (checkedFn && checkedFn(item)) {
@@ -435,30 +448,40 @@ const getTreeCheckedKeys = (treeData: [], checkedFn?: (item: any) => boolean) =>
 }
 
 // 确认配置菜单权限
-const confirmConfigMenu = async (configMenuFormEl, menuTreeEl: TreeInstance) => {
-  let checkedKeys = menuTreeEl.getCheckedKeys();
-  if (await RoleApi.updateMenus(configMenuForm.id, checkedKeys, {loadingOption: {target: '.el-dialog'}, showOkMsg: true})) {
+const confirmConfigMenu = async (configMenuFormEl: FormInstance | undefined, menuTreeEl: TreeInstance | undefined) => {
+  if (!configMenuForm.id || !menuTreeEl) return
+  const checkedKeys = menuTreeEl.getCheckedKeys().map(key => String(key));
+  if (await RoleApi.updateMenus(String(configMenuForm.id), checkedKeys, {loadingOption: {target: '.el-dialog'}, showOkMsg: true})) {
     configMenuDialogVisible.value = false
-    configMenuFormEl.resetFields()
+    configMenuFormEl?.resetFields()
     search()
   }
 }
 
 const configDataScopeDialogVisible = ref(false)
 const configDataScopeFormRef = ref<FormInstance>()
-const configDataScopeForm = reactive<Partial<RoleDataScopeVO>>({})
-const configDataScopeFormRules = reactive<FormRules<RoleEditForm>>({
+const configDataScopeForm = reactive<RoleDataScopeVO>({
+  id: '',
+  name: '',
+  code: '',
+  queryDataScope: DataScopeType.ALL.value,
+  updateDataScope: DataScopeType.ALL.value,
+  queryDataScopeDeptIds: [],
+  updateDataScopeDeptIds: [],
+})
+const configDataScopeFormRules = reactive<FormRules<RoleDataScopeVO>>({
   queryDataScope: [{required: true, message: '请选择查询数据权限', trigger: 'blur'}],
   updateDataScope: [{required: true, message: '请选择增删改数据权限', trigger: 'blur'}],
 })
 
 const queryDataScopeDeptTreeRef = ref<TreeInstance>()
-const queryDataScopeDeptTreeData = ref([])
+const queryDataScopeDeptTreeData = ref<DeptTreeItem[]>([])
 const updateDataScopeDeptTreeRef = ref<TreeInstance>()
-const updateDataScopeDeptTreeData = ref([])
+const updateDataScopeDeptTreeData = ref<DeptTreeItem[]>([])
 
 // 配置数据权限
-const configDataScope = async (row: any) => {
+const configDataScope = async (row: RoleTableItem) => {
+  if (!row.id) return
   configDataScopeDialogVisible.value = true
 
   // 1. 等待 DOM 更新，确保 Dialog 已经渲染，以便 Loading 能挂载到 DOM 上
@@ -474,8 +497,7 @@ const configDataScope = async (row: any) => {
   try {
     // 3. 使用 Promise.all 并行请求，并传入 { showLoading: false } 禁用接口自带的 Loading
     const [data, queryTree, updateTree] = await Promise.all([
-      RoleApi.getDataScope(row.id, { showLoading: false }),
-      // 假设 DeptApi.tree 支持第二个 option 参数，如果您的 DeptApi 不支持，请先修改 DeptApi
+      RoleApi.getDataScope(String(row.id), { showLoading: false }),
       DeptApi.tree({ dataScopeActionType: DataScopeActionType.QUERY }, { showLoading: false }),
       DeptApi.tree({ dataScopeActionType: DataScopeActionType.UPDATE }, { showLoading: false })
     ])
@@ -500,15 +522,15 @@ const configDataScope = async (row: any) => {
 }
 
 // 确认配置数据权限
-const confirmConfigDataScope = async (configDataScopeFormEl, queryDataScopeDeptTreeEl: TreeInstance, updateDataScopeDeptTreeEl: TreeInstance) => {
-  if (!configDataScopeFormEl) return
-  await configDataScopeFormEl.validate(async (isValid, invalidFields) => {
+const confirmConfigDataScope = async (configDataScopeFormEl: FormInstance | undefined, queryDataScopeDeptTreeEl: TreeInstance | undefined, updateDataScopeDeptTreeEl: TreeInstance | undefined) => {
+  if (!configDataScopeFormEl || !configDataScopeForm.id || !queryDataScopeDeptTreeEl || !updateDataScopeDeptTreeEl) return
+  await configDataScopeFormEl.validate(async (isValid) => {
     if (!isValid) return
 
     if (await RoleApi.updateDataScope(
-        configDataScopeForm.id,
+        String(configDataScopeForm.id),
         configDataScopeForm.queryDataScope, configDataScopeForm.updateDataScope,
-        queryDataScopeDeptTreeEl?.getCheckedKeys(), updateDataScopeDeptTreeEl?.getCheckedKeys(),
+        queryDataScopeDeptTreeEl.getCheckedKeys().map(key => String(key)), updateDataScopeDeptTreeEl.getCheckedKeys().map(key => String(key)),
         {loadingOption: {target: '.el-dialog'}, showOkMsg: true}
     )) {
       configDataScopeDialogVisible.value = false

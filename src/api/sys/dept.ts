@@ -4,6 +4,7 @@ interface DeptSearchForm {
   notBuildTree: boolean // 是否不构建树
   name: string // 名称
   status: number // 状态
+  dataScopeActionType?: number // 数据权限操作类型
 }
 
 interface DeptEditForm {
@@ -14,6 +15,13 @@ interface DeptEditForm {
   status: number // 状态
 }
 
+interface DeptTreeItem extends Partial<DeptEditForm> {
+  id: string
+  name: string
+  createdTime?: string
+  children?: DeptTreeItem[]
+}
+
 class DeptApi {
   static baseUrl = '/sys/depts';
 
@@ -22,7 +30,7 @@ class DeptApi {
    * @param query 查询条件
    * @param option 请求配置
    */
-  static async tree(query: Partial<DeptSearchForm>, option?: FetchOptions) {
+  static async tree(query: Partial<DeptSearchForm> = {}, option?: FetchOptions): Promise<DeptTreeItem[]> {
     return (await http.get(this.baseUrl + '/tree', query, option))?.data;
   }
 
@@ -66,4 +74,4 @@ class DeptApi {
 }
 
 export default DeptApi;
-export type {DeptSearchForm, DeptEditForm};
+export type {DeptSearchForm, DeptEditForm, DeptTreeItem};
