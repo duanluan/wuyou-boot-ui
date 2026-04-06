@@ -30,7 +30,7 @@ const routes: RouteRecordRaw[] = [
     redirect: dashboardPath,
     beforeEnter: async (to, from, next) => {
       // 未登录
-      if (!(await useUserStore().loggedIn(true))) {
+      if (!(await useUserStore().loggedIn(false))) {
         // 跳转到登录页
         next({path: loginPath})
       } else {

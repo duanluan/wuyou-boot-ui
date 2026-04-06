@@ -10,7 +10,10 @@ export const useMenuStore = defineStore('menu', () => {
    * 获取菜单树
    */
   const loadMenuTree = async (apiOption?: FetchOptions) => {
-    menuTreeList.value = await MenuApi.tree(apiOption);
+    const menuTree = await MenuApi.tree(apiOption)
+    if (menuTree !== undefined) {
+      menuTreeList.value = menuTree
+    }
   };
 
   /**

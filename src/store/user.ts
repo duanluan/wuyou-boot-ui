@@ -20,12 +20,8 @@ export const useUserStore = defineStore('user', () => {
     if (Object.keys(info.value).length === 0) {
       return false
     }
-    try {
-      await profile({showErrorMsg: false, handle401})
-      return true
-    } catch (e) {
-      return false
-    }
+    const userInfo = await profile({showErrorMsg: false, handle401})
+    return !!userInfo
   }
 
   /**
@@ -34,7 +30,12 @@ export const useUserStore = defineStore('user', () => {
    */
   const profile = async (option?: FetchOptions) => {
     // 保存用户信息
-    info.value = await AuthApi.profile(option);
+    const userInfo = await AuthApi.profile(option);
+    if (userInfo) {
+      info.value = userInfo;
+      return userInfo;
+    }
+    return undefined;
   }
 
   /**
@@ -44,6 +45,9 @@ export const useUserStore = defineStore('user', () => {
   const login = (loginForm: LoginForm) => {
     AuthApi.login(loginForm).then(async (data: any) => {
       if (data) {
+        // 登录成功后先清空上一个会话残留的菜单、标签页，再加载当前用户的数据
+        menuStore.clean()
+        tabStore.clean()
         // 保存用户信息
         info.value = data
         // 确保保存用户信息后再跳转到仪表盘，因为仪表盘路由守卫中要使用用户信息

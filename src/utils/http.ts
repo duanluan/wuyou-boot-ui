@@ -93,6 +93,7 @@ interface R<T> {
 class Http {
   config: FetchOptions;
   private debounceMap: Map<string, number> = new Map();
+  private handling401 = false;
 
   constructor(config: FetchOptions) {
     this.config = config;
@@ -112,6 +113,20 @@ class Http {
     const timer = this.debounceMap.get(key);
     if (timer) clearTimeout(timer);
     this.debounceMap.delete(key);
+  }
+
+  private handleUnauthorized() {
+    if (this.handling401) {
+      return;
+    }
+    this.handling401 = true;
+    if (router.currentRoute.value.path !== loginPath) {
+      router.push({path: loginPath}).finally(() => {
+        this.handling401 = false;
+      });
+    } else {
+      this.handling401 = false;
+    }
   }
 
   private executeFetch(url: string, options?: FetchOptions, resolve?: any) {
@@ -207,7 +222,8 @@ class Http {
         if (response.status === 401 && options.handle401) {
           ElMessage.error("请先登录");
           // 重定向到登录页
-          router.push({path: loginPath});
+          this.handleUnauthorized();
+          resolve(undefined);
         } else if (response.status === 403) {
           ElMessage.error("无权限");
         } else {
@@ -229,6 +245,7 @@ class Http {
       if (options.showErrorMsg) {
         ElMessage.error(options.errorMsgOption);
       }
+      resolve(undefined);
     })
   }
 

@@ -15,7 +15,7 @@ class AuthApi {
    * @param option 请求配置
    */
   static async profile(option?: FetchOptions) {
-    const response = await http.get('/profile', option);
+    const response = await http.get('/profile', {}, option);
     return response?.data;
   }
 

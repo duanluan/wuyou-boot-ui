@@ -26,7 +26,7 @@
     </div>
     <el-table ref="tableRef" :data="tableData" row-key="id" default-expand-all style="width: 100%; margin-bottom: 15px" header-cell-class-name="table-th">
       <el-table-column type="selection" width="55"/>
-      <el-table-column fixed prop="name" label="名称" width="180"/>
+      <el-table-column fixed prop="name" label="名称" width="200" show-overflow-tooltip/>
       <el-table-column prop="sort" label="顺序" align="center" width="100"/>
       <el-table-column label="启用状态" align="center" width="100">
         <template #default="{row}">
