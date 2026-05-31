@@ -31,8 +31,8 @@
       <el-table-column label="启用状态" align="center" width="100">
         <template #default="scope">
           <el-switch
-              :active-value="CommonStatus.ENABLE.value"
-              :inactive-value="CommonStatus.DISABLE.value"
+              :active-value="statusEnabledValue"
+              :inactive-value="statusDisabledValue"
               v-model="scope.row.status"
               @change="changeStatus(scope.row)"
               :disabled="scope.row.code === RoleCode.SUPER_ADMIN || !canOperate(scope.row)"
@@ -93,7 +93,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item prop="status" label="启用状态">
-              <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="editForm.status" :disabled="editForm.code === RoleCode.SUPER_ADMIN"/>
+              <el-switch :active-value="statusEnabledValue" :inactive-value="statusDisabledValue" v-model="editForm.status" :disabled="editForm.code === RoleCode.SUPER_ADMIN"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -193,10 +193,10 @@
             <el-form-item prop="queryDataScope" label="查询">
               <el-col :span="24">
                 <el-select v-model="configDataScopeForm.queryDataScope" placeholder="请选择" clearable>
-                  <el-option v-for="item in DataScopeType.getOptions()" :label="item.label" :value="item.value"/>
+                  <el-option v-for="item in dataScopeTypeOptions" :label="item.label" :value="item.value"/>
                 </el-select>
               </el-col>
-              <el-col :span="24" v-if="configDataScopeForm.queryDataScope == 2" style="margin-top: 10px">
+              <el-col :span="24" v-if="configDataScopeForm.queryDataScope == dataScopeCustomValue" style="margin-top: 10px">
                 <el-tree
                     ref="queryDataScopeDeptTreeRef"
                     :props="{label: 'name', children: 'children'}"
@@ -213,10 +213,10 @@
             <el-form-item prop="updateDataScope" label="增删改">
               <el-col :span="24">
                 <el-select v-model="configDataScopeForm.updateDataScope" placeholder="请选择" clearable>
-                  <el-option v-for="item in DataScopeType.getOptions()" :label="item.label" :value="item.value"/>
+                  <el-option v-for="item in dataScopeTypeOptions" :label="item.label" :value="item.value"/>
                 </el-select>
               </el-col>
-              <el-col :span="24" v-if="configDataScopeForm.updateDataScope == 2" style="margin-top: 10px">
+              <el-col :span="24" v-if="configDataScopeForm.updateDataScope == dataScopeCustomValue" style="margin-top: 10px">
                 <el-tree
                     ref="updateDataScopeDeptTreeRef"
                     :props="{label: 'name', children: 'children'}"
@@ -241,13 +241,13 @@
 
 <script setup lang="ts">
 import RoleApi, {RoleDataScopeVO, RoleEditForm} from "@/api/sys/role.ts"
-import {DataScopeActionType, DataScopeType, RoleCode} from "@/enums/role.ts";
+import {DataScopeActionType, RoleCode} from "@/enums/role.ts";
 import MenuApi, {MenuTreeItem} from "@/api/sys/menu.ts";
 import {dashboardPath} from "@/router";
-import {CommonStatus} from "@/enums/common.ts";
 import DeptApi, {DeptTreeItem} from "@/api/sys/dept.ts";
 import {useUserStore} from "@/store/user.ts";
 import TenantApi, {TenantEditForm} from "@/api/sys/tenant.ts";
+import {DICT_KEYS, useDictOptions} from "@/utils/dict.ts";
 
 type RoleTableItem = RoleEditForm & {
   tenantId?: string | number | null
@@ -258,11 +258,21 @@ const tableData = ref<RoleTableItem[]>([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const pageTotal = ref(0)
+const {load: loadStatusOptions, getValueByItemValue: getStatusValueByItemValue} = useDictOptions<number>(DICT_KEYS.COMMON_STATUS, 'number')
+const {options: dataScopeTypeOptions, load: loadDataScopeTypeOptions, getValueByItemValue: getDataScopeTypeValueByItemValue} = useDictOptions<number>(DICT_KEYS.DATA_SCOPE_TYPE, 'number')
+const statusEnabledValue = computed(() => getStatusValueByItemValue('1', 1))
+const statusDisabledValue = computed(() => getStatusValueByItemValue('0', 0))
+const dataScopeAllValue = computed(() => getDataScopeTypeValueByItemValue('1', 1))
+const dataScopeCustomValue = computed(() => getDataScopeTypeValueByItemValue('2', 2))
 
 // 页面加载时
-onMounted(() => {
-  search();
-  getTenants()
+onMounted(async () => {
+  await Promise.all([
+    loadStatusOptions({showLoading: false}),
+    loadDataScopeTypeOptions({showLoading: false}),
+    search(),
+    getTenants(),
+  ])
 })
 
 interface SearchForm {
@@ -323,7 +333,7 @@ const editForm = reactive<RoleEditForm>({
   name: '',
   code: '',
   sort: 1,
-  status: CommonStatus.ENABLE.value,
+  status: statusEnabledValue.value,
   description: '',
   tenantId: undefined
 })
@@ -394,7 +404,7 @@ const getTenants = async () => {
 // 修改状态
 const changeStatus = async (row: RoleTableItem) => {
   if (!row.id || !await RoleApi.updateStatus(String(row.id), row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
-    row.status = row.status === 1 ? 0 : 1
+    row.status = row.status === statusEnabledValue.value ? statusDisabledValue.value : statusEnabledValue.value
   }
 }
 
@@ -464,8 +474,8 @@ const configDataScopeForm = reactive<RoleDataScopeVO>({
   id: '',
   name: '',
   code: '',
-  queryDataScope: DataScopeType.ALL.value,
-  updateDataScope: DataScopeType.ALL.value,
+  queryDataScope: dataScopeAllValue.value,
+  updateDataScope: dataScopeAllValue.value,
   queryDataScopeDeptIds: [],
   updateDataScopeDeptIds: [],
 })

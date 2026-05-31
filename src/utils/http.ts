@@ -226,6 +226,7 @@ class Http {
           resolve(undefined);
         } else if (response.status === 403) {
           ElMessage.error("无权限");
+          resolve(undefined);
         } else {
           const r = await response.json();
           if (options.showErrorMsg && options.errorMsgOption && r && r.code !== 200) {

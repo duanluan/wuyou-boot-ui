@@ -2,14 +2,6 @@ import http, {FetchOptions} from "@/utils/http.ts";
 import {PageQO} from "@/types/common.ts";
 import BaseApi from "@/api/api.ts";
 
-// 登录表单
-interface LoginForm {
-  tenantId: string | number | null // 租户 ID
-  username: string // 用户名
-  password: string // 密码
-  remember: boolean // 记住我
-}
-
 interface UserEditForm {
   id: string | null // ID
   nickName: string // 昵称
@@ -90,4 +82,4 @@ class UserApi {
 }
 
 export default UserApi;
-export type {LoginForm, UserEditForm, UserDetail};
+export type {UserEditForm, UserDetail};

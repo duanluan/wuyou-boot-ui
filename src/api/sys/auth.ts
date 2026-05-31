@@ -5,10 +5,25 @@ interface LoginForm {
   tenantId: string | number | null // 租户 ID
   username: string // 用户名
   password: string // 密码
+  captchaId: string // 验证码标识
+  captchaCode: string // 验证码
   remember: boolean // 记住我
 }
 
+interface Captcha {
+  captchaId: string
+  imageBase64: string
+}
+
 class AuthApi {
+  /**
+   * 验证码
+   * @param option 请求配置
+   */
+  static async captcha(option?: FetchOptions): Promise<Captcha | undefined> {
+    const response = await http.get<Captcha>('/captcha', {}, option);
+    return response?.data;
+  }
 
   /**
    * 登录用户信息
@@ -40,4 +55,4 @@ class AuthApi {
 }
 
 export default AuthApi;
-export type {LoginForm};
+export type {Captcha, LoginForm};

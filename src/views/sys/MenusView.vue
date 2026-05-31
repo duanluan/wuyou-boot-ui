@@ -6,7 +6,7 @@
       </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="searchForm.status" placeholder="请选择状态">
-          <el-option v-for="item in CommonStatus.getOptions()" :label="item.label" :value="item.value"/>
+          <el-option v-for="item in statusOptions" :label="item.label" :value="item.value"/>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -38,7 +38,7 @@
       </el-table-column>
       <el-table-column fixed prop="type" label="类型" align="center" width="100">
         <template #default="{row}">
-          <el-tag v-if="MenuType.getTagTypeByValue(row.type)" :type="MenuType.getTagTypeByValue(row.type)">{{ MenuType.getLabelByValue(row.type) }}</el-tag>
+          <el-tag v-if="getMenuTypeTagType(row.type)" :type="getMenuTypeTagType(row.type)">{{ getMenuTypeLabel(row.type) }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column fixed prop="method" label="请求方法" align="center" width="80"/>
@@ -47,7 +47,7 @@
       <el-table-column prop="sort" label="顺序" align="center" width="70"/>
       <el-table-column label="启用状态" align="center" width="100">
         <template #default="{row}">
-          <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="row.status" @change="changeStatus(row)"/>
+          <el-switch :active-value="statusEnabledValue" :inactive-value="statusDisabledValue" v-model="row.status" @change="changeStatus(row)"/>
         </template>
       </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" width="220"/>
@@ -100,7 +100,7 @@
           <el-col :span="12">
             <el-form-item prop="type" label="类型">
               <el-select v-model="editForm.type" placeholder="请选择类型">
-                <el-option v-for="item in MenuType.getOptions()" :label="item.label" :value="item.value"/>
+                <el-option v-for="item in menuTypeOptions" :label="item.label" :value="item.value"/>
               </el-select>
             </el-form-item>
           </el-col>
@@ -114,7 +114,7 @@
           <el-col :span="12">
             <el-form-item prop="method" label="请求方法">
               <el-select v-model="editForm.method" placeholder="请选择请求方法" clearable>
-                <el-option v-for="item in MenuMethod.getOptions()" :label="item.value" :value="item.value"/>
+                <el-option v-for="item in menuMethodOptions" :label="item.label" :value="String(item.value)"/>
               </el-select>
             </el-form-item>
           </el-col>
@@ -135,7 +135,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item prop="status" label="启用状态">
-              <el-switch :active-value="CommonStatus.ENABLE.value" :inactive-value="CommonStatus.DISABLE.value" v-model="editForm.status"/>
+              <el-switch :active-value="statusEnabledValue" :inactive-value="statusDisabledValue" v-model="editForm.status"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -150,18 +150,28 @@
 
 <script setup lang="ts">
 import {useMenuStore} from "@/store/menu.ts";
-import {CommonStatus} from "@/enums/common.ts";
 import MenuApi, {MenuSearchForm, MenuEditForm, MenuTreeItem} from "@/api/sys/menu.ts";
-import {MenuMethod, MenuType} from "@/enums/menu.ts";
 import Iconify from "@/components/Iconify.vue";
 import IconSelector from "@/components/IconSelector.vue"; // 引入新组件
+import {DICT_KEYS, getMenuTypeTagType, useDictOptions} from "@/utils/dict.ts";
 
 const tableRef = ref<{ getSelectionRows: () => MenuTreeItem[] } | null>(null)
 const tableData = ref<MenuTreeItem[]>([])
 const parentSelectData = ref<MenuTreeItem[]>([])
+const {options: statusOptions, load: loadStatusOptions, getValueByItemValue: getStatusValueByItemValue} = useDictOptions<number>(DICT_KEYS.COMMON_STATUS, 'number')
+const {options: menuTypeOptions, load: loadMenuTypeOptions, getLabel: getMenuTypeLabel, getValueByItemValue: getMenuTypeValueByItemValue} = useDictOptions<number>(DICT_KEYS.MENU_TYPE, 'number')
+const {options: menuMethodOptions, load: loadMenuMethodOptions} = useDictOptions<string>(DICT_KEYS.MENU_METHOD)
+const statusEnabledValue = computed(() => getStatusValueByItemValue('1', 1))
+const statusDisabledValue = computed(() => getStatusValueByItemValue('0', 0))
+const defaultMenuTypeValue = computed(() => getMenuTypeValueByItemValue('2', 2))
 
 // 页面加载时
 onMounted(async () => {
+  await Promise.all([
+    loadStatusOptions({showLoading: false}),
+    loadMenuTypeOptions({showLoading: false}),
+    loadMenuMethodOptions({showLoading: false}),
+  ])
   await search()
   getMenuTreeSelectData(tableData.value)
 })
@@ -226,12 +236,12 @@ const editForm = reactive<MenuEditForm>({
   id: '',
   parentId: 0,
   name: '',
-  type: MenuType.MENU.value,
+  type: defaultMenuTypeValue.value,
   method: '',
   path: '',
   permission: '',
   sort: 1,
-  status: CommonStatus.ENABLE.value,
+  status: statusEnabledValue.value,
   icon: ''
 })
 // 编辑表单校验规则
@@ -291,7 +301,7 @@ const confirmEdit = async (editFormEl: FormInstance | undefined) => {
 // 修改状态
 const changeStatus = async (row: MenuTreeItem) => {
   if (!row.id || !await MenuApi.updateStatus(String(row.id), row.status, {loadingOption: {target: '.el-table'}, showOkMsg: true})) {
-    row.status = row.status === 1 ? 0 : 1
+    row.status = row.status === statusEnabledValue.value ? statusDisabledValue.value : statusEnabledValue.value
   }
 }
 

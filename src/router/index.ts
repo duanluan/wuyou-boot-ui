@@ -1,8 +1,32 @@
 import {useUserStore} from "@/store/user.ts";
+import {useMenuStore} from "@/store/menu.ts";
 
 const loginPath = "/login"
 const dashboardPath = "/dashboard", dashboardTab = {label: '仪表盘', name: dashboardPath}
 const profilePath = "/profile", profileTab = {label: '个人中心', name: profilePath}
+
+const hasMenuPath = (menuList: any[], targetPath: string): boolean => {
+  for (const item of menuList ?? []) {
+    if (item?.path === targetPath) {
+      return true
+    }
+    if (hasMenuPath(item?.children ?? [], targetPath)) {
+      return true
+    }
+  }
+  return false
+}
+
+const ensureMenuRouteAccess = async (targetPath: string) => {
+  const menuStore = useMenuStore()
+  if (menuStore.isMenuTreeListEmpty) {
+    await menuStore.loadMenuTree({showLoading: false})
+  }
+  if (!hasMenuPath(menuStore.menuTreeList, targetPath)) {
+    return {path: dashboardPath}
+  }
+  return true
+}
 
 /**
  * 路由中的名字要和组件名一致，否则 keep-alive 无法缓存组件
@@ -73,6 +97,15 @@ const routes: RouteRecordRaw[] = [
         name: "DeptsView",
         path: "sys/depts",
         component: () => import("@/views/sys/DeptsView.vue"),
+        meta: {
+          keepAlive: true
+        }
+      }, {
+        // 字典管理
+        name: "DictsView",
+        path: "sys/dicts",
+        component: () => import("@/views/sys/DictsView.vue"),
+        beforeEnter: async () => ensureMenuRouteAccess("/sys/dicts"),
         meta: {
           keepAlive: true
         }

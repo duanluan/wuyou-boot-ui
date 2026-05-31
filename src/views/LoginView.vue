@@ -33,6 +33,12 @@
       <el-form-item prop="password">
         <el-input type="password" v-model="loginForm.password" placeholder="密码" @keyup.enter="login(loginFormRef)"/>
       </el-form-item>
+      <el-form-item prop="captchaCode">
+        <div class="captcha-row">
+          <el-input v-model="loginForm.captchaCode" placeholder="验证码" @keyup.enter="login(loginFormRef)"/>
+          <el-image class="captcha-image" :src="captchaImage" @click="loadCaptcha" fit="fill"/>
+        </div>
+      </el-form-item>
       <el-form-item>
         <el-checkbox v-model="loginForm.remember">记住我</el-checkbox>
       </el-form-item>
@@ -44,13 +50,14 @@
 </template>
 
 <script setup lang="ts">
-import {LoginForm} from "@/api/sys/user.ts";
 import {useUserStore} from "@/store/user.ts";
 import TenantApi, {TenantEditForm} from "@/api/sys/tenant.ts";
+import AuthApi, {LoginForm} from "@/api/sys/auth.ts";
 
 // 页面加载时
 onMounted(() => {
   getTenants()
+  loadCaptcha()
 })
 
 const tenants = ref<TenantEditForm[]>([])
@@ -70,12 +77,23 @@ const loginForm = reactive<LoginForm>({
   tenantId: null,
   username: '',
   password: '',
+  captchaId: '',
+  captchaCode: '',
   remember: false
 })
+const captchaImage = ref('')
+const loadCaptcha = async () => {
+  const captcha = await AuthApi.captcha({showLoading: false, showErrorMsg: false})
+  if (!captcha) return
+  loginForm.captchaId = captcha.captchaId
+  loginForm.captchaCode = ''
+  captchaImage.value = captcha.imageBase64
+}
 // 登录表单校验规则
 const loginFormRules = reactive<FormRules<LoginForm>>({
   username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
-  password: [{required: true, message: '请输入密码', trigger: 'blur'}]
+  password: [{required: true, message: '请输入密码', trigger: 'blur'}],
+  captchaCode: [{required: true, message: '请输入验证码', trigger: 'blur'}]
 })
 /**
  * 登录
@@ -85,7 +103,7 @@ const login = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((isValid) => {
     if (isValid) {
-      useUserStore().login(loginForm);
+      useUserStore().login(loginForm, loadCaptcha)
     }
   })
 }
@@ -126,6 +144,21 @@ const login = async (formEl: FormInstance | undefined) => {
       color: var(--el-color-primary);
       display: flex;
       align-items: center;
+    }
+
+    .captcha-row {
+      width: 100%;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+
+      .captcha-image {
+        width: 120px;
+        height: 40px;
+        cursor: pointer;
+        flex: 0 0 120px;
+        border: 1px solid var(--el-border-color);
+      }
     }
   }
 }

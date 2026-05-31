@@ -42,7 +42,7 @@ export const useUserStore = defineStore('user', () => {
    * 登录成功后跳转到仪表盘
    * @param loginForm 登录表单
    */
-  const login = (loginForm: LoginForm) => {
+  const login = (loginForm: LoginForm, onFailed?: () => void | Promise<void>) => {
     AuthApi.login(loginForm).then(async (data: any) => {
       if (data) {
         // 登录成功后先清空上一个会话残留的菜单、标签页，再加载当前用户的数据
@@ -54,6 +54,8 @@ export const useUserStore = defineStore('user', () => {
         await nextTick()
         // 跳转到仪表盘
         router.push({path: dashboardPath})
+      } else if (onFailed) {
+        await onFailed()
       }
     })
   }
